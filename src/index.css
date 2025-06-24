@@ -1,0 +1,79 @@
+/* Global styles to prevent overflow and white borders */
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+#root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Prevent horizontal scrolling on mobile */
+@media (max-width: 768px) {
+
+    html,
+    body,
+    #root {
+        overflow-x: hidden !important;
+        width: 100vw !important;
+        max-width: 100% !important;
+    }
+
+    /* Ensure all containers respect viewport width */
+    * {
+        max-width: 100vw;
+    }
+}
+
+/* Fix for Chakra UI components that might cause overflow */
+.chakra-container,
+.chakra-box,
+.chakra-flex {
+    max-width: 100% !important;
+}
+
+/* Ensure tables and cards don't overflow on mobile */
+@media (max-width: 768px) {
+    .chakra-table__container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .chakra-card {
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    /* Prevent any element from exceeding viewport width */
+    .chakra-grid {
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    .chakra-grid__item {
+        max-width: 100%;
+        overflow: hidden;
+    }
+}
+
+/* Additional fix for very small screens */
+@media (max-width: 480px) {
+
+    .chakra-container,
+    .chakra-box,
+    .chakra-flex,
+    .chakra-grid {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}
