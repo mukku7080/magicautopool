@@ -24,8 +24,10 @@ import {
     FiSettings,
     FiHelpCircle,
     FiBarChart,
+    FiUsers,
 } from 'react-icons/fi';
 import { AiOutlineWallet, AiOutlineHistory } from 'react-icons/ai';
+import { useUser } from '../../Context';
 
 const LinkItems = [
     { name: 'Dashboard', icon: FiHome, path: '/user/dashboard' },
@@ -35,6 +37,7 @@ const LinkItems = [
     { name: 'Deposit', icon: FiUpload, path: '/user/deposit' },
     { name: 'Withdraw', icon: FiDownload, path: '/user/withdraw' },
     { name: 'Transactions', icon: AiOutlineHistory, path: '/user/transactions' },
+    { name: 'Referrals', icon: FiUsers, path: '/user/referrals' },
     { name: 'Analytics', icon: FiBarChart, path: '/user/analytics' },
     { name: 'Settings', icon: FiSettings, path: '/user/settings' },
     { name: 'Support', icon: FiHelpCircle, path: '/user/support' },
@@ -44,18 +47,22 @@ const UserSidebar = ({ onClose, ...rest }) => {
     const location = useLocation();
     const bgColor = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.700');
+    const { profile } = useUser();
+
 
     return (
-        <Box
+        <Flex
+            direction="column"
             bg={bgColor}
             borderRight="1px"
             borderRightColor={borderColor}
             w="full"
             h="full"
-            overflowY="auto"
+            overflow="hidden"
             {...rest}
         >
-            <Flex h="16" alignItems="center" mx={{ base: 4, md: 6 }} justifyContent="space-between">
+            {/* Header */}
+            <Flex h="16" alignItems="center" mx={{ base: 4, md: 6 }} justifyContent="space-between" flexShrink={0}>
                 <HStack spacing={3}>
                     <Box
                         w="32px"
@@ -84,7 +91,7 @@ const UserSidebar = ({ onClose, ...rest }) => {
             </Flex>
 
             {/* User Info Card */}
-            <Box mx={{ base: 3, md: 4 }} mb="4">
+            <Box mx={{ base: 3, md: 4 }} mb="4" flexShrink={0}>
                 <Box
                     bg={useColorModeValue('blue.50', 'blue.900')}
                     p={{ base: 3, md: 4 }}
@@ -95,7 +102,7 @@ const UserSidebar = ({ onClose, ...rest }) => {
                     <HStack spacing={3}>
                         <Avatar
                             size="sm"
-                            name="John Doe"
+                            name={profile?.USER?.name}
                             bg="blue.500"
                         />
                         <Flex direction={'column'} flex="1" gap={1}>
@@ -104,7 +111,7 @@ const UserSidebar = ({ onClose, ...rest }) => {
                                 fontWeight="semibold"
                                 color={useColorModeValue('blue.700', 'blue.200')}
                             >
-                                John Doe
+                                {profile?.USER?.name}
                             </Box>
                             <HStack spacing={2}>
                                 <Badge
@@ -127,25 +134,44 @@ const UserSidebar = ({ onClose, ...rest }) => {
                 </Box>
             </Box>
 
-            <Divider mx={{ base: 3, md: 4 }} mb="4" />
+            <Divider mx={{ base: 3, md: 4 }} mb="4" flexShrink={0} />
 
-            {/* Navigation Links */}
-            <VStack spacing={1} align="stretch" px={{ base: 3, md: 4 }}>
-                {LinkItems.map((link) => (
-                    <NavItem
-                        key={link.name}
-                        icon={link.icon}
-                        path={link.path}
-                        isActive={location.pathname === link.path}
-                        onClick={onClose}
-                    >
-                        {link.name}
-                    </NavItem>
-                ))}
-            </VStack>
+            {/* Navigation Links - Scrollable without visible scrollbar */}
+            <Box
+                flex="1"
+                overflow="hidden"
+                css={{
+                    '&:hover': {
+                        overflowY: 'auto',
+                    },
+                    '&::-webkit-scrollbar': {
+                        width: '0px',
+                        background: 'transparent',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                        background: 'transparent',
+                    },
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                }}
+            >
+                <VStack spacing={1} align="stretch" px={{ base: 3, md: 4 }} pb="4">
+                    {LinkItems.map((link) => (
+                        <NavItem
+                            key={link.name}
+                            icon={link.icon}
+                            path={link.path}
+                            isActive={location.pathname === link.path}
+                            onClick={onClose}
+                        >
+                            {link.name}
+                        </NavItem>
+                    ))}
+                </VStack>
+            </Box>
 
             {/* Bottom Section */}
-            <Box position="absolute" bottom="4" left={{ base: 3, md: 4 }} right={{ base: 3, md: 4 }}>
+            <Box mx={{ base: 3, md: 4 }} mb="4" flexShrink={0}>
                 <Box
                     bg={useColorModeValue('gray.50', 'gray.700')}
                     p={{ base: 2, md: 3 }}
@@ -160,7 +186,7 @@ const UserSidebar = ({ onClose, ...rest }) => {
                     </Text>
                 </Box>
             </Box>
-        </Box>
+        </Flex>
     );
 };
 

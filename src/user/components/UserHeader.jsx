@@ -22,7 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { FiMenu, FiBell, FiSettings, FiLogOut, FiUser, FiMoon, FiSun } from 'react-icons/fi';
 import { AiOutlineWallet } from 'react-icons/ai';
-import { useAuth } from '../../Context';
+import { useAuth, useUser } from '../../Context';
 
 const UserHeader = ({ onOpen, user }) => {
     const { colorMode, toggleColorMode } = useColorMode();
@@ -33,6 +33,7 @@ const UserHeader = ({ onOpen, user }) => {
     const bgColor = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.700');
     const textColor = useColorModeValue('gray.700', 'gray.200');
+    const { profile } = useUser();
 
     const handleLogout = async () => {
         try {
@@ -234,7 +235,7 @@ const UserHeader = ({ onOpen, user }) => {
                         <HStack spacing={2} gap={2} alignItems="center">
                             <Avatar
                                 size="sm"
-                                name={user.name}
+                                name={profile?.USER?.name}
                                 src={user.avatar}
                                 bg="blue.500"
                             />
@@ -242,7 +243,7 @@ const UserHeader = ({ onOpen, user }) => {
                                 <Flex direction={'column'} fontSize="sm" fontWeight="medium" color={textColor}>
                                     <Box >
 
-                                        {user.name}
+                                        {profile?.USER?.name}
                                     </Box>
 
                                     <Box fontSize="xs" color="gray.500">

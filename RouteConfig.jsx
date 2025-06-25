@@ -29,6 +29,7 @@ const RouteConfig = () => {
             <Route path='/privecy-policy' element={<Privecy />} />
             <Route path='/terms' element={<TermsServices />} />
             <Route path='/login' element={<Login />} />
+            <Route path='/register' element={<Login />} />
             <Route path='/user/*' element={
                 <ProtectedRoute>
                     <UserDashboard />

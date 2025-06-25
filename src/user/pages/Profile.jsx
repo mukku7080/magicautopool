@@ -567,12 +567,24 @@ const Profile = () => {
                                             </FormControl>
 
                                             <FormControl>
+                                                <FormLabel fontSize="sm">State/Province</FormLabel>
+                                                <Input
+                                                    value={profileData.state}
+                                                    onChange={(e) => setProfileData({ ...profileData, state: e.target.value })}
+                                                    isReadOnly={!isEditing}
+                                                    bg={isEditing ? 'white' : 'gray.50'}
+                                                    placeholder="Enter your state/province"
+                                                />
+                                            </FormControl>
+
+                                            <FormControl>
                                                 <FormLabel fontSize="sm">ZIP Code</FormLabel>
                                                 <Input
                                                     value={profileData.zipCode}
                                                     onChange={(e) => setProfileData({ ...profileData, zipCode: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
+                                                    placeholder="Enter your ZIP code"
                                                 />
                                             </FormControl>
 
@@ -584,6 +596,8 @@ const Profile = () => {
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
                                                     rows={3}
+                                                    placeholder="Tell us about yourself..."
+                                                    resize="vertical"
                                                 />
                                             </FormControl>
                                         </Grid>
