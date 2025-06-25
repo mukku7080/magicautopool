@@ -32,23 +32,31 @@ import {
     useBreakpointValue,
     Image,
     Spinner,
+    useDisclosure,
 } from '@chakra-ui/react';
 import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineMail, AiOutlineLock, AiOutlineUser } from 'react-icons/ai';
 import { FaGoogle, FaFacebook, FaTwitter } from 'react-icons/fa';
 import { useAuth } from '../Context';
 import CongratulationsModal from '../Components/CongratulationsModal';
+import CongractulationsModalNew from '../Components/CongractulationsModalNew';
 
 const Login = () => {
+    const [hasJustRegistered, setHasJustRegistered] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [tabIndex, setTabIndex] = useState(0);
-    const [isRedirecting, setIsRedirecting] = useState(false);
-    const [showCongratulationsModal, setShowCongratulationsModal] = useState(false);
+    // const [isRedirecting, setIsRedirecting] = useState(false);
+    // const [showCongratulationsModal, setShowCongratulationsModal] = useState(false);
     const [registrationData, setRegistrationData] = useState({ email: '', password: '', name: '' });
     const { login, register, isAuthenticated, isLoading: authLoading, user } = useAuth();
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const [registeredEmail, setRegisteredEmail] = useState('');
+    const [registeredPassword, setRegisteredPassword] = useState('');
+
+
     const toast = useToast();
 
 
@@ -88,13 +96,13 @@ const Login = () => {
 
 
     React.useEffect(() => {
-        console.log('🔍 Auth state changed - isAuthenticated:', isAuthenticated, 'authLoading:', authLoading);
-        if (!authLoading && isAuthenticated) {
+        // console.log('🔍 Auth state changed - isAuthenticated:', isAuthenticated, 'authLoading:', authLoading);
+        if (!authLoading && isAuthenticated && !hasJustRegistered) {
             console.log('🔐 User is authenticated, redirecting to dashboard...');
             const redirectTo = location.state?.from || '/user/dashboard';
             navigate(redirectTo, { replace: true });
         }
-    }, [authLoading, isAuthenticated, navigate, location.state]);
+    }, [authLoading, isAuthenticated, navigate, location.state, hasJustRegistered]);
 
     // Handle invite code from URL parameters
     useEffect(() => {
@@ -120,6 +128,10 @@ const Login = () => {
             });
         }
     }, [location.search, toast]);
+    const handleModalClose = () => {
+        onClose();
+        setHasJustRegistered(false); // ✅ This triggers the redirect now
+    };
 
     if (authLoading) {
         return (
@@ -292,8 +304,10 @@ const Login = () => {
             const result = await register(userData);
 
             if (result.status === true) {
-                console.log('✅ Registration successful:', result);
-
+                setRegisteredEmail(registerForm.email);
+                setRegisteredPassword(registerForm.password);
+                setHasJustRegistered(true); // ✅ Set this to stop auto-redirect in useEffect
+                onOpen()
                 // Store registration data for the modal
                 setRegistrationData({
                     email: registerForm.email,
@@ -320,11 +334,9 @@ const Login = () => {
                     agreeToTerms: false
                 });
 
-                // Show congratulations modal
-                console.log('🎉 Showing congratulations modal...');
-                setShowCongratulationsModal(true);
 
-            
+
+
 
             } else {
                 throw new Error(result.error || 'Registration failed');
@@ -343,19 +355,6 @@ const Login = () => {
             setIsLoading(false);
         }
     };
-
-    // Handle congratulations modal close
-    const handleCongratulationsModalClose = () => {
-        setShowCongratulationsModal(true);
-        // Clear registration data
-        setRegistrationData({ email: '', password: '', name: '' });
-        // Redirect to dashboard after modal is closed
-        console.log('🔄 Redirecting to dashboard after modal close...');
-        navigate('/user/dashboard', { replace: true });
-    };
-
-
-
     // Social login handlers
     const handleSocialLogin = (provider) => {
         toast({
@@ -786,24 +785,21 @@ const Login = () => {
                             color="gray.500"
                             mt={6}
                         >
-                            © 2024 NessanForex. All rights reserved.
+                            © 2024 MagicAutoPool. All rights reserved.
                         </Text>
                     </CardBody>
                 </Card>
             </Container>
 
             {/* Congratulations Modal */}
-            <CongratulationsModal
-                isOpen={showCongratulationsModal}
-                onClose={handleCongratulationsModalClose}
-                onProceedToOTP={() => {
-                    // Skip OTP verification and go directly to dashboard
-                    handleCongratulationsModalClose();
-                }}
-                email={registrationData.email}
-                password={registrationData.password}
-                userName={registrationData.name}
+
+            <CongractulationsModalNew
+                isOpen={isOpen}
+                onClose={handleModalClose}
+                email={registeredEmail}
+                password={registeredPassword}
             />
+
         </Box>
     );
 };
