@@ -38,6 +38,7 @@ const authReducer = (state, action) => {
 
         case AUTH_ACTIONS.LOGIN_SUCCESS:
         case AUTH_ACTIONS.REGISTER_SUCCESS:
+
             return {
                 ...state,
                 user: action.payload.user,
@@ -168,16 +169,23 @@ export const AuthProvider = ({ children }) => {
     // Register function
     const register = async (userData) => {
         try {
+            console.log('📤 Registering user with data:', userData);
             dispatch({ type: AUTH_ACTIONS.REGISTER_START });
 
-            const { user, token } = await authService.register(userData);
-
+            const response = await authService.register(userData);
+            const credentials = {
+                email: userData.email,
+                password: userData.password,
+            }
+            const loginResponse = await authService.login(credentials);
+            const { user, token } = loginResponse;
             dispatch({
                 type: AUTH_ACTIONS.REGISTER_SUCCESS,
                 payload: { user, token },
             });
 
-            return { success: true, user, token };
+            console.log('🔄 Dispatched REGISTER_SUCCESS, auth state should be updated');
+            return response;
         } catch (error) {
             dispatch({
                 type: AUTH_ACTIONS.REGISTER_FAILURE,
@@ -187,6 +195,27 @@ export const AuthProvider = ({ children }) => {
             return { success: false, error: error.message };
         }
     };
+    //  const register = async (userData) => {
+    //     try {
+    //         dispatch({ type: AUTH_ACTIONS.REGISTER_START });
+
+    //         const { user, token } = await authService.register(userData);
+
+    //         dispatch({
+    //             type: AUTH_ACTIONS.REGISTER_SUCCESS,
+    //             payload: { user, token },
+    //         });
+
+    //         return { success: true, user, token };
+    //     } catch (error) {
+    //         dispatch({
+    //             type: AUTH_ACTIONS.REGISTER_FAILURE,
+    //             payload: error.message,
+    //         });
+
+    //         return { success: false, error: error.message };
+    //     }
+    // };
 
     // Logout function
     const logout = async () => {
@@ -257,7 +286,7 @@ export const AuthProvider = ({ children }) => {
     const verifyEmailOTP = async (email, otp) => {
         try {
             const response = await authService.verifyEmailOTP(email, otp);
-            
+
             // If verification successful and returns user data, update auth state
             if (response.status === true && response.user && response.token) {
                 dispatch({
@@ -265,7 +294,7 @@ export const AuthProvider = ({ children }) => {
                     payload: { user: response.user, token: response.token },
                 });
             }
-            
+
             return { success: response.status === true, data: response };
         } catch (error) {
             return { success: false, error: error.message };

@@ -23,13 +23,10 @@ class AuthService {
     async register(userData) {
         try {
             const response = await axiosInstance.post('/register', userData);
-            const { token, user } = response.data;
+            // Registration doesn't provide token, only user data
+            // Token is obtained only during login
 
-            // Store token and user data
-            localStorage.setItem('authToken', token);
-            localStorage.setItem('user', JSON.stringify(user));
-
-            return { token, user };
+            return response?.data;
         } catch (error) {
             throw this.handleError(error);
         }

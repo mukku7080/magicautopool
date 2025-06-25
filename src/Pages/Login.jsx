@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Box,
@@ -36,7 +36,6 @@ import {
 import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineMail, AiOutlineLock, AiOutlineUser } from 'react-icons/ai';
 import { FaGoogle, FaFacebook, FaTwitter } from 'react-icons/fa';
 import { useAuth } from '../Context';
-import OTPVerification from '../Components/OTPVerification';
 import CongratulationsModal from '../Components/CongratulationsModal';
 
 const Login = () => {
@@ -47,12 +46,9 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [tabIndex, setTabIndex] = useState(0);
     const [isRedirecting, setIsRedirecting] = useState(false);
-    const [showOTPModal, setShowOTPModal] = useState(false);
     const [showCongratulationsModal, setShowCongratulationsModal] = useState(false);
-    const [registeredEmail, setRegisteredEmail] = useState('');
-    const [registeredPassword, setRegisteredPassword] = useState('');
-    const [registeredUserName, setRegisteredUserName] = useState('');
-    const { login, register, isAuthenticated, isLoading: authLoading, verifyEmailOTP, resendOTP } = useAuth();
+    const [registrationData, setRegistrationData] = useState({ email: '', password: '', name: '' });
+    const { login, register, isAuthenticated, isLoading: authLoading, user } = useAuth();
     const toast = useToast();
 
 
@@ -92,11 +88,38 @@ const Login = () => {
 
 
     React.useEffect(() => {
+        console.log('🔍 Auth state changed - isAuthenticated:', isAuthenticated, 'authLoading:', authLoading);
         if (!authLoading && isAuthenticated) {
+            console.log('🔐 User is authenticated, redirecting to dashboard...');
             const redirectTo = location.state?.from || '/user/dashboard';
             navigate(redirectTo, { replace: true });
         }
     }, [authLoading, isAuthenticated, navigate, location.state]);
+
+    // Handle invite code from URL parameters
+    useEffect(() => {
+        const urlParams = new URLSearchParams(location.search);
+        const inviteCodeFromUrl = urlParams.get('invitecode');
+
+        if (inviteCodeFromUrl) {
+            console.log('🔗 Invite code found in URL:', inviteCodeFromUrl);
+            setRegisterForm(prev => ({
+                ...prev,
+                inviteCode: inviteCodeFromUrl
+            }));
+
+            // Switch to register tab automatically
+            setTabIndex(1);
+
+            toast({
+                title: 'Referral Code Applied',
+                description: `Invite code "${inviteCodeFromUrl}" has been applied to your registration.`,
+                status: 'success',
+                duration: 4000,
+                isClosable: true,
+            });
+        }
+    }, [location.search, toast]);
 
     if (authLoading) {
         return (
@@ -203,7 +226,7 @@ const Login = () => {
         } catch (error) {
             toast({
                 title: 'Login Failed',
-                description: error.message || 'Please check your credentials and try again',
+                description: 'Invalid login credentials',
                 status: 'error',
                 duration: 5000,
                 isClosable: true,
@@ -216,6 +239,7 @@ const Login = () => {
     // Handle registration
     const handleRegister = async (e) => {
         e.preventDefault();
+        console.log('🔄 Registration form submitted');
         const newErrors = {};
 
         if (!registerForm.firstName) {
@@ -267,16 +291,26 @@ const Login = () => {
             // Call the register API
             const result = await register(userData);
 
-            if (result.success) {
-                // Store registration data for congratulations modal and OTP verification
-                setRegisteredEmail(registerForm.email);
-                setRegisteredPassword(registerForm.password);
-                setRegisteredUserName(registerForm.firstName);
+            if (result.status === true) {
+                console.log('✅ Registration successful:', result);
 
-                // Show congratulations modal first
-                setShowCongratulationsModal(true);
+                // Store registration data for the modal
+                setRegistrationData({
+                    email: registerForm.email,
+                    password: registerForm.password,
+                    name: registerForm.firstName
+                });
 
-                // Reset form
+                // Show success message
+                toast({
+                    title: 'Registration Successful!',
+                    description: 'Welcome to NessanForex!',
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                });
+
+                // Clear the form
                 setRegisterForm({
                     firstName: '',
                     email: '',
@@ -285,10 +319,18 @@ const Login = () => {
                     confirmPassword: '',
                     agreeToTerms: false
                 });
+
+                // Show congratulations modal
+                console.log('🎉 Showing congratulations modal...');
+                setShowCongratulationsModal(true);
+
+            
+
             } else {
                 throw new Error(result.error || 'Registration failed');
             }
         } catch (error) {
+            console.error('❌ Registration error:', error);
             toast({
                 title: 'Registration Failed',
                 description: error.message || 'Something went wrong. Please try again.',
@@ -297,91 +339,22 @@ const Login = () => {
                 isClosable: true,
             });
         } finally {
+            console.log('🔄 Registration process finished, setting loading to false');
             setIsLoading(false);
-        }
-    };
-
-    // OTP verification handler
-    const handleOTPVerification = async (otp) => {
-        try {
-            const result = await verifyEmailOTP(registeredEmail, otp);
-
-            if (result.success) {
-                toast({
-                    title: 'Email Verified Successfully!',
-                    description: 'Welcome to NessanForex! Redirecting to dashboard...',
-                    status: 'success',
-                    duration: 3000,
-                    isClosable: true,
-                });
-
-                // Close OTP modal
-                setShowOTPModal(false);
-
-                // Navigation will be handled by useEffect when isAuthenticated becomes true
-                // The user will be automatically redirected to dashboard
-            } else {
-                toast({
-                    title: 'Verification Failed',
-                    description: result.error || 'Invalid OTP code. Please try again.',
-                    status: 'error',
-                    duration: 5000,
-                    isClosable: true,
-                });
-                throw new Error(result.error || 'Invalid OTP');
-            }
-        } catch (error) {
-            toast({
-                title: 'Verification Failed',
-                description: error.message || 'Please check your OTP and try again.',
-                status: 'error',
-                duration: 5000,
-                isClosable: true,
-            });
-            throw error; // Re-throw to let OTP component handle loading state
-        }
-    };
-
-    // Resend OTP handler
-    const handleResendOTP = async () => {
-        try {
-            await resendOTP(registeredEmail);
-        } catch (error) {
-            throw new Error(error.message || 'Failed to resend OTP');
         }
     };
 
     // Handle congratulations modal close
     const handleCongratulationsModalClose = () => {
-        setShowCongratulationsModal(false);
-        setRegisteredEmail('');
-        setRegisteredPassword('');
-        setRegisteredUserName('');
-        // Switch back to login tab
-        setTabIndex(0);
+        setShowCongratulationsModal(true);
+        // Clear registration data
+        setRegistrationData({ email: '', password: '', name: '' });
+        // Redirect to dashboard after modal is closed
+        console.log('🔄 Redirecting to dashboard after modal close...');
+        navigate('/user/dashboard', { replace: true });
     };
 
-    // Handle proceed to OTP from congratulations modal
-    const handleProceedToOTP = () => {
-        setShowOTPModal(true);
-        toast({
-            title: 'Verification Required',
-            description: 'Please check your email for the verification code.',
-            status: 'info',
-            duration: 3000,
-            isClosable: true,
-        });
-    };
 
-    // Handle OTP modal close
-    const handleOTPModalClose = () => {
-        setShowOTPModal(false);
-        setRegisteredEmail('');
-        setRegisteredPassword('');
-        setRegisteredUserName('');
-        // Switch back to login tab
-        setTabIndex(0);
-    };
 
     // Social login handlers
     const handleSocialLogin = (provider) => {
@@ -406,6 +379,7 @@ const Login = () => {
         // pb={{ base: 20, sm: 20 }}
         // mt={100}
         >
+
             <Container maxW="container.sm" centerContent>
                 <Card
                     w={cardWidth}
@@ -550,7 +524,8 @@ const Login = () => {
                                             </HStack>
 
                                             <Button
-                                                type="submit"
+                                                type="button"
+                                                onClick={handleLogin}
                                                 w="full"
                                                 bg={brandColor}
                                                 color="white"
@@ -727,7 +702,8 @@ const Login = () => {
                                             </FormControl>
 
                                             <Button
-                                                type="submit"
+                                                type="button"
+                                                onClick={handleRegister}
                                                 w="full"
                                                 bg={brandColor}
                                                 color="white"
@@ -820,19 +796,13 @@ const Login = () => {
             <CongratulationsModal
                 isOpen={showCongratulationsModal}
                 onClose={handleCongratulationsModalClose}
-                onProceedToOTP={handleProceedToOTP}
-                email={registeredEmail}
-                password={registeredPassword}
-                userName={registeredUserName}
-            />
-
-            {/* OTP Verification Modal */}
-            <OTPVerification
-                isOpen={showOTPModal}
-                onClose={handleOTPModalClose}
-                onVerificationSuccess={handleOTPVerification}
-                email={registeredEmail}
-                onResendOTP={handleResendOTP}
+                onProceedToOTP={() => {
+                    // Skip OTP verification and go directly to dashboard
+                    handleCongratulationsModalClose();
+                }}
+                email={registrationData.email}
+                password={registrationData.password}
+                userName={registrationData.name}
             />
         </Box>
     );
