@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Flex,
@@ -16,19 +17,60 @@ import {
     Button,
     Spacer,
     useColorMode,
+    Portal,
+    useToast,
 } from '@chakra-ui/react';
 import { FiMenu, FiBell, FiSettings, FiLogOut, FiUser, FiMoon, FiSun } from 'react-icons/fi';
 import { AiOutlineWallet } from 'react-icons/ai';
+import { useAuth } from '../../Context';
 
 const UserHeader = ({ onOpen, user }) => {
     const { colorMode, toggleColorMode } = useColorMode();
+    const { logout } = useAuth();
+    const navigate = useNavigate();
+    const toast = useToast();
+
     const bgColor = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.700');
     const textColor = useColorModeValue('gray.700', 'gray.200');
 
-    const handleLogout = () => {
-        // Handle logout logic here
-        console.log('Logging out...');
+    const handleLogout = async () => {
+        try {
+            // Show loading toast
+            const loadingToast = toast({
+                title: 'Signing out...',
+                status: 'loading',
+                duration: null,
+                isClosable: false,
+            });
+
+            // Call logout API
+            await logout();
+
+            // Close loading toast
+            toast.close(loadingToast);
+
+            // Show success message
+            toast({
+                title: 'Signed out successfully',
+                description: 'You have been logged out of your account',
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+            });
+
+            // Redirect to login page
+            navigate('/login');
+        } catch (error) {
+            // Show error message
+            toast({
+                title: 'Logout Failed',
+                description: error.message || 'An error occurred while signing out',
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+            });
+        }
     };
 
     return (
@@ -42,7 +84,7 @@ const UserHeader = ({ onOpen, user }) => {
             justifyContent="space-between"
             position="sticky"
             top="0"
-            zIndex="sticky"
+            zIndex="1000"
             boxShadow="sm"
             w="100%"
             maxW="100%"
@@ -110,7 +152,7 @@ const UserHeader = ({ onOpen, user }) => {
 
                 {/* Notifications */}
                 <Box position="relative">
-                    <Menu>
+                    <Menu placement="bottom-end" strategy="fixed">
                         <MenuButton
                             as={IconButton}
                             size="sm"
@@ -133,43 +175,52 @@ const UserHeader = ({ onOpen, user }) => {
                         >
                             3
                         </Badge>
-                        <MenuList zIndex="dropdown">
-                            <MenuItem>
-                                <Box>
-                                    <Text fontSize="sm" fontWeight="medium">
-                                        New deposit received
-                                    </Text>
-                                    <Text fontSize="xs" color="gray.500">
-                                        2 minutes ago
-                                    </Text>
-                                </Box>
-                            </MenuItem>
-                            <MenuItem>
-                                <Box>
-                                    <Text fontSize="sm" fontWeight="medium">
-                                        Withdrawal processed
-                                    </Text>
-                                    <Text fontSize="xs" color="gray.500">
-                                        1 hour ago
-                                    </Text>
-                                </Box>
-                            </MenuItem>
-                            <MenuItem>
-                                <Box>
-                                    <Text fontSize="sm" fontWeight="medium">
-                                        Account verified
-                                    </Text>
-                                    <Text fontSize="xs" color="gray.500">
-                                        2 hours ago
-                                    </Text>
-                                </Box>
-                            </MenuItem>
-                        </MenuList>
+                        <Portal>
+                            <MenuList
+                                zIndex="9999"
+                                bg={useColorModeValue('white', 'gray.800')}
+                                border="1px"
+                                borderColor={useColorModeValue('gray.200', 'gray.700')}
+                                boxShadow="lg"
+                                minW="280px"
+                            >
+                                <MenuItem>
+                                    <Box>
+                                        <Text fontSize="sm" fontWeight="medium">
+                                            New deposit received
+                                        </Text>
+                                        <Text fontSize="xs" color="gray.500">
+                                            2 minutes ago
+                                        </Text>
+                                    </Box>
+                                </MenuItem>
+                                <MenuItem>
+                                    <Box>
+                                        <Text fontSize="sm" fontWeight="medium">
+                                            Withdrawal processed
+                                        </Text>
+                                        <Text fontSize="xs" color="gray.500">
+                                            1 hour ago
+                                        </Text>
+                                    </Box>
+                                </MenuItem>
+                                <MenuItem>
+                                    <Box>
+                                        <Text fontSize="sm" fontWeight="medium">
+                                            Account verified
+                                        </Text>
+                                        <Text fontSize="xs" color="gray.500">
+                                            2 hours ago
+                                        </Text>
+                                    </Box>
+                                </MenuItem>
+                            </MenuList>
+                        </Portal>
                     </Menu>
                 </Box>
 
                 {/* User Profile Menu */}
-                <Menu>
+                <Menu placement="bottom-end" strategy="fixed">
                     <MenuButton
                         as={Button}
                         size="sm"
@@ -201,21 +252,30 @@ const UserHeader = ({ onOpen, user }) => {
                             </Box>
                         </HStack>
                     </MenuButton>
-                    <MenuList zIndex="dropdown">
-                        <MenuItem icon={<FiUser />}>
-                            Profile Settings
-                        </MenuItem>
-                        <MenuItem icon={<AiOutlineWallet />}>
-                            Wallet
-                        </MenuItem>
-                        <MenuItem icon={<FiSettings />}>
-                            Account Settings
-                        </MenuItem>
-                        <MenuDivider />
-                        <MenuItem icon={<FiLogOut />} onClick={handleLogout} color="red.500">
-                            Sign Out
-                        </MenuItem>
-                    </MenuList>
+                    <Portal>
+                        <MenuList
+                            zIndex="9999"
+                            bg={useColorModeValue('white', 'gray.800')}
+                            border="1px"
+                            borderColor={useColorModeValue('gray.200', 'gray.700')}
+                            boxShadow="lg"
+                            minW="200px"
+                        >
+                            <MenuItem icon={<FiUser />}>
+                                Profile Settings
+                            </MenuItem>
+                            <MenuItem icon={<AiOutlineWallet />}>
+                                Wallet
+                            </MenuItem>
+                            <MenuItem icon={<FiSettings />}>
+                                Account Settings
+                            </MenuItem>
+                            <MenuDivider />
+                            <MenuItem icon={<FiLogOut />} onClick={handleLogout} color="red.500">
+                                Sign Out
+                            </MenuItem>
+                        </MenuList>
+                    </Portal>
                 </Menu>
             </HStack>
         </Flex>

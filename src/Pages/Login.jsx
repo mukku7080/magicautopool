@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Box,
     Button,
@@ -29,23 +30,26 @@ import {
     IconButton,
     Stack,
     useBreakpointValue,
+    Image,
+    Spinner,
 } from '@chakra-ui/react';
 import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineMail, AiOutlineLock, AiOutlineUser } from 'react-icons/ai';
 import { FaGoogle, FaFacebook, FaTwitter } from 'react-icons/fa';
+import { useAuth } from '../Context';
 
 const Login = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [tabIndex, setTabIndex] = useState(0);
+    const [isRedirecting, setIsRedirecting] = useState(false);
+    const { login, register, isAuthenticated, isLoading: authLoading } = useAuth();
     const toast = useToast();
 
-    // Responsive values
-    const cardWidth = useBreakpointValue({ base: '95%', sm: '400px', md: '450px' });
-    const cardPadding = useBreakpointValue({ base: 4, md: 8 });
-    const fontSize = useBreakpointValue({ base: 'sm', md: 'md' });
 
-    // Form states
+    // Form states (moved to top)
     const [loginForm, setLoginForm] = useState({
         email: '',
         password: '',
@@ -54,14 +58,19 @@ const Login = () => {
 
     const [registerForm, setRegisterForm] = useState({
         firstName: '',
-        lastName: '',
         email: '',
+        inviteCode: '',
         password: '',
         confirmPassword: '',
         agreeToTerms: false
     });
 
     const [errors, setErrors] = useState({});
+
+    // Responsive values
+    const cardWidth = useBreakpointValue({ base: '95%', sm: '400px', md: '450px' });
+    const cardPadding = useBreakpointValue({ base: 4, md: 8 });
+    const fontSize = useBreakpointValue({ base: 'sm', md: 'md' });
 
     // Color mode values
     const bgGradient = useColorModeValue(
@@ -70,9 +79,42 @@ const Login = () => {
     );
     const cardBg = useColorModeValue('white', 'gray.800');
     const textColor = useColorModeValue('gray.700', 'gray.200');
-    const brandColor = useColorModeValue('blue.500', 'blue.300');
+    const brandColor = useColorModeValue('#4c7d4e', '#4c7d4e');
     const inputBg = useColorModeValue('gray.50', 'gray.700');
     const borderColor = useColorModeValue('gray.200', 'gray.600');
+
+
+    React.useEffect(() => {
+        if (!authLoading && isAuthenticated) {
+            const redirectTo = location.state?.from || '/user/dashboard';
+            navigate(redirectTo, { replace: true });
+        }
+    }, [authLoading, isAuthenticated, navigate, location.state]);
+
+    if (authLoading) {
+        return (
+            <Box
+                minH="100vh"
+                bgGradient={bgGradient}
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+            >
+                <VStack spacing={4}>
+                    <Spinner
+                        thickness="4px"
+                        speed="0.65s"
+                        emptyColor="gray.200"
+                        color="blue.500"
+                        size="xl"
+                    />
+                    <Text color="white" fontSize="lg">
+                        Loading...
+                    </Text>
+                </VStack>
+            </Box>
+        );
+    }
 
     // Validation functions
     const validateEmail = (email) => {
@@ -121,22 +163,42 @@ const Login = () => {
 
         setIsLoading(true);
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Prepare login credentials
+            const credentials = {
+                email: loginForm.email,
+                password: loginForm.password,
+            };
 
-            toast({
-                title: 'Login Successful!',
-                description: 'Welcome back to NessanForex',
-                status: 'success',
-                duration: 3000,
-                isClosable: true,
-            });
+            // Call the login API
+            const result = await login(credentials);
+            console.log('Login result:', result);
+
+            if (result.status === true) {
+                toast({
+                    title: 'Login Successful!',
+                    description: `Welcome back to NessanForex, ${result.user?.name || 'User'}!`,
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                });
+
+                // Reset form
+                setLoginForm({
+                    email: '',
+                    password: '',
+                    rememberMe: false
+                });
+
+                // Navigation will be handled by useEffect when isAuthenticated becomes true
+            } else {
+                throw new Error(result.error || 'Login failed');
+            }
         } catch (error) {
             toast({
                 title: 'Login Failed',
-                description: 'Please check your credentials and try again',
+                description: error.message || 'Please check your credentials and try again',
                 status: 'error',
-                duration: 3000,
+                duration: 5000,
                 isClosable: true,
             });
         } finally {
@@ -153,15 +215,16 @@ const Login = () => {
             newErrors.firstName = 'First name is required';
         }
 
-        if (!registerForm.lastName) {
-            newErrors.lastName = 'Last name is required';
-        }
+        // if (!registerForm.lastName) {
+        //     newErrors.lastName = 'Last name is required';
+        // }
 
         if (!registerForm.email) {
             newErrors.email = 'Email is required';
         } else if (!validateEmail(registerForm.email)) {
             newErrors.email = 'Please enter a valid email';
         }
+
 
         if (!registerForm.password) {
             newErrors.password = 'Password is required';
@@ -186,25 +249,47 @@ const Login = () => {
 
         setIsLoading(true);
         try {
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // Prepare user data for registration
+            const userData = {
+                name: registerForm.firstName,
+                email: registerForm.email,
+                inviteCode: registerForm.inviteCode,
+                password: registerForm.password,
+            };
 
-            toast({
-                title: 'Registration Successful!',
-                description: 'Welcome to NessanForex! Please check your email to verify your account.',
-                status: 'success',
-                duration: 5000,
-                isClosable: true,
-            });
+            // Call the register API
+            const result = await register(userData);
 
-            // Switch to login tab
-            setTabIndex(0);
+            if (result.success) {
+                toast({
+                    title: 'Registration Successful!',
+                    description: 'Welcome to NessanForex! Please check your email to verify your account.',
+                    status: 'success',
+                    duration: 5000,
+                    isClosable: true,
+                });
+
+                // Reset form
+                setRegisterForm({
+                    firstName: '',
+                    email: '',
+                    inviteCode: '',
+                    password: '',
+                    confirmPassword: '',
+                    agreeToTerms: false
+                });
+
+                // Switch to login tab
+                setTabIndex(0);
+            } else {
+                throw new Error(result.error || 'Registration failed');
+            }
         } catch (error) {
             toast({
                 title: 'Registration Failed',
-                description: 'Something went wrong. Please try again.',
+                description: error.message || 'Something went wrong. Please try again.',
                 status: 'error',
-                duration: 3000,
+                duration: 5000,
                 isClosable: true,
             });
         } finally {
@@ -225,13 +310,15 @@ const Login = () => {
 
     return (
         <Box
-            minH="100vh"
+            minH="80vh"
             bgGradient={bgGradient}
             display="flex"
             alignItems="center"
             justifyContent="center"
-            p={4}
-            // mt={100}
+            py={10}
+        // pt={{ base: 0, sm: 0, md: 50, lg: 110 }}
+        // pb={{ base: 20, sm: 20 }}
+        // mt={100}
         >
             <Container maxW="container.sm" centerContent>
                 <Card
@@ -241,28 +328,15 @@ const Login = () => {
                     borderRadius="2xl"
                     border="1px"
                     borderColor={borderColor}
-                    overflow="hidden"
+                    // overflow="hidden"
                     mt={100}
                 >
                     <CardBody p={cardPadding}>
                         {/* Header */}
-                        <VStack spacing={4} mb={6}>
-                            <Box
-                                w="60px"
-                                h="60px"
-                                bg={brandColor}
-                                borderRadius="full"
-                                display="flex"
-                                alignItems="center"
-                                justifyContent="center"
-                                color="white"
-                                fontSize="2xl"
-                                fontWeight="bold"
-                            >
-                                N
-                            </Box>
+                        <VStack spacing={2} mb={6}>
+
                             <VStack spacing={1}>
-                                <Heading
+                                {/* <Heading
                                     size={useBreakpointValue({ base: 'lg', md: 'xl' })}
                                     color={textColor}
                                     textAlign="center"
@@ -271,7 +345,8 @@ const Login = () => {
                                 </Heading>
                                 <Text color="gray.500" fontSize={fontSize} textAlign="center">
                                     Your trusted trading partner
-                                </Text>
+                                </Text> */}
+                                <Image src='assets/images/MagicAutpool Logo.png' />
                             </VStack>
                         </VStack>
 
@@ -433,24 +508,6 @@ const Login = () => {
                                                     <FormErrorMessage fontSize="sm">{errors.firstName}</FormErrorMessage>
                                                 </FormControl>
 
-                                                <FormControl isInvalid={errors.lastName}>
-                                                    <FormLabel fontSize={fontSize} color={textColor}>
-                                                        Last Name
-                                                    </FormLabel>
-                                                    <Input
-                                                        placeholder="Last name"
-                                                        value={registerForm.lastName}
-                                                        onChange={(e) => handleRegisterInputChange('lastName', e.target.value)}
-                                                        bg={inputBg}
-                                                        border="1px"
-                                                        borderColor={borderColor}
-                                                        _hover={{ borderColor: brandColor }}
-                                                        _focus={{ borderColor: brandColor, boxShadow: `0 0 0 1px ${brandColor}` }}
-                                                        fontSize={fontSize}
-                                                        h="48px"
-                                                    />
-                                                    <FormErrorMessage fontSize="sm">{errors.lastName}</FormErrorMessage>
-                                                </FormControl>
                                             </HStack>
 
                                             <FormControl isInvalid={errors.email}>
@@ -474,6 +531,30 @@ const Login = () => {
                                                     <InputRightElement h="48px">
                                                         <AiOutlineMail color="gray" />
                                                     </InputRightElement>
+                                                </InputGroup>
+                                                <FormErrorMessage fontSize="sm">{errors.email}</FormErrorMessage>
+                                            </FormControl>
+
+
+                                            <FormControl isInvalid={errors.email}>
+                                                <FormLabel fontSize={fontSize} color={textColor}>
+                                                    Invite Code
+                                                </FormLabel>
+                                                <InputGroup>
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="Invite Code"
+                                                        value={registerForm.inviteCode}
+                                                        onChange={(e) => handleRegisterInputChange('inviteCode', e.target.value)}
+                                                        bg={inputBg}
+                                                        border="1px"
+                                                        borderColor={borderColor}
+                                                        _hover={{ borderColor: brandColor }}
+                                                        _focus={{ borderColor: brandColor, boxShadow: `0 0 0 1px ${brandColor}` }}
+                                                        fontSize={fontSize}
+                                                        h="48px"
+                                                    />
+
                                                 </InputGroup>
                                                 <FormErrorMessage fontSize="sm">{errors.email}</FormErrorMessage>
                                             </FormControl>
@@ -592,8 +673,8 @@ const Login = () => {
                                 <Divider />
                             </HStack>
 
-                            <Stack
-                                direction={useBreakpointValue({ base: 'column', sm: 'row' })}
+                            <HStack
+                                // direction={useBreakpointValue({ base: 'column', sm: 'row' })}
                                 spacing={3}
                                 mt={4}
                             >
@@ -633,7 +714,7 @@ const Login = () => {
                                 >
                                     Twitter
                                 </Button>
-                            </Stack>
+                            </HStack>
                         </Box>
 
                         {/* Footer */}

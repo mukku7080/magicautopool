@@ -8,11 +8,19 @@
 
 ***/
 
-.main-header{
+/* .main-header{
 	position:absolute;
 	z-index:999;
 	width:100%;
+} */
+.main-header {
+  position: fixed; /* Ensures the header stays at the top */
+  z-index: 999; /* Keeps the header above other elements */
+  width: 100%;
+  top: 0; /* Ensures the header is at the top of the page */
+  left: 0; /* Aligns the header to the left */
 }
+
 
 .header-top{
 	position:relative;

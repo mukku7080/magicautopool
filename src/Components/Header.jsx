@@ -1,6 +1,8 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
+    const nevigate = useNavigate();
     return (
         <header className="main-header header-style-four">
             {/* Header Top */}
@@ -74,7 +76,7 @@ const Header = () => {
                                 {/* Header Phone Box */}
                                 <div className="header-phone_box">
                                     <div className="header-phone_box-inner">
-                                        <button style={{ padding: '15px', backgroundColor: '#f04a52', borderRadius: '10px', color: 'white', fontWeight: 'bold' }}>Join Us</button>
+                                        <button style={{ padding: '15px', backgroundColor: '#4a7b4c', borderRadius: '10px', color: 'white', fontWeight: 'bold' } } onClick={() => { nevigate('/login') }}>Join Us</button>
                                     </div>
                                 </div>
                                 {/* Mobile Navigation Toggler */}

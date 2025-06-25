@@ -55,7 +55,7 @@ const UserLayout = ({ children }) => {
                 top="0"
                 h="100vh"
                 w="240px"
-                zIndex="sticky"
+                zIndex="900"
             >
                 <UserSidebar onClose={onClose} />
             </Box>
@@ -79,6 +79,8 @@ const UserLayout = ({ children }) => {
                     w="100%"
                     maxW="100%"
                     overflow="auto"
+                    position="relative"
+                    zIndex="1"
                 >
                     {children}
                 </Box>

@@ -11,6 +11,8 @@ import Login from './src/Pages/Login'
 import UserDashboard from './src/user/UserDashboard'
 import { Route, Routes } from 'react-router-dom'
 import TermsServices from './src/Pages/TermsServices'
+import ProtectedRoute from './src/Components/ProtectedRoute'
+import AuthRedirect from './src/Components/AuthRedirect'
 
 
 
@@ -27,7 +29,11 @@ const RouteConfig = () => {
             <Route path='/privecy-policy' element={<Privecy />} />
             <Route path='/terms' element={<TermsServices />} />
             <Route path='/login' element={<Login />} />
-            <Route path='/user/*' element={<UserDashboard />} />
+            <Route path='/user/*' element={
+                <ProtectedRoute>
+                    <UserDashboard />
+                </ProtectedRoute>
+            } />
 
         </Routes>
     )
