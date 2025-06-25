@@ -85,7 +85,37 @@ class AuthService {
         }
     }
 
-    // Verify email
+    // Verify email with OTP
+    async verifyEmailOTP(email, otp) {
+        try {
+            const response = await axiosInstance.post('/verify-otp', {
+                email,
+                otp
+            });
+
+            if (response.data.token && response.data.user) {
+                // Store token and user data after successful verification
+                localStorage.setItem('authToken', response.data.token);
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+            }
+
+            return response.data;
+        } catch (error) {
+            throw this.handleError(error);
+        }
+    }
+
+    // Resend OTP
+    async resendOTP(email) {
+        try {
+            const response = await axiosInstance.post('/resend-otp', { email });
+            return response.data;
+        } catch (error) {
+            throw this.handleError(error);
+        }
+    }
+
+    // Verify email (legacy method for token-based verification)
     async verifyEmail(token) {
         try {
             const response = await axiosInstance.post('/auth/verify-email', { token });

@@ -77,3 +77,39 @@ body {
         padding-right: 1rem !important;
     }
 }
+
+/* Congratulations Modal Animations */
+@keyframes congratulations-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+    }
+}
+
+@keyframes congratulations-ping {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    75%,
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+.congratulations-pulse {
+    animation: congratulations-pulse 2s infinite;
+}
+
+.congratulations-ping {
+    animation: congratulations-ping 2s infinite;
+}

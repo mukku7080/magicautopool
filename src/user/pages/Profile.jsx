@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Grid,
@@ -36,9 +36,12 @@ import {
     InputGroup,
     InputRightElement,
     IconButton,
+    Spinner,
+    Center,
 } from '@chakra-ui/react';
 import { FiEdit2, FiCamera, FiShield, FiEye, FiEyeOff, FiCheck, FiX } from 'react-icons/fi';
 import { AiOutlineUser, AiOutlineMail, AiOutlinePhone, AiOutlineHome } from 'react-icons/ai';
+import { useUser } from '../../Context/UserContext';
 
 const Profile = () => {
     const [isEditing, setIsEditing] = useState(false);
@@ -47,23 +50,79 @@ const Profile = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const toast = useToast();
 
+    // Use User Context
+    const {
+        profile,
+        isLoading,
+        error,
+        loadUserProfile,
+        updateUserProfile,
+        changePassword,
+        clearError,
+        getUserName,
+        getUserEmail,
+        getUserAvatar,
+        isProfileLoaded
+    } = useUser();
+
     const cardBg = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.700');
     const textColor = useColorModeValue('gray.600', 'gray.400');
 
+    // Call get user API when component mounts
+    useEffect(() => {
+        // console.log('🚀 Profile page opened - Calling get user API...');
+        loadUserProfile();
+    }, []);
+
+    // Console log profile data when it changes
+    useEffect(() => {
+        if (profile) {
+            console.log('✅ User Profile Data Received:', profile);
+            // console.log('📊 Profile Object:', JSON.stringify(profile, null, 2));
+        }
+    }, [profile]);
+
+    // Console log any errors
+    useEffect(() => {
+        if (error) {
+            console.error('❌ User Profile Error:', error);
+        }
+    }, [error]);
+
     const [profileData, setProfileData] = useState({
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-        phone: '+1 (555) 123-4567',
-        dateOfBirth: '1990-01-15',
-        address: '123 Main Street',
-        city: 'New York',
-        state: 'NY',
-        zipCode: '10001',
-        country: 'United States',
-        bio: 'Experienced forex trader with 5+ years in the market.',
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        dateOfBirth: '',
+        address: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        country: '',
+        bio: '',
     });
+
+    // Update local state when profile data is loaded from API
+    useEffect(() => {
+        if (profile) {
+            // console.log('🔄 Updating local profile data with API response...');
+            setProfileData({
+                firstName: profile.firstName || profile.first_name || '',
+                lastName: profile.lastName || profile.last_name || '',
+                email: profile.email || '',
+                phone: profile.phone || profile.mobile || '',
+                dateOfBirth: profile.dateOfBirth || profile.date_of_birth || '',
+                address: profile.address || '',
+                city: profile.city || '',
+                state: profile.state || '',
+                zipCode: profile.zipCode || profile.zip_code || '',
+                country: profile.country || '',
+                bio: profile.bio || profile.description || '',
+            });
+        }
+    }, [profile]);
 
     const [securitySettings, setSecuritySettings] = useState({
         twoFactorAuth: true,
@@ -78,18 +137,61 @@ const Profile = () => {
         confirmPassword: '',
     });
 
-    const handleProfileUpdate = () => {
-        toast({
-            title: 'Profile Updated',
-            description: 'Your profile information has been successfully updated.',
-            status: 'success',
-            duration: 3000,
-            isClosable: true,
-        });
-        setIsEditing(false);
+    const handleProfileUpdate = async () => {
+        console.log('📤 Updating profile with data:', profileData);
+
+        try {
+            const result = await updateUserProfile(profileData);
+
+            if (result.success) {
+                console.log('✅ Profile updated successfully:', result);
+                toast({
+                    title: 'Profile Updated',
+                    description: result.message || 'Your profile information has been successfully updated.',
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                });
+                setIsEditing(false);
+            } else {
+                throw new Error(result.error || 'Failed to update profile');
+            }
+        } catch (error) {
+            console.error('❌ Profile update failed:', error);
+            toast({
+                title: 'Update Failed',
+                description: error.message || 'Failed to update profile. Please try again.',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+        }
     };
 
-    const handlePasswordChange = () => {
+    const handlePasswordChange = async () => {
+        // Validation
+        if (!passwordData.currentPassword) {
+            toast({
+                title: 'Current Password Required',
+                description: 'Please enter your current password.',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+            return;
+        }
+
+        if (!passwordData.newPassword) {
+            toast({
+                title: 'New Password Required',
+                description: 'Please enter a new password.',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+            return;
+        }
+
         if (passwordData.newPassword !== passwordData.confirmPassword) {
             toast({
                 title: 'Password Mismatch',
@@ -101,28 +203,93 @@ const Profile = () => {
             return;
         }
 
-        toast({
-            title: 'Password Changed',
-            description: 'Your password has been successfully updated.',
-            status: 'success',
-            duration: 3000,
-            isClosable: true,
-        });
+        if (passwordData.newPassword.length < 6) {
+            toast({
+                title: 'Password Too Short',
+                description: 'Password must be at least 6 characters long.',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+            return;
+        }
 
-        setPasswordData({
-            currentPassword: '',
-            newPassword: '',
-            confirmPassword: '',
-        });
+        console.log('🔑 Profile - Attempting to change password...');
+
+        try {
+            // Prepare data for API call
+            const passwordChangeData = {
+                current_password: passwordData.currentPassword,
+                new_password: passwordData.newPassword,
+                new_password_confirmation: passwordData.confirmPassword
+            };
+
+            const result = await changePassword(passwordChangeData);
+
+            if (result.success) {
+                console.log('✅ Profile - Password changed successfully:', result);
+                toast({
+                    title: 'Password Changed',
+                    description: result.message || 'Your password has been successfully updated.',
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                });
+
+                // Clear form
+                setPasswordData({
+                    currentPassword: '',
+                    newPassword: '',
+                    confirmPassword: '',
+                });
+            } else {
+                throw new Error(result.error || 'Failed to change password');
+            }
+        } catch (error) {
+            console.error('❌ Profile - Password change failed:', error);
+            toast({
+                title: 'Password Change Failed',
+                description: error.message || 'Failed to change password. Please try again.',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+        }
     };
 
     const profileCompleteness = 85;
 
     return (
         <Box>
-            <Heading size="lg" mb={6}>
-                Profile Settings
-            </Heading>
+            <HStack justify="space-between" align="center" mb={6}>
+                <Heading size="lg">
+                    Profile Settings
+                </Heading>
+                <Button
+                    colorScheme="blue"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                        console.log('🔄 Manual API call triggered...');
+                        loadUserProfile();
+                    }}
+                    isLoading={isLoading}
+                >
+                    Refresh Profile
+                </Button>
+            </HStack>
+
+            {/* Loading State */}
+            {isLoading && (
+                <Center py={8}>
+                    <VStack spacing={4}>
+                        <Spinner size="xl" color="blue.500" />
+                        <Text>Loading profile data...</Text>
+                    </VStack>
+                </Center>
+            )}
+
+            {/* Error State */}
 
             <Grid templateColumns={{ base: '1fr', lg: '1fr 2fr' }} gap={6}>
                 {/* Profile Summary */}
@@ -133,7 +300,8 @@ const Profile = () => {
                                 <Box position="relative">
                                     <Avatar
                                         size="2xl"
-                                        name="John Doe"
+                                        name={profile ? `${profile?.USER?.name}`.trim() : 'User'}
+                                        src={profile?.USER?.profile_picture || profile?.USER?.profile_picture}
                                         bg="blue.500"
                                     />
                                     <IconButton
@@ -147,16 +315,23 @@ const Profile = () => {
                                         aria-label="Change avatar"
                                     />
                                 </Box>
-                                
+
                                 <VStack spacing={1}>
-                                    <Heading size="md">John Doe</Heading>
-                                    <Text color={textColor}>john.doe@example.com</Text>
+                                    <Heading size="md">
+                                        {profile ?
+                                            `${profile?.USER?.name || 'User'} ${profileData.lastName || ''}`.trim() || 'User'
+                                            : 'Loading...'
+                                        }
+                                    </Heading>
+                                    <Text color={textColor}>
+                                        {profile ? profile?.USER?.email || 'No email' : 'Loading...'}
+                                    </Text>
                                     <HStack spacing={2}>
                                         <Badge colorScheme="green" variant="subtle">
-                                            Verified
+                                            {profile?.verified || profile?.email_verified ? 'Verified' : 'Unverified'}
                                         </Badge>
                                         <Badge colorScheme="purple" variant="subtle">
-                                            Premium
+                                            {profile?.plan || profile?.subscription || 'Basic'}
                                         </Badge>
                                     </HStack>
                                 </VStack>
@@ -246,8 +421,8 @@ const Profile = () => {
                                             <FormControl>
                                                 <FormLabel fontSize="sm">First Name</FormLabel>
                                                 <Input
-                                                    value={profileData.firstName}
-                                                    onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
+                                                    value={profile?.USER?.name}
+                                                    onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
                                                 />
@@ -257,7 +432,7 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">Last Name</FormLabel>
                                                 <Input
                                                     value={profileData.lastName}
-                                                    onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
+                                                    onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
                                                 />
@@ -266,8 +441,8 @@ const Profile = () => {
                                             <FormControl>
                                                 <FormLabel fontSize="sm">Email</FormLabel>
                                                 <Input
-                                                    value={profileData.email}
-                                                    onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                                                    value={profile?.USER?.email}
+                                                    onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
                                                 />
@@ -277,7 +452,7 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">Phone</FormLabel>
                                                 <Input
                                                     value={profileData.phone}
-                                                    onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                                                    onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
                                                 />
@@ -288,7 +463,7 @@ const Profile = () => {
                                                 <Input
                                                     type="date"
                                                     value={profileData.dateOfBirth}
-                                                    onChange={(e) => setProfileData({...profileData, dateOfBirth: e.target.value})}
+                                                    onChange={(e) => setProfileData({ ...profileData, dateOfBirth: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
                                                 />
@@ -298,7 +473,7 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">Country</FormLabel>
                                                 <Select
                                                     value={profileData.country}
-                                                    onChange={(e) => setProfileData({...profileData, country: e.target.value})}
+                                                    onChange={(e) => setProfileData({ ...profileData, country: e.target.value })}
                                                     isDisabled={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
                                                 >
@@ -313,7 +488,7 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">Address</FormLabel>
                                                 <Input
                                                     value={profileData.address}
-                                                    onChange={(e) => setProfileData({...profileData, address: e.target.value})}
+                                                    onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
                                                 />
@@ -323,7 +498,7 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">City</FormLabel>
                                                 <Input
                                                     value={profileData.city}
-                                                    onChange={(e) => setProfileData({...profileData, city: e.target.value})}
+                                                    onChange={(e) => setProfileData({ ...profileData, city: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
                                                 />
@@ -333,7 +508,7 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">ZIP Code</FormLabel>
                                                 <Input
                                                     value={profileData.zipCode}
-                                                    onChange={(e) => setProfileData({...profileData, zipCode: e.target.value})}
+                                                    onChange={(e) => setProfileData({ ...profileData, zipCode: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
                                                 />
@@ -343,7 +518,7 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">Bio</FormLabel>
                                                 <Textarea
                                                     value={profileData.bio}
-                                                    onChange={(e) => setProfileData({...profileData, bio: e.target.value})}
+                                                    onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
                                                     rows={3}
@@ -562,6 +737,8 @@ const Profile = () => {
                                             <Button
                                                 colorScheme="blue"
                                                 onClick={handlePasswordChange}
+                                                isLoading={isLoading}
+                                                loadingText="Changing Password..."
                                                 isDisabled={!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword}
                                             >
                                                 Change Password

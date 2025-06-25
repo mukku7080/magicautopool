@@ -4,20 +4,48 @@ class UserService {
     // Get user profile
     async getProfile() {
         try {
-            const response = await axiosInstance.get('/user/profile');
-            return response.data;
+            // Using the specific API URL provided
+            const response = await axiosInstance.get('/profile');
+
+            console.log('🔍 Raw API Response:', response);
+            console.log('📊 Response Data:', response.data);
+
+            // Extract user data from response.data.user structure
+            const userData = response.data?.user || response.data;
+
+            console.log('👤 Extracted User Data:', userData);
+
+            return {
+                success: true,
+                data: userData,
+                message: 'Profile loaded successfully'
+            };
         } catch (error) {
-            throw this.handleError(error);
+            console.error('❌ Get profile error:', error);
+            throw {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Failed to load profile',
+                error: error
+            };
         }
     }
 
     // Update user profile
     async updateProfile(profileData) {
         try {
-            const response = await axiosInstance.put('/user/profile', profileData);
-            return response.data;
+            const response = await axiosInstance.put('/profile', profileData);
+            return {
+                success: true,
+                data: response.data,
+                message: 'Profile updated successfully'
+            };
         } catch (error) {
-            throw this.handleError(error);
+            console.error('Update profile error:', error);
+            throw {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Failed to update profile',
+                error: error
+            };
         }
     }
 
@@ -41,10 +69,28 @@ class UserService {
     // Change password
     async changePassword(passwordData) {
         try {
-            const response = await axiosInstance.put('/user/change-password', passwordData);
-            return response.data;
+            console.log('🔑 Changing password with data:', {
+                ...passwordData,
+                currentPassword: '***',
+                newPassword: '***'
+            });
+
+            const response = await axiosInstance.post('/profile/update-password', passwordData);
+
+            console.log('✅ Change password response:', response);
+
+            return {
+                success: true,
+                data: response.data,
+                message: response.data?.message || 'Password changed successfully'
+            };
         } catch (error) {
-            throw this.handleError(error);
+            console.error('❌ Change password error:', error);
+            throw {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Failed to change password',
+                error: error
+            };
         }
     }
 

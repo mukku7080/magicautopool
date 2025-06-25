@@ -20,13 +20,13 @@ axiosInstance.interceptors.request.use(
         }
 
         // Log request in development
-        if (import.meta.env.DEV) {
-            console.log('🚀 API Request:', {
-                method: config.method?.toUpperCase(),
-                url: config.url,
-                data: config.data,
-            });
-        }
+        // if (import.meta.env.DEV) {
+        //     console.log('🚀 API Request:', {
+        //         method: config.method?.toUpperCase(),
+        //         url: config.url,
+        //         data: config.data,
+        //     });
+        // }
 
         return config;
     },
@@ -40,13 +40,13 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
     (response) => {
         // Log response in development
-        if (import.meta.env.DEV) {
-            console.log('✅ API Response:', {
-                status: response.status,
-                url: response.config.url,
-                data: response.data,
-            });
-        }
+        // if (import.meta.env.DEV) {
+        //     console.log('✅ API Response:', {
+        //         status: response.status,
+        //         url: response.config.url,
+        //         data: response.data,
+        //     });
+        // }
 
         return response;
     },

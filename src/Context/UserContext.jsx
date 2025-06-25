@@ -174,10 +174,26 @@ export const UserProvider = ({ children }) => {
     const loadUserProfile = async () => {
         try {
             dispatch({ type: USER_ACTIONS.SET_LOADING, payload: true });
-            const profile = await userService.getProfile();
-            dispatch({ type: USER_ACTIONS.SET_PROFILE, payload: profile });
+            const result = await userService.getProfile();
+
+            console.log('🔄 UserContext - Processing API Result:', result);
+
+            // Handle both old and new response formats
+            if (result.success) {
+                console.log('✅ UserContext - Setting profile data:', result.data);
+                dispatch({ type: USER_ACTIONS.SET_PROFILE, payload: result.data });
+            } else if (result.data || result.user || result.profile) {
+                // Fallback for existing API structure
+                const profileData = result.data || result.user || result.profile || result;
+                console.log('🔄 UserContext - Fallback profile data:', profileData);
+                dispatch({ type: USER_ACTIONS.SET_PROFILE, payload: profileData });
+            } else {
+                console.log('⚠️ UserContext - Using entire result as profile:', result);
+                dispatch({ type: USER_ACTIONS.SET_PROFILE, payload: result });
+            }
         } catch (error) {
-            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
+            console.error('❌ Load user profile error:', error);
+            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message || 'Failed to load profile' });
         }
     };
 
@@ -185,11 +201,20 @@ export const UserProvider = ({ children }) => {
     const updateUserProfile = async (profileData) => {
         try {
             dispatch({ type: USER_ACTIONS.SET_LOADING, payload: true });
-            const updatedProfile = await userService.updateProfile(profileData);
-            dispatch({ type: USER_ACTIONS.UPDATE_PROFILE, payload: updatedProfile });
-            return { success: true, profile: updatedProfile };
+            const result = await userService.updateProfile(profileData);
+
+            // Handle both old and new response formats
+            if (result.success) {
+                dispatch({ type: USER_ACTIONS.UPDATE_PROFILE, payload: result.data });
+                return { success: true, profile: result.data, message: result.message };
+            } else {
+                // Fallback for existing API structure
+                dispatch({ type: USER_ACTIONS.UPDATE_PROFILE, payload: result });
+                return { success: true, profile: result };
+            }
         } catch (error) {
-            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
+            console.error('Update user profile error:', error);
+            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message || 'Failed to update profile' });
             return { success: false, error: error.message };
         }
     };
@@ -211,11 +236,18 @@ export const UserProvider = ({ children }) => {
     const changePassword = async (passwordData) => {
         try {
             dispatch({ type: USER_ACTIONS.SET_LOADING, payload: true });
-            await userService.changePassword(passwordData);
-            dispatch({ type: USER_ACTIONS.SET_LOADING, payload: false });
-            return { success: true };
+            const result = await userService.changePassword(passwordData);
+
+            if (result.success) {
+                dispatch({ type: USER_ACTIONS.SET_LOADING, payload: false });
+                console.log('✅ UserContext - Password changed successfully:', result);
+                return { success: true, message: result.message };
+            } else {
+                throw new Error(result.message || 'Failed to change password');
+            }
         } catch (error) {
-            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
+            console.error('❌ UserContext - Change password error:', error);
+            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message || 'Failed to change password' });
             return { success: false, error: error.message };
         }
     };
@@ -310,6 +342,49 @@ export const UserProvider = ({ children }) => {
         dispatch({ type: USER_ACTIONS.CLEAR_ERROR });
     };
 
+    // Helper functions to access profile data easily
+    const getUserName = () => {
+        if (!state.profile) return 'User';
+
+        // Handle new USER structure
+        if (state.profile.USER) {
+            return state.profile.USER.name || 'User';
+        }
+
+        // Handle old structure
+        const firstName = state.profile.firstName || state.profile.first_name || '';
+        const lastName = state.profile.lastName || state.profile.last_name || '';
+        return `${firstName} ${lastName}`.trim() || state.profile.name || 'User';
+    };
+
+    const getUserEmail = () => {
+        if (!state.profile) return '';
+
+        // Handle new USER structure
+        if (state.profile.USER) {
+            return state.profile.USER.email || '';
+        }
+
+        // Handle old structure
+        return state.profile?.email || '';
+    };
+
+    const getUserAvatar = () => {
+        if (!state.profile) return null;
+
+        // Handle new USER structure
+        if (state.profile.USER) {
+            return state.profile.USER.profile_picture || state.profile.USER.avatar;
+        }
+
+        // Handle old structure
+        return state.profile?.avatar || state.profile?.profile_picture || state.profile?.image;
+    };
+
+    const isProfileLoaded = () => {
+        return !!state.profile;
+    };
+
     // Context value
     const value = {
         // State
@@ -321,6 +396,12 @@ export const UserProvider = ({ children }) => {
         dashboardData: state.dashboardData,
         isLoading: state.isLoading,
         error: state.error,
+
+        // Helper functions
+        getUserName,
+        getUserEmail,
+        getUserAvatar,
+        isProfileLoaded,
 
         // Actions
         loadUserProfile,

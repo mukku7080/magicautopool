@@ -36,6 +36,8 @@ import {
 import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineMail, AiOutlineLock, AiOutlineUser } from 'react-icons/ai';
 import { FaGoogle, FaFacebook, FaTwitter } from 'react-icons/fa';
 import { useAuth } from '../Context';
+import OTPVerification from '../Components/OTPVerification';
+import CongratulationsModal from '../Components/CongratulationsModal';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -45,7 +47,12 @@ const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [tabIndex, setTabIndex] = useState(0);
     const [isRedirecting, setIsRedirecting] = useState(false);
-    const { login, register, isAuthenticated, isLoading: authLoading } = useAuth();
+    const [showOTPModal, setShowOTPModal] = useState(false);
+    const [showCongratulationsModal, setShowCongratulationsModal] = useState(false);
+    const [registeredEmail, setRegisteredEmail] = useState('');
+    const [registeredPassword, setRegisteredPassword] = useState('');
+    const [registeredUserName, setRegisteredUserName] = useState('');
+    const { login, register, isAuthenticated, isLoading: authLoading, verifyEmailOTP, resendOTP } = useAuth();
     const toast = useToast();
 
 
@@ -261,13 +268,13 @@ const Login = () => {
             const result = await register(userData);
 
             if (result.success) {
-                toast({
-                    title: 'Registration Successful!',
-                    description: 'Welcome to NessanForex! Please check your email to verify your account.',
-                    status: 'success',
-                    duration: 5000,
-                    isClosable: true,
-                });
+                // Store registration data for congratulations modal and OTP verification
+                setRegisteredEmail(registerForm.email);
+                setRegisteredPassword(registerForm.password);
+                setRegisteredUserName(registerForm.firstName);
+
+                // Show congratulations modal first
+                setShowCongratulationsModal(true);
 
                 // Reset form
                 setRegisterForm({
@@ -278,9 +285,6 @@ const Login = () => {
                     confirmPassword: '',
                     agreeToTerms: false
                 });
-
-                // Switch to login tab
-                setTabIndex(0);
             } else {
                 throw new Error(result.error || 'Registration failed');
             }
@@ -295,6 +299,88 @@ const Login = () => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    // OTP verification handler
+    const handleOTPVerification = async (otp) => {
+        try {
+            const result = await verifyEmailOTP(registeredEmail, otp);
+
+            if (result.success) {
+                toast({
+                    title: 'Email Verified Successfully!',
+                    description: 'Welcome to NessanForex! Redirecting to dashboard...',
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                });
+
+                // Close OTP modal
+                setShowOTPModal(false);
+
+                // Navigation will be handled by useEffect when isAuthenticated becomes true
+                // The user will be automatically redirected to dashboard
+            } else {
+                toast({
+                    title: 'Verification Failed',
+                    description: result.error || 'Invalid OTP code. Please try again.',
+                    status: 'error',
+                    duration: 5000,
+                    isClosable: true,
+                });
+                throw new Error(result.error || 'Invalid OTP');
+            }
+        } catch (error) {
+            toast({
+                title: 'Verification Failed',
+                description: error.message || 'Please check your OTP and try again.',
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+            });
+            throw error; // Re-throw to let OTP component handle loading state
+        }
+    };
+
+    // Resend OTP handler
+    const handleResendOTP = async () => {
+        try {
+            await resendOTP(registeredEmail);
+        } catch (error) {
+            throw new Error(error.message || 'Failed to resend OTP');
+        }
+    };
+
+    // Handle congratulations modal close
+    const handleCongratulationsModalClose = () => {
+        setShowCongratulationsModal(false);
+        setRegisteredEmail('');
+        setRegisteredPassword('');
+        setRegisteredUserName('');
+        // Switch back to login tab
+        setTabIndex(0);
+    };
+
+    // Handle proceed to OTP from congratulations modal
+    const handleProceedToOTP = () => {
+        setShowOTPModal(true);
+        toast({
+            title: 'Verification Required',
+            description: 'Please check your email for the verification code.',
+            status: 'info',
+            duration: 3000,
+            isClosable: true,
+        });
+    };
+
+    // Handle OTP modal close
+    const handleOTPModalClose = () => {
+        setShowOTPModal(false);
+        setRegisteredEmail('');
+        setRegisteredPassword('');
+        setRegisteredUserName('');
+        // Switch back to login tab
+        setTabIndex(0);
     };
 
     // Social login handlers
@@ -729,6 +815,25 @@ const Login = () => {
                     </CardBody>
                 </Card>
             </Container>
+
+            {/* Congratulations Modal */}
+            <CongratulationsModal
+                isOpen={showCongratulationsModal}
+                onClose={handleCongratulationsModalClose}
+                onProceedToOTP={handleProceedToOTP}
+                email={registeredEmail}
+                password={registeredPassword}
+                userName={registeredUserName}
+            />
+
+            {/* OTP Verification Modal */}
+            <OTPVerification
+                isOpen={showOTPModal}
+                onClose={handleOTPModalClose}
+                onVerificationSuccess={handleOTPVerification}
+                email={registeredEmail}
+                onResendOTP={handleResendOTP}
+            />
         </Box>
     );
 };

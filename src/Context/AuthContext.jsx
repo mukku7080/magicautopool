@@ -113,7 +113,6 @@ export const AuthProvider = ({ children }) => {
                 const token = authService.getStoredToken();
                 const user = authService.getStoredUser();
 
-                console.log('Loading user:', { token: !!token, user: !!user });
 
                 dispatch({
                     type: AUTH_ACTIONS.LOAD_USER,
@@ -254,6 +253,35 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Verify email with OTP
+    const verifyEmailOTP = async (email, otp) => {
+        try {
+            const response = await authService.verifyEmailOTP(email, otp);
+            
+            // If verification successful and returns user data, update auth state
+            if (response.status === true && response.user && response.token) {
+                dispatch({
+                    type: AUTH_ACTIONS.LOGIN_SUCCESS,
+                    payload: { user: response.user, token: response.token },
+                });
+            }
+            
+            return { success: response.status === true, data: response };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    };
+
+    // Resend OTP
+    const resendOTP = async (email) => {
+        try {
+            const result = await authService.resendOTP(email);
+            return { success: true, message: result.message };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    };
+
     // Context value
     const value = {
         // State
@@ -272,6 +300,8 @@ export const AuthProvider = ({ children }) => {
         refreshUser,
         forgotPassword,
         resetPassword,
+        verifyEmailOTP,
+        resendOTP,
     };
 
     return (
