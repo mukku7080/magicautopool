@@ -33,14 +33,20 @@ class UserService {
     // Update user profile
     async updateProfile(profileData) {
         try {
+            console.log('📝 Updating profile with data:', profileData);
+
             const response = await axiosInstance.put('/profile', profileData);
+
+            console.log('✅ Update profile response:', response);
+            console.log('📊 Updated profile data:', response.data);
+
             return {
                 success: true,
-                data: response.data,
-                message: 'Profile updated successfully'
+                data: response.data?.user || response.data,
+                message: response.data?.message || 'Profile updated successfully'
             };
         } catch (error) {
-            console.error('Update profile error:', error);
+            console.error('❌ Update profile error:', error);
             throw {
                 success: false,
                 message: error.response?.data?.message || error.message || 'Failed to update profile',

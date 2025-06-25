@@ -104,23 +104,33 @@ const Profile = () => {
         bio: '',
     });
 
+    // Store original data for cancel functionality
+    const [originalProfileData, setOriginalProfileData] = useState({});
+
     // Update local state when profile data is loaded from API
     useEffect(() => {
         if (profile) {
-            // console.log('🔄 Updating local profile data with API response...');
-            setProfileData({
-                firstName: profile.firstName || profile.first_name || '',
-                lastName: profile.lastName || profile.last_name || '',
-                email: profile.email || '',
-                phone: profile.phone || profile.mobile || '',
-                dateOfBirth: profile.dateOfBirth || profile.date_of_birth || '',
-                address: profile.address || '',
-                city: profile.city || '',
-                state: profile.state || '',
-                zipCode: profile.zipCode || profile.zip_code || '',
-                country: profile.country || '',
-                bio: profile.bio || profile.description || '',
-            });
+            console.log('🔄 Updating local profile data with API response...');
+
+            // Handle both USER structure and direct profile structure
+            const userData = profile.USER || profile;
+
+            const newProfileData = {
+                firstName: userData.firstName || userData.first_name || userData.name?.split(' ')[0] || '',
+                lastName: userData.lastName || userData.last_name || userData.name?.split(' ').slice(1).join(' ') || '',
+                email: userData.email || '',
+                phone: userData.phone || userData.mobile || userData.phone_number || '',
+                dateOfBirth: userData.dateOfBirth || userData.date_of_birth || userData.dob || '',
+                address: userData.address || userData.street_address || '',
+                city: userData.city || '',
+                state: userData.state || userData.province || '',
+                zipCode: userData.zipCode || userData.zip_code || userData.postal_code || '',
+                country: userData.country || '',
+                bio: userData.bio || userData.description || userData.about || '',
+            };
+
+            setProfileData(newProfileData);
+            setOriginalProfileData(newProfileData); // Save original for cancel functionality
         }
     }, [profile]);
 
@@ -145,6 +155,10 @@ const Profile = () => {
 
             if (result.success) {
                 console.log('✅ Profile updated successfully:', result);
+
+                // Update original data with new saved data
+                setOriginalProfileData({ ...profileData });
+
                 toast({
                     title: 'Profile Updated',
                     description: result.message || 'Your profile information has been successfully updated.',
@@ -153,6 +167,9 @@ const Profile = () => {
                     isClosable: true,
                 });
                 setIsEditing(false);
+
+                // Reload profile from server to get latest data
+                loadUserProfile();
             } else {
                 throw new Error(result.error || 'Failed to update profile');
             }
@@ -166,6 +183,20 @@ const Profile = () => {
                 isClosable: true,
             });
         }
+    };
+
+    // Handle cancel editing
+    const handleCancelEdit = () => {
+        console.log('❌ Cancelling profile edit, reverting to original data');
+        setProfileData({ ...originalProfileData });
+        setIsEditing(false);
+        toast({
+            title: 'Changes Cancelled',
+            description: 'All changes have been reverted.',
+            status: 'info',
+            duration: 2000,
+            isClosable: true,
+        });
     };
 
     const handlePasswordChange = async () => {
@@ -405,15 +436,39 @@ const Profile = () => {
                                     <CardHeader>
                                         <HStack justify="space-between">
                                             <Heading size="md">Personal Information</Heading>
-                                            <Button
-                                                size="sm"
-                                                leftIcon={<FiEdit2 />}
-                                                onClick={() => setIsEditing(!isEditing)}
-                                                variant={isEditing ? 'solid' : 'outline'}
-                                                colorScheme="blue"
-                                            >
-                                                {isEditing ? 'Cancel' : 'Edit'}
-                                            </Button>
+                                            <HStack spacing={2}>
+                                                {!isEditing ? (
+                                                    <Button
+                                                        size="sm"
+                                                        leftIcon={<FiEdit2 />}
+                                                        onClick={() => setIsEditing(true)}
+                                                        variant="outline"
+                                                        colorScheme="blue"
+                                                    >
+                                                        Edit Profile
+                                                    </Button>
+                                                ) : (
+                                                    <>
+                                                        <Button
+                                                            size="sm"
+                                                            onClick={handleProfileUpdate}
+                                                            colorScheme="blue"
+                                                            isLoading={isLoading}
+                                                            loadingText="Saving..."
+                                                        >
+                                                            Save Changes
+                                                        </Button>
+                                                        <Button
+                                                            size="sm"
+                                                            onClick={handleCancelEdit}
+                                                            variant="outline"
+                                                            colorScheme="gray"
+                                                        >
+                                                            Cancel
+                                                        </Button>
+                                                    </>
+                                                )}
+                                            </HStack>
                                         </HStack>
                                     </CardHeader>
                                     <CardBody pt={0}>
@@ -421,10 +476,11 @@ const Profile = () => {
                                             <FormControl>
                                                 <FormLabel fontSize="sm">First Name</FormLabel>
                                                 <Input
-                                                    value={profile?.USER?.name}
+                                                    value={profileData.firstName}
                                                     onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
+                                                    placeholder="Enter your first name"
                                                 />
                                             </FormControl>
 
@@ -441,10 +497,12 @@ const Profile = () => {
                                             <FormControl>
                                                 <FormLabel fontSize="sm">Email</FormLabel>
                                                 <Input
-                                                    value={profile?.USER?.email}
+                                                    value={profileData.email}
                                                     onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
+                                                    placeholder="Enter your email"
+                                                    type="email"
                                                 />
                                             </FormControl>
 
@@ -455,6 +513,8 @@ const Profile = () => {
                                                     onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
+                                                    placeholder="Enter your phone number"
+                                                    type="tel"
                                                 />
                                             </FormControl>
 
@@ -491,6 +551,7 @@ const Profile = () => {
                                                     onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
+                                                    placeholder="Enter your address"
                                                 />
                                             </FormControl>
 
@@ -501,6 +562,7 @@ const Profile = () => {
                                                     onChange={(e) => setProfileData({ ...profileData, city: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
+                                                    placeholder="Enter your city"
                                                 />
                                             </FormControl>
 
