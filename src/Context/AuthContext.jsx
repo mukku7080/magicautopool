@@ -137,13 +137,15 @@ export const AuthProvider = ({ children }) => {
             dispatch({ type: AUTH_ACTIONS.LOGIN_START });
 
             const response = await authService.login(credentials);
+
+            // Check if login failed
             if (response?.status === false) {
                 dispatch({
                     type: AUTH_ACTIONS.LOGIN_FAILURE,
                     payload: response.message || 'Login failed',
                 });
                 localStorage.removeItem('authToken');
-
+                return response; // Return early to prevent further execution
             }
 
             const { user, token } = response;

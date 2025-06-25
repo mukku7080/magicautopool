@@ -10,7 +10,7 @@ class AuthService {
             // Store token and user data
             localStorage.setItem('authToken', token);
             localStorage.setItem('user', JSON.stringify(user));
-            console.log("response", response);
+            // console.log("response", response);
 
             return response?.data;
 
