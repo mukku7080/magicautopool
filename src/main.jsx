@@ -5,10 +5,11 @@ import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import { ChakraProvider } from '@chakra-ui/react'
 import AppProvider from './Context/AppProvider'
+import theme from './theme.js'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <ChakraProvider>
+    <ChakraProvider theme={theme}>
       <BrowserRouter>
         <AppProvider>
           <App />

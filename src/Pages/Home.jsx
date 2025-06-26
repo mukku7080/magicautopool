@@ -16,8 +16,8 @@ const Home = () => {
         <>
             <div className="page-wrapper" style={{ width: '100%' }}>
                 {/* Cursor */}
-                {/* <div className="cursor" /> */}
-                {/* <div className="cursor-follower" /> */}
+                <div className="cursor" />
+                <div className="cursor-follower" />
                 {/* Cursor End */}
                 {/* Preloader */}
                 <div className="preloader">
@@ -1206,7 +1206,7 @@ const Home = () => {
                     </form>
                 </div> */}
                 {/* End Search Popup */}
-               
+
             </div>
             {/* End PageWrapper */}
             <div className="progress-wrap">

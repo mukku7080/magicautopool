@@ -42,6 +42,7 @@ import {
     FiArrowDownRight,
 } from 'react-icons/fi';
 import { AiOutlineWallet, AiOutlineBank } from 'react-icons/ai';
+import ReferralButton from '../../Components/ReferralButton';
 
 const Dashboard = () => {
     const cardBg = useColorModeValue('white', 'gray.800');
@@ -157,12 +158,23 @@ const Dashboard = () => {
         <Box>
             {/* Welcome Section */}
             <Box mb={8} mt={10}>
-                <Heading size="lg" mb={2}>
-                    Welcome back, John! 👋
-                </Heading>
-                <Text color={textColor}>
-                    Here's what's happening with your investments today.
-                </Text>
+                <Flex justify="space-between" align="center" mb={2}>
+                    <Box>
+                        <Heading size="lg" mb={2}>
+                            Welcome back, John! 👋
+                        </Heading>
+                        <Text color={textColor}>
+                            Here's what's happening with your investments today.
+                        </Text>
+                    </Box>
+                    <ReferralButton 
+                        colorScheme="blue"
+                        size="md"
+                        display={{ base: 'none', md: 'flex' }}
+                    >
+                        Invite Friends
+                    </ReferralButton>
+                </Flex>
             </Box>
 
             {/* Stats Grid */}

@@ -23,6 +23,7 @@ import {
 import { FiMenu, FiBell, FiSettings, FiLogOut, FiUser, FiMoon, FiSun } from 'react-icons/fi';
 import { AiOutlineWallet } from 'react-icons/ai';
 import { useAuth, useUser } from '../../Context';
+import { ReferralIconButton } from '../../Components/ReferralButton';
 
 const UserHeader = ({ onOpen, user }) => {
     const { colorMode, toggleColorMode } = useColorMode();
@@ -141,6 +142,13 @@ const UserHeader = ({ onOpen, user }) => {
                         ${user.balance.toLocaleString()}
                     </Box>
                 </Box>
+
+                {/* Referral Button */}
+                <ReferralIconButton 
+                    size="sm"
+                    variant="solid"
+                    colorScheme="blue"
+                />
 
                 {/* Color Mode Toggle */}
                 <IconButton

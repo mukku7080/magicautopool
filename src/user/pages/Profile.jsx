@@ -100,7 +100,7 @@ const Profile = () => {
         address: '',
         city: '',
         state: '',
-        zipCode: '',
+        pincode: '',
         otp: '',
         country: '',
         bio: '',
@@ -123,11 +123,11 @@ const Profile = () => {
                 email: userData.email || '',
                 mobile: userData.mobile || userData.mobile || userData.mobile || '',
                 // dateOfBirth: userData.dateOfBirth || userData.date_of_birth || userData.dob || '',
-                // address: userData.address || userData.street_address || '',
-                // city: userData.city || '',
-                // state: userData.state || userData.province || '',
-                // zipCode: userData.zipCode || userData.zip_code || userData.postal_code || '',
-                // country: userData.country || '',
+                address: userData.address || userData.street_address || '',
+                city: userData.city || '',
+                state: userData.state || userData.province || '',
+                pincode: userData.pincode || userData.Pin_code || userData.postal_code || '',
+                country: userData.country || '',
                 bio: userData.bio || userData.description || userData.about || '',
             };
 
@@ -478,7 +478,7 @@ const Profile = () => {
                                             <FormControl>
                                                 <FormLabel fontSize="sm">Name</FormLabel>
                                                 <Input
-                                                    value={profileData.firstName}
+                                                    value={profileData.name}
                                                     onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -580,17 +580,17 @@ const Profile = () => {
                                             </FormControl>
 
                                             <FormControl>
-                                                <FormLabel fontSize="sm">ZIP Code</FormLabel>
+                                                <FormLabel fontSize="sm">Pin Code</FormLabel>
                                                 <Input
-                                                    value={profileData.zipCode}
-                                                    onChange={(e) => setProfileData({ ...profileData, zipCode: e.target.value })}
+                                                    value={profileData.pincode}
+                                                    onChange={(e) => setProfileData({ ...profileData, pincode: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
-                                                    placeholder="Enter your ZIP code"
+                                                    placeholder="Enter your Pin code"
                                                 />
                                             </FormControl>
 
-                                                <FormControl>
+                                            <FormControl>
                                                 <FormLabel fontSize="sm">Otp</FormLabel>
                                                 <Input
                                                     value={profileData.otp}
