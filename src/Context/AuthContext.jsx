@@ -177,12 +177,15 @@ export const AuthProvider = ({ children }) => {
                 email: userData.email,
                 password: userData.password,
             }
-            const loginResponse = await authService.login(credentials);
-            const { user, token } = loginResponse;
-            dispatch({
-                type: AUTH_ACTIONS.REGISTER_SUCCESS,
-                payload: { user, token },
-            });
+            if (response?.data.status === true) {
+
+                const loginResponse = await authService.login(credentials);
+                const { user, token } = loginResponse;
+                dispatch({
+                    type: AUTH_ACTIONS.REGISTER_SUCCESS,
+                    payload: { user, token },
+                });
+            }
 
             console.log('🔄 Dispatched REGISTER_SUCCESS, auth state should be updated');
             return response;

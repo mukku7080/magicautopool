@@ -62,7 +62,9 @@ const Profile = () => {
         getUserName,
         getUserEmail,
         getUserAvatar,
-        isProfileLoaded
+        isProfileLoaded,
+        handleSendOtpProfileUpdate
+
     } = useUser();
 
     const cardBg = useColorModeValue('white', 'gray.800');
@@ -91,15 +93,15 @@ const Profile = () => {
     }, [error]);
 
     const [profileData, setProfileData] = useState({
-        firstName: '',
-        lastName: '',
+        name: '',
         email: '',
-        phone: '',
+        mobile: '',
         dateOfBirth: '',
         address: '',
         city: '',
         state: '',
         zipCode: '',
+        otp: '',
         country: '',
         bio: '',
     });
@@ -116,16 +118,16 @@ const Profile = () => {
             const userData = profile.USER || profile;
 
             const newProfileData = {
-                firstName: userData.firstName || userData.first_name || userData.name?.split(' ')[0] || '',
-                lastName: userData.lastName || userData.last_name || userData.name?.split(' ').slice(1).join(' ') || '',
+                name: userData.name || userData.name || userData.name?.split(' ')[0] || '',
+                // lastName: userData.lastName || userData.last_name || userData.name?.split(' ').slice(1).join(' ') || '',
                 email: userData.email || '',
-                phone: userData.phone || userData.mobile || userData.phone_number || '',
-                dateOfBirth: userData.dateOfBirth || userData.date_of_birth || userData.dob || '',
-                address: userData.address || userData.street_address || '',
-                city: userData.city || '',
-                state: userData.state || userData.province || '',
-                zipCode: userData.zipCode || userData.zip_code || userData.postal_code || '',
-                country: userData.country || '',
+                mobile: userData.mobile || userData.mobile || userData.mobile || '',
+                // dateOfBirth: userData.dateOfBirth || userData.date_of_birth || userData.dob || '',
+                // address: userData.address || userData.street_address || '',
+                // city: userData.city || '',
+                // state: userData.state || userData.province || '',
+                // zipCode: userData.zipCode || userData.zip_code || userData.postal_code || '',
+                // country: userData.country || '',
                 bio: userData.bio || userData.description || userData.about || '',
             };
 
@@ -441,7 +443,7 @@ const Profile = () => {
                                                     <Button
                                                         size="sm"
                                                         leftIcon={<FiEdit2 />}
-                                                        onClick={() => setIsEditing(true)}
+                                                        onClick={() => { setIsEditing(true); handleSendOtpProfileUpdate(); }}
                                                         variant="outline"
                                                         colorScheme="blue"
                                                     >
@@ -474,7 +476,7 @@ const Profile = () => {
                                     <CardBody pt={0}>
                                         <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }} gap={4}>
                                             <FormControl>
-                                                <FormLabel fontSize="sm">First Name</FormLabel>
+                                                <FormLabel fontSize="sm">Name</FormLabel>
                                                 <Input
                                                     value={profileData.firstName}
                                                     onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
@@ -484,7 +486,7 @@ const Profile = () => {
                                                 />
                                             </FormControl>
 
-                                            <FormControl>
+                                            {/* <FormControl>
                                                 <FormLabel fontSize="sm">Last Name</FormLabel>
                                                 <Input
                                                     value={profileData.lastName}
@@ -492,7 +494,7 @@ const Profile = () => {
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
                                                 />
-                                            </FormControl>
+                                            </FormControl> */}
 
                                             <FormControl>
                                                 <FormLabel fontSize="sm">Email</FormLabel>
@@ -588,6 +590,17 @@ const Profile = () => {
                                                 />
                                             </FormControl>
 
+                                                <FormControl>
+                                                <FormLabel fontSize="sm">Otp</FormLabel>
+                                                <Input
+                                                    value={profileData.otp}
+                                                    onChange={(e) => setProfileData({ ...profileData, otp: e.target.value })}
+                                                    isReadOnly={!isEditing}
+                                                    bg={isEditing ? 'white' : 'gray.50'}
+                                                    placeholder="Enter your email otp code"
+                                                />
+                                            </FormControl>
+
                                             <FormControl gridColumn={{ base: '1', md: '1 / -1' }}>
                                                 <FormLabel fontSize="sm">Bio</FormLabel>
                                                 <Textarea
@@ -602,7 +615,7 @@ const Profile = () => {
                                             </FormControl>
                                         </Grid>
 
-                                        {isEditing && (
+                                        {/* {isEditing && (
                                             <HStack spacing={3} mt={6} justify="flex-end">
                                                 <Button
                                                     variant="outline"
@@ -617,7 +630,7 @@ const Profile = () => {
                                                     Save Changes
                                                 </Button>
                                             </HStack>
-                                        )}
+                                        )} */}
                                     </CardBody>
                                 </Card>
                             </TabPanel>

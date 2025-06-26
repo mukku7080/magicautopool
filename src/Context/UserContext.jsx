@@ -218,6 +218,16 @@ export const UserProvider = ({ children }) => {
             return { success: false, error: error.message };
         }
     };
+    const handleSendOtpProfileUpdate = async () => {
+        try {
+            const result = await userService.sendUpdateProfileOtp();
+            return result;
+        } catch (error) {
+            console.error('Update user profile error:', error);
+            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message || 'Failed to update profile' });
+            return { success: false, error: error.message };
+        }
+    };
 
     // Upload profile picture
     const uploadProfilePicture = async (file) => {
@@ -417,6 +427,7 @@ export const UserProvider = ({ children }) => {
         updateUserSettings,
         loadDashboardData,
         clearError,
+        handleSendOtpProfileUpdate
     };
 
     return (

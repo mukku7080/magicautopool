@@ -8,6 +8,8 @@ import Packages from './pages/Packages';
 import Deposit from './pages/Deposit';
 import Withdraw from './pages/Withdraw';
 import Referrals from './pages/Referrals';
+import DepositForm from './pages/DepositForm';
+import WithdrawScreen from './pages/WithdrawScreen';
 
 const UserDashboard = () => {
     return (
@@ -18,8 +20,8 @@ const UserDashboard = () => {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/wallet" element={<Wallet />} />
                 <Route path="/packages" element={<Packages />} />
-                <Route path="/deposit" element={<Deposit />} />
-                <Route path="/withdraw" element={<Withdraw />} />
+                <Route path="/deposit" element={<DepositForm />} />
+                <Route path="/withdraw" element={<WithdrawScreen />} />
                 <Route path="/referrals" element={<Referrals />} />
                 {/* Add more routes as needed */}
                 <Route path="/transactions" element={<div>Transactions Page - Coming Soon</div>} />

@@ -35,7 +35,7 @@ class UserService {
         try {
             console.log('📝 Updating profile with data:', profileData);
 
-            const response = await axiosInstance.put('/profile', profileData);
+            const response = await axiosInstance.post('/profile/update', profileData);
 
             console.log('✅ Update profile response:', response);
             console.log('📊 Updated profile data:', response.data);
@@ -54,6 +54,23 @@ class UserService {
             };
         }
     }
+
+    async sendUpdateProfileOtp() {
+        try {
+            const response = await axiosInstance.post('/mail/otpUpdateProfile');
+            console.log('✅ otp send response:', response);
+            console.log('📊 otp send data:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('❌ otp error:', error);
+            throw {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Failed to send otp',
+                error: error
+            };
+        }
+    }
+
 
     // // Upload profile picture
     // async uploadProfilePicture(file) {
