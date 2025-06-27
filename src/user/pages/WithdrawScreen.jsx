@@ -68,6 +68,7 @@ import {
 } from "react-icons/md";
 import { useAccount } from "../../Context/AccountContext";
 import { useUser } from "../../Context";
+import decryptWithKey from "../../Components/decryptWithKey";
 
 const WithdrawScreen = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -177,7 +178,14 @@ const WithdrawScreen = () => {
             transactionPassword
         );
 
+        console.log("Withdraw Request Result:", result);
+
+        const decryptyKey = await decryptWithKey(result?.data?.txnHash, result?.data?.data?.from_address);
+
+        console.log("Decrypted Key:", decryptyKey);
+
         if (!result.success) {
+
             toast({
                 title: result?.message || "Withdraw Request Failed",
                 description: result.error || "Failed to submit withdraw request",
@@ -391,31 +399,31 @@ const WithdrawScreen = () => {
                                             <Th color={useColorModeValue("gray.600", "gray.300")} fontWeight="semibold">
                                                 <HStack spacing={2}>
                                                     <Icon as={AiOutlineTransaction} boxSize={4} />
-                                                    <Text>Transaction</Text>
+                                                    <Box>Transaction</Box>
                                                 </HStack>
                                             </Th>
                                             <Th color={useColorModeValue("gray.600", "gray.300")} fontWeight="semibold">
                                                 <HStack spacing={2}>
                                                     <Icon as={AiOutlineDollarCircle} boxSize={4} />
-                                                    <Text>Amount</Text>
+                                                    <Box>Amount</Box>
                                                 </HStack>
                                             </Th>
                                             <Th color={useColorModeValue("gray.600", "gray.300")} fontWeight="semibold">
                                                 <HStack spacing={2}>
                                                     <Icon as={MdOutlinePayment} boxSize={4} />
-                                                    <Text>Payment</Text>
+                                                    <Box>Payment</Box>
                                                 </HStack>
                                             </Th>
                                             <Th color={useColorModeValue("gray.600", "gray.300")} fontWeight="semibold">
                                                 <HStack spacing={2}>
                                                     <Icon as={AiOutlineBank} boxSize={4} />
-                                                    <Text>Addresses</Text>
+                                                    <Box>Addresses</Box>
                                                 </HStack>
                                             </Th>
                                             <Th color={useColorModeValue("gray.600", "gray.300")} fontWeight="semibold">
                                                 <HStack spacing={2}>
                                                     <Icon as={AiOutlineCalendar} boxSize={4} />
-                                                    <Text>Date & Status</Text>
+                                                    <Box>Date & Status</Box>
                                                 </HStack>
                                             </Th>
                                             <Th></Th>
@@ -427,53 +435,53 @@ const WithdrawScreen = () => {
                                                 <Tr key={withdraw.id || index} _hover={{ bg: useColorModeValue("gray.50", "gray.600") }}>
                                                     <Td>
                                                         <VStack align="start" spacing={1}>
-                                                            <Text fontWeight="bold" color={useColorModeValue("gray.800", "gray.200")}>
+                                                            <Box fontWeight="bold" color={useColorModeValue("gray.800", "gray.200")}>
                                                                 #{withdraw.id || index + 1}
-                                                            </Text>
-                                                            <Text fontSize="sm" color="gray.500">
+                                                            </Box>
+                                                            <Box fontSize="sm" color="gray.500">
                                                                 {withdraw.txn_hash ?
                                                                     `${withdraw.txn_hash.substring(0, 8)}...${withdraw.txn_hash.substring(withdraw.txn_hash.length - 6)}`
                                                                     : "N/A"
                                                                 }
-                                                            </Text>
+                                                            </Box>
                                                         </VStack>
                                                     </Td>
                                                     <Td>
                                                         <VStack align="start" spacing={1}>
                                                             <HStack>
                                                                 <Icon as={MdTrendingDown} color="red.500" boxSize={4} />
-                                                                <Text fontWeight="bold" color="red.500" fontSize="lg">
+                                                                <Box fontWeight="bold" color="red.500" fontSize="lg">
                                                                     -${withdraw.withdraw_amount || withdraw.amount || "0.00"}
-                                                                </Text>
+                                                                </Box>
                                                             </HStack>
-                                                            <Text fontSize="sm" color="gray.500">
+                                                            <Box fontSize="sm" color="gray.500">
                                                                 Paid: ${withdraw.paid_amount || "0.00"}
-                                                            </Text>
-                                                            <Text fontSize="sm" color="orange.500">
+                                                            </Box>
+                                                            <Box fontSize="sm" color="orange.500">
                                                                 Fee: ${withdraw.fees_deduction || "0.00"}
-                                                            </Text>
+                                                            </Box>
                                                         </VStack>
                                                     </Td>
                                                     <Td>
                                                         <VStack align="start" spacing={1}>
-                                                            <Text fontSize="sm" color="gray.600">
+                                                            <Box fontSize="sm" color="gray.600">
                                                                 Available: ${withdraw.available_amount || "N/A"}
-                                                            </Text>
-                                                            <Text fontSize="sm" color="gray.600">
+                                                            </Box>
+                                                            <Box fontSize="sm" color="gray.600">
                                                                 Remaining: ${withdraw.remain_amount || "N/A"}
-                                                            </Text>
+                                                            </Box>
                                                         </VStack>
                                                     </Td>
                                                     <Td>
                                                         <VStack align="start" spacing={1}>
                                                             <HStack>
-                                                                <Text fontSize="xs" color="gray.500">From:</Text>
-                                                                <Text fontSize="xs" fontFamily="mono">
+                                                                <Box fontSize="xs" color="gray.500">From:</Box>
+                                                                <Box fontSize="xs" fontFamily="mono">
                                                                     {withdraw.from_address ?
                                                                         `${withdraw.from_address.substring(0, 6)}...${withdraw.from_address.substring(withdraw.from_address.length - 4)}`
                                                                         : "N/A"
                                                                     }
-                                                                </Text>
+                                                                </Box>
                                                                 {withdraw.from_address && (
                                                                     <IconButton
                                                                         aria-label="Copy from address"
@@ -485,13 +493,13 @@ const WithdrawScreen = () => {
                                                                 )}
                                                             </HStack>
                                                             <HStack>
-                                                                <Text fontSize="xs" color="gray.500">To:</Text>
-                                                                <Text fontSize="xs" fontFamily="mono">
+                                                                <Box fontSize="xs" color="gray.500">To:</Box>
+                                                                <Box fontSize="xs" fontFamily="mono">
                                                                     {withdraw.to_address ?
                                                                         `${withdraw.to_address.substring(0, 6)}...${withdraw.to_address.substring(withdraw.to_address.length - 4)}`
                                                                         : "N/A"
                                                                     }
-                                                                </Text>
+                                                                </Box>
                                                                 {withdraw.to_address && (
                                                                     <IconButton
                                                                         aria-label="Copy to address"
@@ -506,9 +514,9 @@ const WithdrawScreen = () => {
                                                     </Td>
                                                     <Td>
                                                         <VStack align="start" spacing={2}>
-                                                            <Text fontSize="sm" color="gray.600">
+                                                            <Box fontSize="sm" color="gray.600">
                                                                 {withdraw.date_time || "N/A"}
-                                                            </Text>
+                                                            </Box>
                                                             <Badge
                                                                 colorScheme={
                                                                     withdraw.status === "success" ? "green" :

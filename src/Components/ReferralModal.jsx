@@ -30,13 +30,13 @@ import {
     FiShare2,
     FiExternalLink,
 } from 'react-icons/fi';
-import { 
-    AiOutlineQrcode, 
+import {
+    AiOutlineQrcode,
     AiOutlineWhatsApp,
 } from 'react-icons/ai';
-import { 
-    FaTelegram, 
-    FaTwitter, 
+import {
+    FaTelegram,
+    FaTwitter,
     FaFacebook,
     FaInstagram,
     FaLinkedin,
@@ -80,7 +80,7 @@ const ReferralModal = ({ isOpen, onClose }) => {
             textArea.select();
             document.execCommand('copy');
             document.body.removeChild(textArea);
-            
+
             setCopied(true);
             toast({
                 title: 'Link Copied!',
@@ -178,24 +178,24 @@ const ReferralModal = ({ isOpen, onClose }) => {
                     <HStack spacing={3}>
                         <Icon as={FiUsers} color="blue.500" boxSize={6} />
                         <VStack align="start" spacing={0}>
-                            <Text fontSize="xl" fontWeight="bold">Share & Earn</Text>
-                            <Text fontSize="sm" color="gray.600" fontWeight="normal">
+                            <Box fontSize="xl" fontWeight="bold">Share & Earn</Box>
+                            <Box fontSize="sm" color="gray.600" fontWeight="normal">
                                 Invite friends and earn rewards
-                            </Text>
+                            </Box>
                         </VStack>
                     </HStack>
                 </ModalHeader>
                 <ModalCloseButton />
-                
+
                 <ModalBody pb={6}>
                     <VStack spacing={6}>
                         {/* Profile Loading Check */}
                         {!isProfileLoaded() && (
-                            <Box 
-                                p={4} 
-                                bg="orange.50" 
-                                borderRadius="lg" 
-                                borderLeft="4px" 
+                            <Box
+                                p={4}
+                                bg="orange.50"
+                                borderRadius="lg"
+                                borderLeft="4px"
                                 borderColor="orange.400"
                                 w="full"
                             >
@@ -207,12 +207,12 @@ const ReferralModal = ({ isOpen, onClose }) => {
 
                         {/* Referral Code Badge */}
                         <HStack justify="center" w="full">
-                            <Badge 
-                                colorScheme="blue" 
-                                variant="solid" 
-                                fontSize="md" 
-                                px={4} 
-                                py={2} 
+                            <Badge
+                                colorScheme="blue"
+                                variant="solid"
+                                fontSize="md"
+                                px={4}
+                                py={2}
                                 borderRadius="full"
                             >
                                 Your Code: {referralCode}
@@ -247,7 +247,7 @@ const ReferralModal = ({ isOpen, onClose }) => {
                                         </Button>
                                     </InputRightElement>
                                 </InputGroup>
-                                
+
                                 <Tooltip label="Show QR Code">
                                     <IconButton
                                         size="lg"
@@ -261,18 +261,18 @@ const ReferralModal = ({ isOpen, onClose }) => {
 
                             {/* QR Code Display */}
                             {showQR && referralCode !== 'LOADING' && (
-                                <Box 
-                                    p={4} 
-                                    bg="white" 
-                                    borderRadius="lg" 
-                                    border="2px" 
+                                <Box
+                                    p={4}
+                                    bg="white"
+                                    borderRadius="lg"
+                                    border="2px"
                                     borderColor="gray.200"
                                     textAlign="center"
                                 >
-                                    <Image 
-                                        src={qrCodeUrl} 
-                                        alt="QR Code" 
-                                        mx="auto" 
+                                    <Image
+                                        src={qrCodeUrl}
+                                        alt="QR Code"
+                                        mx="auto"
                                         borderRadius="md"
                                         fallback={<Box w="200px" h="200px" bg="gray.100" />}
                                     />
@@ -290,7 +290,7 @@ const ReferralModal = ({ isOpen, onClose }) => {
                             <Text fontWeight="semibold" color="gray.700">
                                 Share via Social Media
                             </Text>
-                            
+
                             {/* Native Share Button (Mobile) */}
                             {navigator.share && (
                                 <Button
@@ -316,7 +316,7 @@ const ReferralModal = ({ isOpen, onClose }) => {
                                 >
                                     WhatsApp
                                 </Button>
-                                
+
                                 <Button
                                     colorScheme="telegram"
                                     leftIcon={<FaTelegram />}
@@ -327,7 +327,7 @@ const ReferralModal = ({ isOpen, onClose }) => {
                                 >
                                     Telegram
                                 </Button>
-                                
+
                                 <Button
                                     colorScheme="twitter"
                                     leftIcon={<FaTwitter />}
@@ -338,7 +338,7 @@ const ReferralModal = ({ isOpen, onClose }) => {
                                 >
                                     Twitter
                                 </Button>
-                                
+
                                 <Button
                                     colorScheme="facebook"
                                     leftIcon={<FaFacebook />}
@@ -349,7 +349,7 @@ const ReferralModal = ({ isOpen, onClose }) => {
                                 >
                                     Facebook
                                 </Button>
-                                
+
                                 <Button
                                     colorScheme="pink"
                                     leftIcon={<FaInstagram />}
@@ -360,7 +360,7 @@ const ReferralModal = ({ isOpen, onClose }) => {
                                 >
                                     Instagram
                                 </Button>
-                                
+
                                 <Button
                                     colorScheme="linkedin"
                                     leftIcon={<FaLinkedin />}
@@ -386,11 +386,11 @@ const ReferralModal = ({ isOpen, onClose }) => {
                         </VStack>
 
                         {/* Reward Info */}
-                        <Box 
-                            p={4} 
-                            bg="blue.50" 
-                            borderRadius="lg" 
-                            w="full" 
+                        <Box
+                            p={4}
+                            bg="blue.50"
+                            borderRadius="lg"
+                            w="full"
                             textAlign="center"
                         >
                             <Text fontSize="sm" color="blue.700">
@@ -404,8 +404,8 @@ const ReferralModal = ({ isOpen, onClose }) => {
                     <Button colorScheme="gray" mr={3} onClick={onClose}>
                         Close
                     </Button>
-                    <Button 
-                        colorScheme="blue" 
+                    <Button
+                        colorScheme="blue"
                         leftIcon={<FiExternalLink />}
                         onClick={() => {
                             window.open('/user/referrals', '_blank');

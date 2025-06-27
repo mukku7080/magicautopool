@@ -3,6 +3,7 @@ import { AuthProvider } from './AuthContext';
 import { UserProvider } from './UserContext';
 import { ForexProvider } from './ForexContext';
 import { AccountProvider } from './AccountContext';
+import { Web3Provider } from './Web3Context';
 
 // Combined provider component that wraps all contexts
 const AppProvider = ({ children }) => {
@@ -11,7 +12,9 @@ const AppProvider = ({ children }) => {
             <UserProvider>
                 <ForexProvider>
                     <AccountProvider>
-                        {children}
+                        <Web3Provider>
+                            {children}
+                        </Web3Provider>
                     </AccountProvider>
                 </ForexProvider>
             </UserProvider>

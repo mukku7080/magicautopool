@@ -235,6 +235,7 @@ export const AccountProvider = ({ children }) => {
                 return {
                     success: true,
                     message: result.message || 'Withdraw request submitted successfully',
+                    data: result.data
                 };
             } else {
                 return {
