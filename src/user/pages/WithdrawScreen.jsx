@@ -57,7 +57,9 @@ import {
     AiOutlineBank,
     AiOutlineDollarCircle,
     AiOutlineTransaction,
-    AiOutlineHistory
+    AiOutlineHistory,
+    AiOutlineClockCircle,
+    AiOutlineCheckCircle
 } from "react-icons/ai";
 import {
     MdOutlineAccountBalanceWallet,
@@ -111,6 +113,7 @@ const WithdrawScreen = () => {
     // 2. Chakra UI hooks
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isOpen: isUpdateModalOpen, onOpen: onUpdateModalOpen, onClose: onUpdateModalClose } = useDisclosure();
+    const { isOpen: isManualModalOpen, onOpen: onManualModalOpen, onClose: onManualModalClose } = useDisclosure();
     const toast = useToast();
 
     // 3. Color mode values (these use context internally)
@@ -538,20 +541,14 @@ const WithdrawScreen = () => {
                 // Manual processing - no txnHash
                 console.log("No txnHash - Manual processing required");
 
-                toast({
-                    title: "Withdrawal Request Submitted",
-                    description: "Your withdrawal request has been submitted for manual processing.",
-                    status: "success",
-                    duration: 5000,
-                    isClosable: true,
-                });
-
-                // Reset form and close modal for manual processing
+                // Reset form and close withdraw modal
                 setWithdrawAmount("");
                 setWithdrawAddress("");
-                setTransactionPassword("");
                 setFormErrors({});
                 onClose();
+
+                // Show manual withdrawal modal with 24 hours message
+                onManualModalOpen();
 
                 // Call manual processing API if needed
                 await processManualWithdrawal(result.data.id);
@@ -1296,6 +1293,86 @@ const WithdrawScreen = () => {
                             leftIcon={<AiOutlineBank />}
                         >
                             Update Address
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
+            {/* Manual Withdrawal Modal */}
+            <Modal isOpen={isManualModalOpen} onClose={onManualModalClose} isCentered>
+                <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(10px)" />
+                <ModalContent mx={4} borderRadius="xl" bg={cardBgColor} shadow="2xl">
+                    <ModalHeader>
+                        <VStack spacing={3} align="center">
+                            <Box
+                                p={3}
+                                bg="green.100"
+                                borderRadius="full"
+                                color="green.500"
+                            >
+                                <AiOutlineCheckCircle size={32} />
+                            </Box>
+                            <Box textAlign="center">
+                                <Text fontSize="xl" fontWeight="bold" color="green.500">
+                                    Withdrawal Request Submitted
+                                </Text>
+                            </Box>
+                        </VStack>
+                    </ModalHeader>
+                    <ModalCloseButton />
+
+                    <ModalBody pb={6}>
+                        <VStack spacing={4} textAlign="center">
+                            {/* Success Message */}
+                            <Box
+                                p={4}
+                                bg="green.50"
+                                borderRadius="lg"
+                                w="full"
+                                border="1px"
+                                borderColor="green.200"
+                            >
+                                <VStack spacing={3}>
+                                    <HStack spacing={2}>
+                                        <AiOutlineClockCircle color="green.500" size={20} />
+                                        <Text fontSize="lg" fontWeight="semibold" color="green.700">
+                                            Processing Timeline
+                                        </Text>
+                                    </HStack>
+                                    <Text fontSize="md" color="green.600">
+                                        Your withdraw amount will be credited to your wallet within 24 hours
+                                    </Text>
+                                    <Divider borderColor="green.200" />
+                                    <Text fontSize="sm" color="green.500">
+                                        You will receive a confirmation once the transfer is completed
+                                    </Text>
+                                </VStack>
+                            </Box>
+
+                            {/* Additional Info */}
+                            <Box
+                                p={3}
+                                bg={bgColor}
+                                borderRadius="md"
+                                w="full"
+                            >
+                                <Text fontSize="sm" color="gray.600" textAlign="center">
+                                    💡 Manual withdrawals are processed during business hours.
+                                    <br />
+                                    You can check the status in your withdrawal history.
+                                </Text>
+                            </Box>
+                        </VStack>
+                    </ModalBody>
+
+                    <ModalFooter justifyContent="center">
+                        <Button
+                            colorScheme="green"
+                            onClick={onManualModalClose}
+                            size="lg"
+                            px={8}
+                        >
+                            Got it, Thanks!
                         </Button>
                     </ModalFooter>
                 </ModalContent>
