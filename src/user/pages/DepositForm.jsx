@@ -92,7 +92,7 @@ const DepositForm = () => {
     const [formErrors, setFormErrors] = useState({});
     const [isProcessing, setIsProcessing] = useState(false);
     const [asset, setAsset] = useState("USDT");
-    const { startDeposit } = useAccount();
+    const { startDeposit, startDepositData } = useAccount();
     const [depositType, setDepositType] = useState("wallet"); // Default to Wallet
 
     const toast = useToast();
@@ -106,6 +106,8 @@ const DepositForm = () => {
         chainId,
     } = useWeb3();
     const { profile } = useUser();
+    console.log("startdeosit:", startDepositData);
+    console.log("Profile:", profile);
 
     // Mock deposit data - replace with real data from your context
     const [isLoading, setIsLoading] = useState(false);
@@ -905,33 +907,36 @@ const DepositForm = () => {
                                 )}
                             </FormControl>
 
-                            {/* Deposit Address */}
-                            {/* <FormControl isRequired>
-                                <FormLabel fontSize="sm">Deposit Address</FormLabel>
-                                <HStack>
-                                    <Input
-                                        value={depositAddress}
-                                        onChange={(e) => setDepositAddress(e.target.value)}
-                                        placeholder="Enter deposit address"
-                                        fontFamily="mono"
-                                        fontSize="sm"
-                                        isInvalid={formErrors.address}
-                                    />
-                                    <Tooltip label="Copy Address">
-                                        <IconButton
-                                            aria-label="Copy address"
-                                            icon={<CopyIcon />}
-                                            size="sm"
-                                            onClick={() => navigator.clipboard.writeText(depositAddress)}
+                            {/* Deposit Address */}{
+                                isConnected &&
+
+                                <FormControl isRequired>
+                                    <FormLabel fontSize="sm">Deposit Address</FormLabel>
+                                    <HStack>
+                                        <Input
+                                            value={startDepositData?.data?.to_address}
+                                            onChange={(e) => setDepositAddress(e.target.value)}
+                                            placeholder="Enter deposit address"
+                                            fontFamily="mono"
+                                            fontSize="sm"
+                                            isInvalid={formErrors.address}
                                         />
-                                    </Tooltip>
-                                </HStack>
-                                {formErrors.address && (
-                                    <Text fontSize="xs" color="red.500" mt={1}>
-                                        {formErrors.address}
-                                    </Text>
-                                )}
-                            </FormControl> */}
+                                        <Tooltip label="Copy Address">
+                                            <IconButton
+                                                aria-label="Copy address"
+                                                icon={<CopyIcon />}
+                                                size="sm"
+                                                onClick={() => navigator.clipboard.writeText(depositAddress)}
+                                            />
+                                        </Tooltip>
+                                    </HStack>
+                                    {formErrors.address && (
+                                        <Text fontSize="xs" color="red.500" mt={1}>
+                                            {formErrors.address}
+                                        </Text>
+                                    )}
+                                </FormControl>
+                            }
 
                             {/* Transaction Password */}
                             {/* <FormControl isRequired>
@@ -977,7 +982,7 @@ const DepositForm = () => {
                                                 size="lg"
                                                 w="full"
                                                 leftIcon={<MdWallet />}
-                                                onClick={() => { setDepositType('getway'); handleDeposite(); }}
+                                                onClick={handleDepositRequest}
                                                 isDisabled={!depositAmount || parseFloat(depositAmount) <= 0 || !depositAddress || chainId !== '56'}
                                                 rightIcon={<FiArrowRight />}
                                             >

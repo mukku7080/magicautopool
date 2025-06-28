@@ -128,6 +128,7 @@ const AccountContext = createContext();
 export const AccountProvider = ({ children }) => {
     const [state, dispatch] = useReducer(accountReducer, initialState);
     const { isAuthenticated } = useAuth();
+    const [startDepositData, setStartDepositData] = React.useState(null);
 
     // Load account data when authenticated
     useEffect(() => {
@@ -185,6 +186,7 @@ export const AccountProvider = ({ children }) => {
     const startDeposit = async (request) => {
         try {
             const result = await accountService.startDeposit(request);
+            setStartDepositData(result);
             return result;
         }
         catch (error) {
@@ -356,7 +358,8 @@ export const AccountProvider = ({ children }) => {
         getWithdrawHistoryCount,
         getPendingWithdraws,
         getSuccessfulWithdraws,
-        startDeposit
+        startDeposit,
+        startDepositData
     };
 
     return (
