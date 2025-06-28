@@ -40,10 +40,10 @@ const WalletModal = ({ isOpen, onClose }) => {
             <ModalContent mx={4} borderRadius="xl" bg="white" shadow="2xl">
                 <ModalHeader>
                     <VStack spacing={2} align="start">
-                        <Text fontSize="xl" fontWeight="bold">Connect Wallet</Text>
-                        <Text fontSize="sm" color="gray.600" fontWeight="normal">
+                        <Box fontSize="xl" fontWeight="bold">Connect Wallet</Box>
+                        <Box fontSize="sm" color="gray.600" fontWeight="normal">
                             Choose your preferred wallet to connect
-                        </Text>
+                        </Box>
                     </VStack>
                 </ModalHeader>
                 <ModalCloseButton />
@@ -60,9 +60,9 @@ const WalletModal = ({ isOpen, onClose }) => {
                             borderColor="blue.200"
                         >
                             <HStack justify="space-between" mb={2}>
-                                <Text fontSize="sm" fontWeight="semibold" color="blue.800">
+                                <Box fontSize="sm" fontWeight="semibold" color="blue.800">
                                     Target Network
-                                </Text>
+                                </Box>
                                 <Badge colorScheme="blue" variant="solid">
                                     BSC Mainnet
                                 </Badge>
@@ -99,23 +99,23 @@ const WalletModal = ({ isOpen, onClose }) => {
                                     >
                                         <Flex justify="space-between" align="center">
                                             <HStack spacing={3}>
-                                                <Text fontSize="2xl">{wallet.icon}</Text>
+                                                <Box fontSize="2xl">{wallet.icon}</Box>
                                                 <VStack align="start" spacing={0}>
-                                                    <Text fontWeight="semibold" fontSize="md">
+                                                    <Box fontWeight="semibold" fontSize="md">
                                                         {wallet.name}
-                                                    </Text>
+                                                    </Box>
                                                     <HStack spacing={2}>
                                                         <Icon
                                                             as={isInstalled ? FiWifi : FiWifiOff}
                                                             color={isInstalled ? 'green.500' : 'orange.500'}
                                                             boxSize={3}
                                                         />
-                                                        <Text
+                                                        <Box
                                                             fontSize="xs"
                                                             color={isInstalled ? 'green.600' : 'orange.600'}
                                                         >
                                                             {isInstalled ? 'Installed' : 'Not Installed'}
-                                                        </Text>
+                                                        </Box>
                                                     </HStack>
                                                 </VStack>
                                             </HStack>

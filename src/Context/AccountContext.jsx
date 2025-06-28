@@ -182,6 +182,16 @@ export const AccountProvider = ({ children }) => {
             dispatch({ type: ACCOUNT_ACTIONS.SET_ERROR, payload: error.message || 'Failed to load withdraw history' });
         }
     };
+    const startDeposit = async (request) => {
+        try {
+            const result = await accountService.startDeposit(request);
+            return result;
+        }
+        catch (error) {
+            console.error('❌ Start deposit error:', error);
+            dispatch({ type: ACCOUNT_ACTIONS.SET_ERROR, payload: error.message || 'Failed to start deposit' });
+        }
+    }
 
     // Load account statistics
     const loadAccountStats = async () => {
@@ -346,6 +356,7 @@ export const AccountProvider = ({ children }) => {
         getWithdrawHistoryCount,
         getPendingWithdraws,
         getSuccessfulWithdraws,
+        startDeposit
     };
 
     return (

@@ -52,6 +52,28 @@ class AccountService {
         }
     }
 
+    async startDeposit(request) {
+        try {
+
+            const response = await axiosInstance.post('/start-deposit', request);
+
+            console.log('✅ Withdraw history response:', response);
+
+            return {
+                success: true,
+                data: response.data?.data || response.data,
+                message: response.data?.message || 'Withdraw history loaded successfully'
+            };
+        } catch (error) {
+            console.error('❌ Get withdraw history error:', error);
+            throw {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Failed to load withdraw history',
+                error: error
+            };
+        }
+    }
+
     // Get account balance
     async getAccountBalance() {
         try {

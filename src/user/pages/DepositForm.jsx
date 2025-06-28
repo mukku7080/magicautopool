@@ -80,7 +80,7 @@ import {
 import { useWeb3 } from "../../Context/Web3Context";
 import WalletModal from "../../Components/WalletModal";
 import WalletStatus from "../../Components/WalletStatus";
-import { useUser } from "../../Context";
+import { useAccount, useUser } from "../../Context";
 
 const DepositForm = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -91,6 +91,9 @@ const DepositForm = () => {
     const [transactionPassword, setTransactionPassword] = useState("");
     const [formErrors, setFormErrors] = useState({});
     const [isProcessing, setIsProcessing] = useState(false);
+    const [asset, setAsset] = useState("USDT");
+    const { startDeposit } = useAccount();
+    const [depositType, setDepositType] = useState("wallet"); // Default to Wallet
 
     const toast = useToast();
 
@@ -130,6 +133,23 @@ const DepositForm = () => {
             status: "pending"
         }
     ]);
+    const handleDeposite = async (type) => {
+        setDepositType(type);
+        const dto = {
+            deposit_amount: depositAmount,
+            deposit_asset: asset,
+            deposit_type: type,
+        }
+        if (type === "wallet") {
+
+            const response = await startDeposit(dto);
+            console.log("Deposit response:", response);
+            onWalletModalOpen();
+        } else {
+            const response = await startDeposit(dto);
+            console.log("Deposit response:", response);
+        }
+    }
 
     // Load deposit data on component mount
     useEffect(() => {
@@ -151,9 +171,7 @@ const DepositForm = () => {
             errors.address = "Please enter a deposit address";
         }
 
-        if (!transactionPassword) {
-            errors.password = "Please enter your transaction password";
-        }
+
 
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
@@ -888,7 +906,7 @@ const DepositForm = () => {
                             </FormControl>
 
                             {/* Deposit Address */}
-                            <FormControl isRequired>
+                            {/* <FormControl isRequired>
                                 <FormLabel fontSize="sm">Deposit Address</FormLabel>
                                 <HStack>
                                     <Input
@@ -913,7 +931,7 @@ const DepositForm = () => {
                                         {formErrors.address}
                                     </Text>
                                 )}
-                            </FormControl>
+                            </FormControl> */}
 
                             {/* Transaction Password */}
                             {/* <FormControl isRequired>
@@ -932,11 +950,11 @@ const DepositForm = () => {
                                 )}
                             </FormControl> */}
 
-                            <Divider />
+                            {/* <Divider /> */}
 
                             {/* Payment Methods */}
                             <VStack spacing={4} w="full">
-                            
+
 
                                 {/* Wallet Payment */}
                                 <Box w="full">
@@ -946,7 +964,7 @@ const DepositForm = () => {
                                             size="lg"
                                             w="full"
                                             leftIcon={<MdWallet />}
-                                            onClick={onWalletModalOpen}
+                                            onClick={() => handleDeposite('wallet')}
                                         >
                                             Connect Wallet to Pay
                                         </Button>
@@ -959,7 +977,7 @@ const DepositForm = () => {
                                                 size="lg"
                                                 w="full"
                                                 leftIcon={<MdWallet />}
-                                                onClick={onConfirmModalOpen}
+                                                onClick={() => { setDepositType('getway'); handleDeposite(); }}
                                                 isDisabled={!depositAmount || parseFloat(depositAmount) <= 0 || !depositAddress || chainId !== '56'}
                                                 rightIcon={<FiArrowRight />}
                                             >
@@ -996,7 +1014,8 @@ const DepositForm = () => {
                                     w="full"
                                     leftIcon={<FiCreditCard />}
                                     variant="outline"
-                                    onClick={handleDepositRequest}
+                                    onClick={() => handleDeposite('getway')}
+                                    // onClick={handleDepositRequest}
                                     isLoading={isProcessing}
                                     loadingText="Processing..."
                                 >

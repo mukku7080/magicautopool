@@ -41,7 +41,6 @@ import {
     SimpleGrid,
     IconButton,
     Tooltip,
-    useBreakpointValue,
     Menu,
     MenuButton,
     MenuList,
@@ -96,8 +95,8 @@ const BEP20_ABI = [
 const MDC_CONTRACT_ADDRESS = "0xf43C9b40C9361b301019C98Fb535affB3ec6C673";
 
 const WithdrawScreen = () => {
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    const { isOpen: isUpdateModalOpen, onOpen: onUpdateModalOpen, onClose: onUpdateModalClose } = useDisclosure();
+    // ALL HOOKS MUST BE CALLED IN THE SAME ORDER EVERY TIME
+    // 1. State hooks
     const [withdrawAmount, setWithdrawAmount] = useState("");
     const [withdrawAddress, setWithdrawAddress] = useState("");
     const [selectedNetwork, setSelectedNetwork] = useState("BEP-20");
@@ -109,9 +108,28 @@ const WithdrawScreen = () => {
     const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
     const [withdrawResponse, setWithdrawResponse] = useState(null);
 
+    // 2. Chakra UI hooks
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isOpen: isUpdateModalOpen, onOpen: onUpdateModalOpen, onClose: onUpdateModalClose } = useDisclosure();
     const toast = useToast();
 
-    // Use Account Context
+    // 3. Color mode values (these use context internally)
+    const bgColor = useColorModeValue("gray.100", "gray.700");
+    const cardBgColor = useColorModeValue("white", "gray.800");
+    const borderColor = useColorModeValue("gray.200", "gray.600");
+    const textColor = useColorModeValue("gray.700", "gray.200");
+    const tableHoverColor = useColorModeValue("gray.50", "gray.600");
+    const theadBgColor = useColorModeValue("gray.50", "gray.700");
+    const thColor = useColorModeValue("gray.600", "gray.300");
+    const fontColor = useColorModeValue("gray.800", "gray.200");
+    const selectBgColor = useColorModeValue("white", "gray.700");
+    const inputReadOnlyBg = useColorModeValue("gray.50", "gray.800");
+
+    // 4. Context hooks - always call these in the same order
+    const accountContext = useAccount();
+    const userContext = useUser();
+
+    // 5. Destructure after getting contexts
     const {
         balance,
         withdrawHistory,
@@ -127,8 +145,8 @@ const WithdrawScreen = () => {
         getAvailableBalance,
         getTotalBalance,
         getTotalWithdrawn,
-    } = useAccount();
-    const { profile } = useUser();
+    } = accountContext || {};
+    const { profile } = userContext || {};
 
     // Memoize expensive calculations
     const availableBalance = useMemo(() => {
@@ -591,12 +609,7 @@ const WithdrawScreen = () => {
         }
     }, [toast]);
 
-    // Memoize color mode values
-    const bgColor = useColorModeValue("gray.100", "gray.700");
-    const cardBgColor = useColorModeValue("white", "gray.800");
-    const borderColor = useColorModeValue("gray.200", "gray.600");
-    const textColor = useColorModeValue("gray.700", "gray.200");
-    const tableHoverColor = useColorModeValue("gray.50", "gray.600");
+
 
     return (
         <Box p={8} bg={bgColor} minH="100vh">
@@ -757,33 +770,33 @@ const WithdrawScreen = () => {
                         <Box display={{ base: "none", lg: "block" }}>
                             <TableContainer>
                                 <Table variant="simple" size="md">
-                                    <Thead bg={useColorModeValue("gray.50", "gray.700")}>
+                                    <Thead bg={theadBgColor}>
                                         <Tr>
-                                            <Th color={useColorModeValue("gray.600", "gray.300")} fontWeight="semibold">
+                                            <Th color={thColor} fontWeight="semibold">
                                                 <HStack spacing={2}>
                                                     <Icon as={AiOutlineTransaction} boxSize={4} />
                                                     <Box>Transaction</Box>
                                                 </HStack>
                                             </Th>
-                                            <Th color={useColorModeValue("gray.600", "gray.300")} fontWeight="semibold">
+                                            <Th color={thColor} fontWeight="semibold">
                                                 <HStack spacing={2}>
                                                     <Icon as={AiOutlineDollarCircle} boxSize={4} />
                                                     <Box>Amount</Box>
                                                 </HStack>
                                             </Th>
-                                            <Th color={useColorModeValue("gray.600", "gray.300")} fontWeight="semibold">
+                                            <Th color={thColor} fontWeight="semibold">
                                                 <HStack spacing={2}>
                                                     <Icon as={MdOutlinePayment} boxSize={4} />
                                                     <Box>Payment</Box>
                                                 </HStack>
                                             </Th>
-                                            <Th color={useColorModeValue("gray.600", "gray.300")} fontWeight="semibold">
+                                            <Th color={thColor} fontWeight="semibold">
                                                 <HStack spacing={2}>
                                                     <Icon as={AiOutlineBank} boxSize={4} />
                                                     <Box>Addresses</Box>
                                                 </HStack>
                                             </Th>
-                                            <Th color={useColorModeValue("gray.600", "gray.300")} fontWeight="semibold">
+                                            <Th color={thColor} fontWeight="semibold">
                                                 <HStack spacing={2}>
                                                     <Icon as={AiOutlineCalendar} boxSize={4} />
                                                     <Box>Date & Status</Box>
@@ -798,7 +811,7 @@ const WithdrawScreen = () => {
                                                 <Tr key={withdraw.id || index} _hover={{ bg: tableHoverColor }}>
                                                     <Td>
                                                         <VStack align="start" spacing={1}>
-                                                            <Box fontWeight="bold" color={useColorModeValue("gray.800", "gray.200")}>
+                                                            <Box fontWeight="bold" color={fontColor}>
                                                                 #{withdraw.id || index + 1}
                                                             </Box>
                                                             <Box fontSize="sm" color="gray.500">
@@ -1108,7 +1121,7 @@ const WithdrawScreen = () => {
                     <ModalHeader>
                         <HStack spacing={3}>
                             <Icon as={FaWallet} color="teal.500" boxSize={6} />
-                            <Text>Withdraw Funds</Text>
+                            <Box>Withdraw Funds</Box>
                         </HStack>
                     </ModalHeader>
                     <ModalCloseButton />
@@ -1146,7 +1159,7 @@ const WithdrawScreen = () => {
                                 <Select
                                     value={selectedNetwork}
                                     onChange={(e) => setSelectedNetwork(e.target.value)}
-                                    bg={useColorModeValue("white", "gray.700")}
+                                    bg={selectBgColor}
                                 >
                                     <option value="BEP-20">BEP-20 (Binance Smart Chain)</option>
                                 </Select>
@@ -1161,7 +1174,7 @@ const WithdrawScreen = () => {
                                         value={userWalletAddress || withdrawAddress}
                                         onChange={(e) => setWithdrawAddress(e.target.value)}
                                         isReadOnly={!!userWalletAddress}
-                                        bg={userWalletAddress ? useColorModeValue("gray.50", "gray.800") : "transparent"}
+                                        bg={userWalletAddress ? inputReadOnlyBg : "transparent"}
                                     />
                                     <Button
                                         size="sm"
@@ -1202,7 +1215,7 @@ const WithdrawScreen = () => {
                             loadingText={isProcessingTx ? "Processing Transaction..." : "Submitting..."}
                             leftIcon={<FaHandHoldingUsd />}
                         >
-                            {isProcessingTx ? "Processing..." : "Submit Withdraw"}
+                            {isProcessingTx ? "Processing..." : "Continue Withdraw"}
                         </Button>
                     </ModalFooter>
                 </ModalContent>
@@ -1291,4 +1304,4 @@ const WithdrawScreen = () => {
     );
 };
 
-export default WithdrawScreen;
+export default React.memo(WithdrawScreen);
