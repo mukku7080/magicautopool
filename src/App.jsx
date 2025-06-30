@@ -5,6 +5,8 @@ import Header from './Components/Header'
 import Footer from './Components/Footer'
 import RouteConfig from '../RouteConfig'
 import Cta from './Components/Cta'
+import HeaderExample from './Components/HeaderExample'
+import ModernHeader from './Components/ModernHeader'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -15,7 +17,7 @@ function App() {
 
   return (
     <>
-      {!isUserDashboard && <Header />}
+      {!isUserDashboard && <ModernHeader />}
       <RouteConfig />
       {!isUserDashboard && <Cta />}
       {!isUserDashboard && <Footer />}

@@ -37,10 +37,10 @@ export const Web3Provider = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
     const [balance, setBalance] = useState('0');
-    const [usdtBalance, setUsdtBalance] = useState('0');
+    const [usdtBalance, setUsdtBalance] = useState(200);
     const [chainId, setChainId] = useState(null);
     const [walletType, setWalletType] = useState(null);
-    
+
     const toast = useToast();
 
     // Available wallet types
@@ -118,7 +118,7 @@ export const Web3Provider = ({ children }) => {
 
             // Request account access
             const accounts = await ethersProvider.send('eth_requestAccounts', []);
-            
+
             if (!accounts || accounts.length === 0) {
                 throw new Error('No accounts found');
             }
@@ -250,7 +250,7 @@ export const Web3Provider = ({ children }) => {
 
             // Send transaction
             const tx = await usdtContract.transfer(toAddress, amountInWei);
-            
+
             toast({
                 title: 'Transaction Sent',
                 description: `Transaction hash: ${tx.hash}`,
@@ -261,7 +261,7 @@ export const Web3Provider = ({ children }) => {
 
             // Wait for confirmation
             const receipt = await tx.wait();
-            
+
             // Update balances
             await updateBalances(await signer.getAddress(), provider);
 
@@ -292,12 +292,12 @@ export const Web3Provider = ({ children }) => {
         const autoConnect = async () => {
             const savedWallet = localStorage.getItem('walletConnected');
             const savedAccount = localStorage.getItem('walletAccount');
-            
+
             if (savedWallet && savedAccount && isWalletInstalled(savedWallet)) {
                 try {
                     const walletProvider = getProvider(savedWallet);
                     const accounts = await walletProvider.request({ method: 'eth_accounts' });
-                    
+
                     if (accounts.includes(savedAccount)) {
                         await connectWallet(savedWallet);
                     } else {
@@ -355,14 +355,14 @@ export const Web3Provider = ({ children }) => {
         chainId,
         walletType,
         walletTypes,
-        
+
         // Functions
         connectWallet,
         disconnectWallet,
         sendUSDT,
         updateBalances,
         isWalletInstalled,
-        
+
         // Constants
         USDT_CONTRACT_ADDRESS,
         BSC_NETWORK,

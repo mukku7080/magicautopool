@@ -21,6 +21,7 @@ const UserDashboard = () => {
                 <Route path="/wallet" element={<Wallet />} />
                 <Route path="/packages" element={<Packages />} />
                 <Route path="/deposit" element={<DepositForm />} />
+                <Route path="/deposit/:txn_id" element={<DepositForm />} />
                 <Route path="/withdraw" element={<WithdrawScreen />} />
                 <Route path="/referrals" element={<Referrals />} />
                 {/* Add more routes as needed */}

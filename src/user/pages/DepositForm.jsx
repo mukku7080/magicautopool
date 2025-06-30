@@ -24,6 +24,7 @@ import {
     FormControl,
     FormLabel,
     Input,
+    Select,
     Alert,
     AlertIcon,
     useDisclosure,
@@ -50,7 +51,7 @@ import {
     Avatar,
 } from "@chakra-ui/react";
 import { RepeatIcon, CopyIcon, ExternalLinkIcon } from "@chakra-ui/icons";
-import { FaWallet, FaHandHoldingUsd, FaEye, FaFilter, FaDownload } from "react-icons/fa";
+import { FaWallet, FaHandHoldingUsd, FaEye, FaFilter, FaDownload, FaGem } from "react-icons/fa";
 import { BsCardChecklist, BsThreeDotsVertical } from "react-icons/bs";
 import {
     FiCreditCard,
@@ -81,21 +82,57 @@ import { useWeb3 } from "../../Context/Web3Context";
 import WalletModal from "../../Components/WalletModal";
 import WalletStatus from "../../Components/WalletStatus";
 import { useAccount, useUser } from "../../Context";
+import DepositGatewayModal from "../components/DepositGatewayModal";
+import { useLocation, useParams } from "react-router-dom";
+import Deposit from "./Deposit";
 
 const DepositForm = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const { isOpen: isWalletModalOpen, onOpen: onWalletModalOpen, onClose: onWalletModalClose } = useDisclosure();
     const { isOpen: isConfirmModalOpen, onOpen: onConfirmModalOpen, onClose: onConfirmModalClose } = useDisclosure();
+    const { isOpen: isGatewayModalOpen, onOpen: onGatewayModalOpen, onClose: onGatewayModalClose } = useDisclosure();
     const [depositAmount, setDepositAmount] = useState("");
     const [depositAddress, setDepositAddress] = useState("0x742d35Cc6634C0532925a3b8D1d8C4C47F4b58b6");
     const [transactionPassword, setTransactionPassword] = useState("");
     const [formErrors, setFormErrors] = useState({});
     const [isProcessing, setIsProcessing] = useState(false);
     const [asset, setAsset] = useState("USDT");
-    const { startDeposit, startDepositData } = useAccount();
+    const { startDeposit, startDepositData, getDepositViaGateway, updateDepositViaGateway } = useAccount();
     const [depositType, setDepositType] = useState("wallet"); // Default to Wallet
 
     const toast = useToast();
+    const { txn_id } = useParams();
+    const { search } = useLocation(); // gets "?client_id=abc123&access_key=xyz456"
+    const query = new URLSearchParams(search);
+
+    const client_id = query.get('client_id');
+    const access_key = query.get('access_key');
+
+    useEffect(() => {
+        if (txn_id && client_id && access_key) {
+            const request = {
+                "client_id": client_id,
+                "access_key": access_key,
+
+            }
+            getDepositDetailViaGateway(request)
+        }
+    }, [txn_id, client_id, access_key]);
+    const getDepositDetailViaGateway = async (request) => {
+        const result = await getDepositViaGateway(request);
+        if (result.success === true) {
+            const depositData = result?.data?.data[0];
+            const data = {
+                deposit_id: depositData?.id,
+                deposit_amount: depositData?.paid_amount,
+                from_address: depositData?.from_address || '',
+                txn_hash: depositData?.txn_id,
+            }
+            const resonse = await updateDepositViaGateway(data);
+            console.log("Deposit update response:", resonse);
+        }
+        console.log("Deposit detail response:", result);
+    }
 
     // Use Web3 Context
     const {
@@ -150,6 +187,7 @@ const DepositForm = () => {
         } else {
             const response = await startDeposit(dto);
             console.log("Deposit response:", response);
+            onGatewayModalOpen();
         }
     }
 
@@ -165,9 +203,14 @@ const DepositForm = () => {
 
         if (!depositAmount || parseFloat(depositAmount) <= 0) {
             errors.amount = "Please enter a valid deposit amount";
-        } else if (isConnected && parseFloat(depositAmount) > parseFloat(usdtBalance)) {
-            errors.amount = "Amount exceeds available balance";
+        } else if (asset === "MDC" && parseFloat(depositAmount) < 1) {
+            errors.amount = "Minimum deposit amount for MDC is 1 token";
+        } else if (asset === "USDT" && parseFloat(depositAmount) < 10) {
+            errors.amount = "Minimum deposit amount for USDT is 10 tokens";
         }
+        // else if (isConnected && asset === "USDT") {
+        //     errors.amount = "Amount exceeds available USDT balance";
+        // }
 
         if (!depositAddress) {
             errors.address = "Please enter a deposit address";
@@ -873,7 +916,7 @@ const DepositForm = () => {
                                 <FormControl>
                                     <FormLabel fontSize="sm">Network</FormLabel>
                                     <Input
-                                        value="BSC (BEP-20)"
+                                        value="BEP20"
                                         isReadOnly
                                         bg="gray.50"
                                         fontWeight="bold"
@@ -881,18 +924,172 @@ const DepositForm = () => {
                                 </FormControl>
                             </SimpleGrid>
 
+                            {/* Asset Selection */}
+                            {/* <FormControl isRequired>
+                                <FormLabel fontSize="sm">Select Asset</FormLabel>
+                                <Select
+                                    value={asset}
+                                    onChange={(e) => setAsset(e.target.value)}
+                                    size="lg"
+                                    focusBorderColor="blue.400"
+                                    bg={useColorModeValue("white", "gray.700")}
+                                >
+                                    <option value="USDT">USDT (Tether USD) - BEP-20</option>
+                                    <option value="MDC">1MDC Token - BEP-20</option>
+                                </Select>
+                                <VStack spacing={1} align="start" mt={1}>
+                                    <Text fontSize="xs" color="gray.500">
+                                        {asset === "USDT"
+                                            ? "Tether USD on Binance Smart Chain (BEP-20)"
+                                            : "1MDC Token on Binance Smart Chain (BEP-20)"
+                                        }
+                                    </Text>
+                                    {asset === "MDC" && (
+                                        <HStack spacing={1}>
+                                            <FaGem color="blue" size={12} />
+                                            <Text fontSize="xs" color="blue.600" fontWeight="semibold">
+                                                Premium Token • Minimum 1 MDC
+                                            </Text>
+                                        </HStack>
+                                    )}
+                                </VStack>
+                            </FormControl> */}
+
                             {/* Amount Input */}
                             <FormControl isRequired>
                                 <FormLabel fontSize="sm">
-                                    Deposit Amount
-                                    {isConnected && (
+                                    Deposit Amount ({asset})
+                                    {isConnected && asset === "USDT" && (
                                         <Text as="span" fontSize="xs" color="gray.500" ml={2}>
                                             (Balance: {parseFloat(usdtBalance).toFixed(2)} USDT)
                                         </Text>
                                     )}
                                 </FormLabel>
+
+                                {/* Quick Amount Selection */}
+                                <Box mb={3}>
+                                    <Text fontSize="xs" color="gray.500" mb={2}>
+                                        Quick Select:
+                                        {asset === "MDC" && (
+                                            <Text as="span" color="blue.500" ml={1} fontWeight="semibold">
+                                                (1 MDC = Minimum Deposit)
+                                            </Text>
+                                        )}
+                                    </Text>
+                                    <SimpleGrid columns={{ base: 2, sm: 3, md: 5 }} spacing={2}>
+                                        {asset === "MDC" ? (
+                                            <>
+                                                <Button
+                                                    size="sm"
+                                                    variant={depositAmount === "1" ? "solid" : "outline"}
+                                                    colorScheme="blue"
+                                                    onClick={() => setDepositAmount("1")}
+                                                    bg={depositAmount === "1" ? "blue.500" : "transparent"}
+                                                    color={depositAmount === "1" ? "white" : "blue.500"}
+                                                    borderColor="blue.500"
+                                                    leftIcon={<FaGem />}
+                                                    fontWeight="bold"
+                                                    _hover={{
+                                                        bg: depositAmount === "1" ? "blue.600" : "blue.50",
+                                                        transform: "translateY(-1px)",
+                                                        shadow: "md"
+                                                    }}
+                                                    transition="all 0.2s"
+                                                >
+                                                    1 MDC
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    colorScheme="green"
+                                                    onClick={() => setDepositAmount("5")}
+                                                    bg={depositAmount === "5" ? "green.50" : "transparent"}
+                                                    borderColor={depositAmount === "5" ? "green.500" : "gray.300"}
+                                                >
+                                                    5 MDC
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    colorScheme="orange"
+                                                    onClick={() => setDepositAmount("10")}
+                                                    bg={depositAmount === "10" ? "orange.50" : "transparent"}
+                                                    borderColor={depositAmount === "10" ? "orange.500" : "gray.300"}
+                                                >
+                                                    10 MDC
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    colorScheme="purple"
+                                                    onClick={() => setDepositAmount("25")}
+                                                    bg={depositAmount === "25" ? "purple.50" : "transparent"}
+                                                    borderColor={depositAmount === "25" ? "purple.500" : "gray.300"}
+                                                >
+                                                    25 MDC
+                                                </Button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    colorScheme="green"
+                                                    onClick={() => setDepositAmount("10")}
+                                                    bg={depositAmount === "10" ? "green.50" : "transparent"}
+                                                    borderColor={depositAmount === "10" ? "green.500" : "gray.300"}
+                                                >
+                                                    10 USDT
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    colorScheme="orange"
+                                                    onClick={() => setDepositAmount("50")}
+                                                    bg={depositAmount === "50" ? "orange.50" : "transparent"}
+                                                    borderColor={depositAmount === "50" ? "orange.500" : "gray.300"}
+                                                >
+                                                    50 USDT
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    colorScheme="purple"
+                                                    onClick={() => setDepositAmount("100")}
+                                                    bg={depositAmount === "100" ? "purple.50" : "transparent"}
+                                                    borderColor={depositAmount === "100" ? "purple.500" : "gray.300"}
+                                                >
+                                                    100 USDT
+                                                </Button>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    colorScheme="teal"
+                                                    onClick={() => setDepositAmount("500")}
+                                                    bg={depositAmount === "500" ? "teal.50" : "transparent"}
+                                                    borderColor={depositAmount === "500" ? "teal.500" : "gray.300"}
+                                                >
+                                                    500 USDT
+                                                </Button>
+                                            </>
+                                        )}
+                                        {isConnected && usdtBalance && asset === "USDT" && (
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                colorScheme="teal"
+                                                onClick={() => setDepositAmount(parseFloat(usdtBalance).toFixed(2))}
+                                                bg={depositAmount === parseFloat(usdtBalance).toFixed(2) ? "teal.50" : "transparent"}
+                                                borderColor={depositAmount === parseFloat(usdtBalance).toFixed(2) ? "teal.500" : "gray.300"}
+                                            >
+                                                Max
+                                            </Button>
+                                        )}
+                                    </SimpleGrid>
+                                </Box>
+
                                 <Input
-                                    placeholder="Enter amount in USDT"
+                                    placeholder={`Enter amount in ${asset}`}
                                     type="number"
                                     value={depositAmount}
                                     onChange={(e) => setDepositAmount(e.target.value)}
@@ -971,7 +1168,7 @@ const DepositForm = () => {
                                             leftIcon={<MdWallet />}
                                             onClick={() => handleDeposite('wallet')}
                                         >
-                                            Connect Wallet to Pay
+                                            Connect Wallet to Pay ({asset})
                                         </Button>
                                     ) : (
                                         <VStack spacing={3} w="full">
@@ -986,7 +1183,7 @@ const DepositForm = () => {
                                                 isDisabled={!depositAmount || parseFloat(depositAmount) <= 0 || !depositAddress || chainId !== '56'}
                                                 rightIcon={<FiArrowRight />}
                                             >
-                                                Pay with Wallet ({depositAmount || "0"} USDT)
+                                                Pay with Wallet ({depositAmount || "0"} {asset})
                                             </Button>
 
                                             {chainId !== '56' && (
@@ -998,34 +1195,39 @@ const DepositForm = () => {
                                     )}
                                 </Box>
 
-                                <Box position="relative" w="full">
-                                    <Divider />
-                                    <Box
-                                        position="absolute"
-                                        left="50%"
-                                        top="50%"
-                                        transform="translate(-50%, -50%)"
-                                        bg="white"
-                                        px={3}
-                                    >
-                                        <Text fontSize="xs" color="gray.500">OR</Text>
+                                {
+                                    !isConnected &&
+                                    <Box position="relative" w="full">
+                                        <Divider />
+                                        <Box
+                                            position="absolute"
+                                            left="50%"
+                                            top="50%"
+                                            transform="translate(-50%, -50%)"
+                                            bg="white"
+                                            px={3}
+                                        >
+                                            <Text fontSize="xs" color="gray.500">OR</Text>
+                                        </Box>
                                     </Box>
-                                </Box>
+                                }
+
 
                                 {/* Gateway Payment */}
-                                <Button
-                                    colorScheme="teal"
-                                    size="lg"
-                                    w="full"
-                                    leftIcon={<FiCreditCard />}
-                                    variant="outline"
-                                    onClick={() => handleDeposite('getway')}
-                                    // onClick={handleDepositRequest}
-                                    isLoading={isProcessing}
-                                    loadingText="Processing..."
-                                >
-                                    Pay with Gateway
-                                </Button>
+                                {
+                                    !isConnected &&
+                                    <Button
+                                        colorScheme="teal"
+                                        size="lg"
+                                        w="full"
+                                        leftIcon={<FiCreditCard />}
+                                        variant="outline"
+                                        onClick={() => handleDeposite('getway')}
+                                        isDisabled={!depositAmount || parseFloat(depositAmount) <= 0}
+                                    >
+                                        Pay with Gateway ({depositAmount || "0"} {asset})
+                                    </Button>
+                                }
                             </VStack>
 
                             {/* Security Notice */}
@@ -1124,6 +1326,14 @@ const DepositForm = () => {
                     </ModalFooter>
                 </ModalContent>
             </Modal>
+
+            {/* Deposit Gateway Modal */}
+            <DepositGatewayModal
+                isOpen={isGatewayModalOpen}
+                onClose={onGatewayModalClose}
+                initialAmount={depositAmount}
+                initialAsset={asset}
+            />
         </Box>
     );
 };

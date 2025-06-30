@@ -115,7 +115,8 @@ const Profile = () => {
             console.log('🔄 Updating local profile data with API response...');
 
             // Handle both USER structure and direct profile structure
-            const userData = profile.USER || profile;
+            const userData = profile?.USER;
+            const userAddress = profile?.ADDRESS;
 
             const newProfileData = {
                 name: userData.name || userData.name || userData.name?.split(' ')[0] || '',
@@ -123,18 +124,20 @@ const Profile = () => {
                 email: userData.email || '',
                 mobile: userData.mobile || userData.mobile || userData.mobile || '',
                 // dateOfBirth: userData.dateOfBirth || userData.date_of_birth || userData.dob || '',
-                address: userData.address || userData.street_address || '',
-                city: userData.city || '',
-                state: userData.state || userData.province || '',
-                pincode: userData.pincode || userData.Pin_code || userData.postal_code || '',
-                country: userData.country || '',
+                address: userAddress?.address_line1 || '',
+                city: userAddress?.city || '',
+                state: userAddress?.state || '',
+                pincode: userAddress?.postal_code || '',
+                country: userAddress?.country || '',
                 bio: userData.bio || userData.description || userData.about || '',
             };
 
             setProfileData(newProfileData);
             setOriginalProfileData(newProfileData); // Save original for cancel functionality
+
         }
     }, [profile]);
+    console.log('🔄 Profile data xxxxxx:', profileData);
 
     const [securitySettings, setSecuritySettings] = useState({
         twoFactorAuth: true,
@@ -289,6 +292,7 @@ const Profile = () => {
             });
         }
     };
+    console.log('🔄 Profile data ', profileData);
 
     const profileCompleteness = 85;
 
@@ -478,7 +482,7 @@ const Profile = () => {
                                             <FormControl>
                                                 <FormLabel fontSize="sm">Name</FormLabel>
                                                 <Input
-                                                    value={profileData.name}
+                                                    value={profileData?.name}
                                                     onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -511,7 +515,7 @@ const Profile = () => {
                                             <FormControl>
                                                 <FormLabel fontSize="sm">Phone</FormLabel>
                                                 <Input
-                                                    value={profileData.phone}
+                                                    value={profileData?.mobile || profileData?.phone || ''}
                                                     onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -524,7 +528,7 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">Date of Birth</FormLabel>
                                                 <Input
                                                     type="date"
-                                                    value={profileData.dateOfBirth}
+                                                    value={profileData.dateOfBirth || ''}
                                                     onChange={(e) => setProfileData({ ...profileData, dateOfBirth: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -534,7 +538,7 @@ const Profile = () => {
                                             <FormControl>
                                                 <FormLabel fontSize="sm">Country</FormLabel>
                                                 <Select
-                                                    value={profileData.country}
+                                                    value={profileData?.ADDRESS?.country || profileData.country || ''}
                                                     onChange={(e) => setProfileData({ ...profileData, country: e.target.value })}
                                                     isDisabled={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -549,7 +553,7 @@ const Profile = () => {
                                             <FormControl gridColumn={{ base: '1', md: '1 / -1' }}>
                                                 <FormLabel fontSize="sm">Address</FormLabel>
                                                 <Input
-                                                    value={profileData.address}
+                                                    value={profileData.address || ''}
                                                     onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -571,7 +575,7 @@ const Profile = () => {
                                             <FormControl>
                                                 <FormLabel fontSize="sm">State/Province</FormLabel>
                                                 <Input
-                                                    value={profileData.state}
+                                                    value={profileData.state || ''}
                                                     onChange={(e) => setProfileData({ ...profileData, state: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -582,7 +586,7 @@ const Profile = () => {
                                             <FormControl>
                                                 <FormLabel fontSize="sm">Pin Code</FormLabel>
                                                 <Input
-                                                    value={profileData.pincode}
+                                                    value={profileData.pincode || ''}
                                                     onChange={(e) => setProfileData({ ...profileData, pincode: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}

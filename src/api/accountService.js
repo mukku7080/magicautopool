@@ -1,3 +1,4 @@
+import axios from 'axios';
 import axiosInstance from './axiosInstance';
 
 class AccountService {
@@ -62,6 +63,73 @@ class AccountService {
             return {
                 success: true,
                 data: response.data?.data || response.data,
+                message: response.data?.message || 'Withdraw history loaded successfully'
+            };
+        } catch (error) {
+            console.error('❌ Get withdraw history error:', error);
+            throw {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Failed to load withdraw history',
+                error: error
+            };
+        }
+    }
+
+
+    async DepositeAssetViaGateWay(request) {
+        try {
+
+            const response = await axios.post('https://api.zipwallet.net/api/deposit-asset', request);
+
+            console.log('✅ deposit asset respons via gateway:', response);
+
+            return {
+                success: true,
+                data: response?.data || response,
+                message: response.data?.message || 'Withdraw history loaded successfully'
+            };
+        } catch (error) {
+            console.error('❌ Get withdraw history error:', error);
+            throw {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Failed to load withdraw history',
+                error: error
+            };
+        }
+    }
+
+    async GetDepositeAssetViaGateWay(request) {
+        try {
+
+            const response = await axios.get(`https://api.zipwallet.net/api/deposit-details?access_key=${request.access_key}&client_id=${request.client_id}`);
+
+            console.log('✅ deposit asset respons via gateway:', response);
+
+            return {
+                success: true,
+                data: response?.data || response,
+                message: response.data?.message || 'Withdraw history loaded successfully'
+            };
+        } catch (error) {
+            console.error('❌ Get withdraw history error:', error);
+            throw {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Failed to load withdraw history',
+                error: error
+            };
+        }
+    }
+
+    async UpdateDepositeAssetViaGateWay(request) {
+        try {
+
+            const response = await axiosInstance.post('/update-deposit', request);
+
+            console.log('✅ update deposit tnx  respons via gateway:', response);
+
+            return {
+                success: true,
+                data: response?.data || response,
                 message: response.data?.message || 'Withdraw history loaded successfully'
             };
         } catch (error) {

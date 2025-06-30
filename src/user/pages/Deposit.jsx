@@ -50,6 +50,7 @@ import {
     TabPanels,
     Tab,
     TabPanel,
+    useDisclosure,
 } from '@chakra-ui/react';
 import {
     FiCreditCard,
@@ -62,6 +63,8 @@ import {
 } from 'react-icons/fi';
 import { AiOutlineBank, AiOutlineMobile } from 'react-icons/ai';
 import { SiBitcoin, SiEthereum } from 'react-icons/si';
+import { FaServer } from 'react-icons/fa';
+import DepositGatewayModal from '../components/DepositGatewayModal';
 
 const Deposit = () => {
     const [selectedMethod, setSelectedMethod] = useState('');
@@ -78,6 +81,9 @@ const Deposit = () => {
     const cardBg = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.700');
     const textColor = useColorModeValue('gray.600', 'gray.400');
+
+    // Gateway modal state
+    const { isOpen: isGatewayModalOpen, onOpen: onGatewayModalOpen, onClose: onGatewayModalClose } = useDisclosure();
 
     const steps = [
         { title: 'Select Method', description: 'Choose payment method' },
@@ -137,6 +143,17 @@ const Deposit = () => {
             fee: '1.5%',
             description: 'PayPal, Apple Pay, Google Pay',
         },
+        {
+            id: 'gateway',
+            name: 'Payment Gateway',
+            icon: FaServer,
+            color: 'teal',
+            minAmount: 10,
+            maxAmount: 100000,
+            processingTime: 'Instant',
+            fee: '2.5%',
+            description: 'Secure gateway with multiple asset support',
+        },
     ];
 
     // Recent deposits
@@ -177,7 +194,13 @@ const Deposit = () => {
     const handleMethodSelect = (method) => {
         setSelectedMethod(method.id);
         setDepositData({ ...depositData, method: method.id });
-        setActiveStep(1);
+
+        // If gateway is selected, open the gateway modal
+        if (method.id === 'gateway') {
+            onGatewayModalOpen();
+        } else {
+            setActiveStep(1);
+        }
     };
 
     const handleDepositSubmit = () => {
@@ -214,7 +237,7 @@ const Deposit = () => {
         });
     };
 
-    const getStatusColor = (status) => {
+    const StatusColor = (status) => {
         switch (status) {
             case 'Completed': return 'green';
             case 'Processing': return 'yellow';
@@ -632,6 +655,12 @@ const Deposit = () => {
                     </VStack>
                 </GridItem>
             </Grid>
+
+            {/* Payment Gateway Modal */}
+            <DepositGatewayModal
+                isOpen={isGatewayModalOpen}
+                onClose={onGatewayModalClose}
+            />
         </Box>
     );
 };

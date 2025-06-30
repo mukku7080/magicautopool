@@ -388,7 +388,6 @@ const Login = () => {
                     border="1px"
                     borderColor={borderColor}
                     // overflow="hidden"
-                    mt={100}
                 >
                     <CardBody p={cardPadding}>
                         {/* Header */}
@@ -551,7 +550,7 @@ const Login = () => {
                                             <HStack spacing={3} w="full">
                                                 <FormControl isInvalid={errors.firstName}>
                                                     <FormLabel fontSize={fontSize} color={textColor}>
-                                                        First Name
+                                                        Full Name
                                                     </FormLabel>
                                                     <Input
                                                         placeholder="First name"

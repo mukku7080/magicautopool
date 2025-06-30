@@ -196,32 +196,32 @@ export const AccountProvider = ({ children }) => {
     }
 
     // Load account statistics
-    const loadAccountStats = async () => {
-        try {
-            dispatch({ type: ACCOUNT_ACTIONS.SET_LOADING, payload: true });
-            const result = await accountService.getAccountStats();
+    // const loadAccountStats = async () => {
+    //     try {
+    //         dispatch({ type: ACCOUNT_ACTIONS.SET_LOADING, payload: true });
+    //         const result = await accountService.getAccountStats();
 
-            console.log('🔄 AccountContext - Processing account stats result:', result);
+    //         console.log('🔄 AccountContext - Processing account stats result:', result);
 
-            if (result.success) {
-                console.log('✅ AccountContext - Setting account stats data:', result.data);
-                dispatch({ type: ACCOUNT_ACTIONS.SET_ACCOUNT_STATS, payload: result.data });
-            } else {
-                throw new Error(result.message || 'Failed to load account statistics');
-            }
-        } catch (error) {
-            console.error('❌ Load account stats error:', error);
-            dispatch({ type: ACCOUNT_ACTIONS.SET_ERROR, payload: error.message || 'Failed to load account statistics' });
-        }
-    };
+    //         if (result.success) {
+    //             console.log('✅ AccountContext - Setting account stats data:', result.data);
+    //             dispatch({ type: ACCOUNT_ACTIONS.SET_ACCOUNT_STATS, payload: result.data });
+    //         } else {
+    //             throw new Error(result.message || 'Failed to load account statistics');
+    //         }
+    //     } catch (error) {
+    //         console.error('❌ Load account stats error:', error);
+    //         dispatch({ type: ACCOUNT_ACTIONS.SET_ERROR, payload: error.message || 'Failed to load account statistics' });
+    //     }
+    // };
 
     // Request withdraw
-    const requestWithdraw = async (amount, address, transactionPassword) => {
+    const requestWithdraw = async (amount) => {
         try {
             dispatch({ type: ACCOUNT_ACTIONS.SET_WITHDRAWING, payload: true });
             dispatch({ type: ACCOUNT_ACTIONS.CLEAR_ERROR });
 
-            console.log('💰 AccountContext - Requesting withdraw:', { amount, address });
+            console.log('💰 AccountContext - Requesting withdraw:', { amount });
 
             const result = await accountService.requestWithdraw(amount);
 
@@ -292,6 +292,43 @@ export const AccountProvider = ({ children }) => {
             };
         }
     };
+    const depositViaGateway = async (request) => {
+        try {
+            const result = await accountService.DepositeAssetViaGateWay(request);
+            console.log('✅ Deposit via gateway result:', result);
+            return result;
+        }
+        catch (error) {
+            console.error('❌ Deposit via gateway error:', error);
+            dispatch({ type: ACCOUNT_ACTIONS.SET_ERROR, payload: error.message || 'Failed to deposit via gateway' });
+        }
+    }
+    const getDepositViaGateway = async (request) => {
+        try {
+
+            const result = await accountService.GetDepositeAssetViaGateWay(request);
+            return result;
+        }
+        catch (error) {
+            console.error('❌ Get deposit via gateway error:', error);
+            dispatch({ type: ACCOUNT_ACTIONS.SET_ERROR, payload: error.message || 'Failed to get deposit via gateway' });
+        }
+
+    }
+
+    const updateDepositViaGateway = async (request) => {
+        try {
+
+            const result = await accountService.UpdateDepositeAssetViaGateWay(request);
+            return result;
+        }
+        catch (error) {
+            console.error('❌ update deposit via gateway error:', error);
+            dispatch({ type: ACCOUNT_ACTIONS.SET_ERROR, payload: error.message || 'Failed to update deposit via gateway' });
+        }
+
+    }
+
 
     // Clear error
     const clearError = () => {
@@ -307,8 +344,8 @@ export const AccountProvider = ({ children }) => {
     const refreshAccountData = async () => {
         await Promise.all([
             loadAccountBalance(),
-            loadWithdrawHistory(),
-            loadAccountStats()
+            // loadWithdrawHistory(),
+            // loadAccountStats()
         ]);
     };
 
@@ -344,7 +381,7 @@ export const AccountProvider = ({ children }) => {
         // Actions
         loadAccountBalance,
         loadWithdrawHistory,
-        loadAccountStats,
+        // loadAccountStats,
         requestWithdraw,
         validateWithdrawAmount,
         clearError,
@@ -359,7 +396,10 @@ export const AccountProvider = ({ children }) => {
         getPendingWithdraws,
         getSuccessfulWithdraws,
         startDeposit,
-        startDepositData
+        startDepositData,
+        depositViaGateway,
+        getDepositViaGateway,
+        updateDepositViaGateway
     };
 
     return (
