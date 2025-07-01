@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import UserLayout from './UserLayout';
+import { NavigationLoadingProvider } from '../Context/NavigationLoadingContext';
 import Dashboard from './pages/Dashboard';
 import Profile from './pages/Profile';
 import Wallet from './pages/Wallet';
@@ -18,27 +19,29 @@ import NewTree from './pages/tree/NewTree';
 
 const UserDashboard = () => {
     return (
-        <UserLayout>
-            <Routes>
-                <Route path="/" element={<Navigate to="/user/dashboard" replace />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/wallet" element={<Wallet />} />
-                <Route path="/packages" element={<Packages />} />
-                <Route path="/deposit" element={<DepositForm />} />
-                <Route path="/deposit/:txn_id" element={<DepositForm />} />
-                <Route path="/withdraw" element={<WithdrawScreen />} />
-                <Route path="/withdraw-history" element={<WithdrawHistory />} />
-                <Route path="/tree" element={<NewTree />} />
-                <Route path="/referrals" element={<Referrals />} />
-                <Route path="/btree" element={<NewTree />} />
-                {/* Add more routes as needed */}
-                <Route path="/transactions" element={<div>Transactions Page - Coming Soon</div>} />
-                <Route path="/analytics" element={<div>Analytics Page - Coming Soon</div>} />
-                <Route path="/settings" element={<div>Settings Page - Coming Soon</div>} />
-                <Route path="/support" element={<div>Support Page - Coming Soon</div>} />
-            </Routes>
-        </UserLayout>
+        <NavigationLoadingProvider>
+            <UserLayout>
+                <Routes>
+                    <Route path="/" element={<Navigate to="/user/dashboard" replace />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/wallet" element={<Wallet />} />
+                    <Route path="/packages" element={<Packages />} />
+                    <Route path="/deposit" element={<DepositForm />} />
+                    <Route path="/deposit/:txn_id" element={<DepositForm />} />
+                    <Route path="/withdraw" element={<WithdrawScreen />} />
+                    <Route path="/withdraw-history" element={<WithdrawHistory />} />
+                    <Route path="/tree" element={<NewTree />} />
+                    <Route path="/referrals" element={<Referrals />} />
+                    <Route path="/btree" element={<NewTree />} />
+                    {/* Add more routes as needed */}
+                    <Route path="/transactions" element={<div>Transactions Page - Coming Soon</div>} />
+                    <Route path="/analytics" element={<div>Analytics Page - Coming Soon</div>} />
+                    <Route path="/settings" element={<div>Settings Page - Coming Soon</div>} />
+                    <Route path="/support" element={<div>Support Page - Coming Soon</div>} />
+                </Routes>
+            </UserLayout>
+        </NavigationLoadingProvider>
     );
 };
 

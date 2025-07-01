@@ -143,9 +143,6 @@ const DepositForm = () => {
         chainId,
     } = useWeb3();
     const { profile } = useUser();
-    console.log("startdeosit:", startDepositData);
-    console.log("Profile:", profile);
-
     // Mock deposit data - replace with real data from your context
     const [isLoading, setIsLoading] = useState(false);
     const [depositHistory, setDepositHistory] = useState([
@@ -370,6 +367,8 @@ const DepositForm = () => {
                 p={6}
                 rounded="md"
                 mb={6}
+                gap={5}
+                wrap={'wrap'}
             >
                 <Flex align="center">
                     <Box
@@ -390,7 +389,7 @@ const DepositForm = () => {
                         </Box>
                     </Box>
                 </Flex>
-                <Flex gap={2}>
+                <Flex gap={2} wrap={'wrap'} >
                     <Button size="sm" colorScheme="green">
                         Enable
                     </Button>

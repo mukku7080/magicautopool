@@ -125,15 +125,7 @@ const Dashboard = () => {
     ];
 
     const activePackages = [
-        {
-            name: 'Gold Package',
-            investment: '$1,000.00',
-            dailyReturn: '2.5%',
-            totalReturn: '$125.50',
-            daysLeft: 28,
-            progress: 65,
-            status: 'Active',
-        },
+        
         {
             name: 'Silver Package',
             investment: '$500.00',
@@ -144,7 +136,16 @@ const Dashboard = () => {
             status: 'Active',
         },
         {
-            name: 'Platinum Package',
+            name: 'Gold Package',
+            investment: '$1,000.00',
+            dailyReturn: '2.5%',
+            totalReturn: '$125.50',
+            daysLeft: 28,
+            progress: 65,
+            status: 'Active',
+        },
+        {
+            name: 'Diamond Package',
             investment: '$2,000.00',
             dailyReturn: '3.2%',
             totalReturn: '$320.00',

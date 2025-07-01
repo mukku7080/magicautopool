@@ -98,7 +98,7 @@ const WithdrawModal = ({
         try {
             setLoading(true);
             const result = await sendOtp();
-            console.log("OTP sent successfully:", result);
+            // console.log("OTP sent successfully:", result);
             if (result.status) {
                 // Clear any existing state before opening modal
                 setNewWalletAddress("");

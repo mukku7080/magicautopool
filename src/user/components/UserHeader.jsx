@@ -144,11 +144,15 @@ const UserHeader = ({ onOpen, user }) => {
                 </Box>
 
                 {/* Referral Button */}
-                <ReferralIconButton 
-                    size="sm"
-                    variant="solid"
-                    colorScheme="blue"
-                />
+                <Flex display={{ base: 'none', md: 'flex' }}>
+
+                    <ReferralIconButton
+                        size="sm"
+                        variant="solid"
+                        colorScheme="blue"
+
+                    />
+                </Flex>
 
                 {/* Color Mode Toggle */}
                 <IconButton

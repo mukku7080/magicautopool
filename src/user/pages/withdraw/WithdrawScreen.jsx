@@ -519,6 +519,8 @@ const WithdrawScreen = () => {
                 p={6}
                 rounded="md"
                 mb={6}
+                wrap={'wrap'}
+                gap={5}
             >
                 <Flex align="center">
                     <Box
@@ -533,13 +535,13 @@ const WithdrawScreen = () => {
                         <Icon color={'black'} as={RepeatIcon} boxSize={6} />
                     </Box>
                     <Box>
-                        <Text color={'white'} fontSize="sm">Available Amount</Text>
+                        <Box mb={1} color={'white'} fontSize="sm">Available Amount</Box>
                         <Box color={'white'} fontSize="2xl" fontWeight="bold">
                             {isLoading ? <Spinner size="sm" /> : `$${availableBalance.toFixed(2)}`}
                         </Box>
                     </Box>
                 </Flex>
-                <Flex gap={2}>
+                <Flex gap={2} wrap={'wrap'}>
                     <Button size="sm" colorScheme="green">
                         Enable
                     </Button>

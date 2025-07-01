@@ -29,6 +29,7 @@ import {
 } from 'react-icons/fi';
 import { AiOutlineWallet, AiOutlineHistory } from 'react-icons/ai';
 import { useUser } from '../../Context';
+import { useNavigationLoading } from '../../Context/NavigationLoadingContext';
 
 const LinkItems = [
     { name: 'Dashboard', icon: FiHome, path: '/user/dashboard' },
@@ -50,6 +51,7 @@ const UserSidebar = ({ onClose, ...rest }) => {
     const bgColor = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.700');
     const { profile } = useUser();
+    const { setIsNavigationLoading, setCurrentRoute, setChange, change } = useNavigationLoading();
 
 
     return (
@@ -164,7 +166,12 @@ const UserSidebar = ({ onClose, ...rest }) => {
                             icon={link.icon}
                             path={link.path}
                             isActive={location.pathname === link.path}
-                            onClick={onClose}
+                            onClick={() => {
+                                setIsNavigationLoading(true);
+                                setChange(!change);
+                                setCurrentRoute(link.name);
+                                onClose();
+                            }}
                         >
                             {link.name}
                         </NavItem>

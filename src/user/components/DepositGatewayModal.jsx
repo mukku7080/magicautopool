@@ -46,7 +46,6 @@ const DepositGatewayModal = ({ isOpen, onClose, initialAmount = '', initialAsset
     const generateFourDigitNumber = () => {
         return (Math.floor(1000 + Math.random() * 9000)).toString();
     };
-    console.log('DepositGatewayModal startDepositData:', startDepositData?.data?.id);
 
 
     // Form state

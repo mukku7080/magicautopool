@@ -99,12 +99,12 @@ const Profile = () => {
     }, []);
 
     // Console log profile data when it changes
-    useEffect(() => {
-        if (profile) {
-            console.log('✅ User Profile Data Received:', profile);
-            // console.log('📊 Profile Object:', JSON.stringify(profile, null, 2));
-        }
-    }, [profile]);
+    // useEffect(() => {
+    //     if (profile) {
+    //         // console.log('✅ User Profile Data Received:', profile);
+    //         // console.log('📊 Profile Object:', JSON.stringify(profile, null, 2));
+    //     }
+    // }, [profile]);
 
     // Console log any errors
     useEffect(() => {
@@ -132,8 +132,7 @@ const Profile = () => {
 
     // Update local state when profile data is loaded from API
     useEffect(() => {
-        if (profile) {
-            console.log('🔄 Updating local profile data with API response...');
+        if (profile) {     
 
             // Handle both USER structure and direct profile structure
             const userData = profile?.USER;
@@ -158,7 +157,7 @@ const Profile = () => {
 
         }
     }, [profile]);
-    console.log('🔄 Profile data xxxxxx:', profileData);
+    // console.log('🔄 Profile data xxxxxx:', profileData);
 
     const [securitySettings, setSecuritySettings] = useState({
         twoFactorAuth: true,
@@ -313,7 +312,7 @@ const Profile = () => {
             });
         }
     };
-    console.log('🔄 Profile data ', profileData);
+    // console.log('🔄 Profile data ', profileData);
 
     const profileCompleteness = 85;
 
@@ -450,7 +449,7 @@ const Profile = () => {
 
     return (
         <Box>
-            <HStack justify="space-between" align="center" mb={6}>
+            {/* <HStack justify="space-between" align="center" mb={6}>
                 <Heading size="lg">
                     Profile Settings
                 </Heading>
@@ -459,24 +458,24 @@ const Profile = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                        console.log('🔄 Manual API call triggered...');
+                        console.log('🔄 Manual API call triggered...'); 
                         loadUserProfile();
                     }}
                     isLoading={isLoading}
                 >
                     Refresh Profile
                 </Button>
-            </HStack>
+            </HStack> */}
 
             {/* Loading State */}
-            {isLoading && (
+            {/* {isLoading && (
                 <Center py={8}>
                     <VStack spacing={4}>
                         <Spinner size="xl" color="blue.500" />
                         <Text>Loading profile data...</Text>
                     </VStack>
                 </Center>
-            )}
+            )} */}
 
             {/* Error State */}
 

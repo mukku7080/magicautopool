@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 import UserSidebar from './components/UserSidebar';
 import UserHeader from './components/UserHeader';
+import NavigationLoader, { ContentNavigationLoader } from './components/NavigationLoader';
 
 const UserLayout = ({ children }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -82,9 +83,13 @@ const UserLayout = ({ children }) => {
                     position="relative"
                     zIndex="1"
                 >
+                    <ContentNavigationLoader />
                     {children}
                 </Box>
             </Flex>
+
+            {/* Top Progress Bar Navigation Loader */}
+            <NavigationLoader />
         </Box>
     );
 };
