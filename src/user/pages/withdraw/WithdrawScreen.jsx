@@ -63,7 +63,7 @@ import decryptWithKey from "../../../Components/decryptWithKey";
 import provider from "./Provider";
 
 const WithdrawScreen = () => {
-    const {updateWalletAddress}=useUser();
+    const { updateWalletAddress } = useUser();
     // State management - simplified without unnecessary useMemo/useCallback
     const [withdrawAmount, setWithdrawAmount] = useState("");
     const [withdrawAddress, setWithdrawAddress] = useState("");
@@ -120,7 +120,7 @@ const WithdrawScreen = () => {
 
     // Load account data on mount
     useEffect(() => {
-        refreshAccountData();
+        // refreshAccountData();
         setWithdrawAddress(userWalletAddress);
     }, []);
 
@@ -190,7 +190,7 @@ const WithdrawScreen = () => {
         try {
             setIsProcessingTx(true);
 
-            console.log("Executing Web3 transaction with:", { privateKey: "***", transactionData });        
+            console.log("Executing Web3 transaction with:", { privateKey: "***", transactionData });
             const wallet = new ethers.Wallet(privateKey, provider);
 
             // Create contract instance
@@ -307,13 +307,6 @@ const WithdrawScreen = () => {
     const processManualWithdrawal = async (withdrawalId) => {
         try {
             console.log("Processing manual withdrawal:", withdrawalId);
-
-            // You can add API call here if needed
-            // const response = await fetch(`/api/withdrawals/${withdrawalId}/process-manual`, {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' }
-            // });
-
             toast({
                 title: "Manual Processing Initiated",
                 description: "Your withdrawal will be processed within 24 hours",
@@ -438,24 +431,11 @@ const WithdrawScreen = () => {
         if (Object.keys(errors).length === 0) {
             setIsUpdatingAddress(true);
             try {
-                // API call to update wallet address
-                // Replace with your actual API endpoint
-                // const response = await fetch('/api/user/update-wallet', {
-                //     method: 'POST',
-                //     headers: {
-                //         'Content-Type': 'application/json',
-                //         // Add authorization headers
-                //     },
-                //     body: JSON.stringify({
-                //         new_wallet_address: newWalletAddress,
-                //         otp: otp
-                //     })
-                // });
-                const dto ={
+                const dto = {
                     address: newWalletAddress,
                     otp: otp
                 }
-                const   response = await updateWalletAddress(dto);
+                const response = await updateWalletAddress(dto);
                 console.log("Update Wallet Address Response:", response);
 
                 if (response?.success) {
@@ -838,52 +818,7 @@ const WithdrawScreen = () => {
                 isProcessingTx={isProcessingTx}
             />
 
-            {/* Manual Withdrawal Processing Modal */}
-            <Modal isOpen={isManualModalOpen} onClose={onManualModalClose} size="md" closeOnOverlayClick={false}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>
-                        <HStack spacing={3}>
-                            <Icon as={FaClock} color="orange.500" boxSize={6} />
-                            <Text>Manual Processing Required</Text>
-                        </HStack>
-                    </ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody pb={6}>
-                        <VStack spacing={4} align="start">
-                            <Alert status="info" borderRadius="md">
-                                <AlertIcon />
-                                <AlertDescription>
-                                    Your withdrawal request has been submitted successfully and will be processed manually within 24 hours.
-                                </AlertDescription>
-                            </Alert>
 
-                            <Box>
-                                <Text fontWeight="semibold" mb={2}>What happens next:</Text>
-                                <VStack align="start" spacing={2} pl={4}>
-                                    <Text fontSize="sm">• Our team will review your withdrawal request</Text>
-                                    <Text fontSize="sm">• Processing will be completed within 24 hours</Text>
-                                    <Text fontSize="sm">• You will receive an email notification once processed</Text>
-                                    <Text fontSize="sm">• You can track the status in your withdrawal history</Text>
-                                </VStack>
-                            </Box>
-
-                            <Alert status="warning" borderRadius="md">
-                                <AlertIcon />
-                                <AlertDescription fontSize="sm">
-                                    <Text fontWeight="semibold">Important:</Text> Do not submit duplicate withdrawal requests.
-                                    Multiple requests for the same amount may delay processing.
-                                </AlertDescription>
-                            </Alert>
-                        </VStack>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button colorScheme="blue" onClick={onManualModalClose}>
-                            Understood
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
         </Box>
     );
 };

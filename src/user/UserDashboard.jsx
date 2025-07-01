@@ -10,6 +10,10 @@ import Withdraw from './pages/Withdraw';
 import Referrals from './pages/Referrals';
 import DepositForm from './pages/DepositForm';
 import WithdrawScreen from './pages/WithdrawScreen';
+import Tree from './pages/Tree';
+import BinaryTreeNew from './pages/tree/BinaryTreeNew';
+import BinaryTree from './pages/tree/BinaryTree';
+import NewTree from './pages/tree/NewTree';
 
 const UserDashboard = () => {
     return (
@@ -23,7 +27,9 @@ const UserDashboard = () => {
                 <Route path="/deposit" element={<DepositForm />} />
                 <Route path="/deposit/:txn_id" element={<DepositForm />} />
                 <Route path="/withdraw" element={<WithdrawScreen />} />
+                <Route path="/tree" element={<NewTree />} />
                 <Route path="/referrals" element={<Referrals />} />
+                <Route path="/btree" element={<NewTree />} />
                 {/* Add more routes as needed */}
                 <Route path="/transactions" element={<div>Transactions Page - Coming Soon</div>} />
                 <Route path="/analytics" element={<div>Analytics Page - Coming Soon</div>} />

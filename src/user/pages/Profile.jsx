@@ -338,7 +338,7 @@ const Profile = () => {
                                     <Avatar
                                         size="2xl"
                                         name={profile ? `${profile?.USER?.name}`.trim() : 'User'}
-                                        src={profile?.USER?.profile_picture || profile?.USER?.profile_picture}
+                                        src={profile?.USER?.profile_image}
                                         bg="blue.500"
                                     />
                                     <IconButton

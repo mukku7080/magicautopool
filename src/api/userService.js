@@ -6,15 +6,8 @@ class UserService {
         try {
             // Using the specific API URL provided
             const response = await axiosInstance.get('/profile');
-
-            console.log('🔍 Raw API Response:', response);
-            console.log('📊 Response Data:', response.data);
-
             // Extract user data from response.data.user structure
             const userData = response.data?.user || response.data;
-
-            console.log('👤 Extracted User Data:', userData);
-
             return {
                 success: true,
                 data: userData,
@@ -58,8 +51,6 @@ class UserService {
     async sendUpdateProfileOtp() {
         try {
             const response = await axiosInstance.post('/mail/otpUpdateProfile');
-            console.log('✅ otp send response:', response);
-            console.log('📊 otp send data:', response.data);
             return response.data;
         } catch (error) {
             console.error('❌ otp error:', error);
@@ -72,12 +63,7 @@ class UserService {
     }
     async updateProfile(profileData) {
         try {
-            console.log('📝 Updating profile with data:', profileData);
-
             const response = await axiosInstance.post('/profile/update', profileData);
-
-            console.log('✅ Update profile response:', response);
-            console.log('📊 Updated profile data:', response.data);
 
             return {
                 success: true,
@@ -97,8 +83,7 @@ class UserService {
     async SendOtp() {
         try {
             const response = await axiosInstance.post('/mail/otpSent');
-            console.log('✅ otp send response:', response);
-            console.log('📊 otp send data:', response.data);
+
             return response.data;
         } catch (error) {
             console.error('❌ otp error:', error);
@@ -112,12 +97,10 @@ class UserService {
 
     async updateWalletAddress(walletDetails) {
         try {
-            console.log('📝 Updating profile with data:', walletDetails);
 
             const response = await axiosInstance.post('/update-wallet-address', walletDetails);
 
-            console.log('✅ Update profile response:', response);
-            console.log('📊 Updated profile data:', response.data);
+
 
             return {
                 success: true,

@@ -170,10 +170,8 @@ export const AccountProvider = ({ children }) => {
             dispatch({ type: ACCOUNT_ACTIONS.SET_LOADING, payload: true });
             const result = await accountService.getWithdrawHistory(params);
 
-            console.log('🔄 AccountContext - Processing withdraw history result:', result);
 
             if (result.success) {
-                console.log('✅ AccountContext - Setting withdraw history data:', result.data);
                 dispatch({ type: ACCOUNT_ACTIONS.SET_WITHDRAW_HISTORY, payload: result.data });
             } else {
                 throw new Error(result.message || 'Failed to load withdraw history');
@@ -295,7 +293,6 @@ export const AccountProvider = ({ children }) => {
     const depositViaGateway = async (request) => {
         try {
             const result = await accountService.DepositeAssetViaGateWay(request);
-            console.log('✅ Deposit via gateway result:', result);
             return result;
         }
         catch (error) {

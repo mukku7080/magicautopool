@@ -164,9 +164,9 @@ export const UserProvider = ({ children }) => {
     useEffect(() => {
         if (isAuthenticated) {
             loadUserProfile();
-            loadUserBalance();
-            loadUserNotifications();
-            loadUserSettings();
+            // loadUserBalance();
+            // loadUserNotifications();
+            // loadUserSettings();
         }
     }, [isAuthenticated]);
 
@@ -176,11 +176,9 @@ export const UserProvider = ({ children }) => {
             dispatch({ type: USER_ACTIONS.SET_LOADING, payload: true });
             const result = await userService.getProfile();
 
-            console.log('🔄 UserContext - Processing API Result:', result);
 
             // Handle both old and new response formats
             if (result.success) {
-                console.log('✅ UserContext - Setting profile data:', result.data);
                 dispatch({ type: USER_ACTIONS.SET_PROFILE, payload: result.data });
             } else if (result.data || result.user || result.profile) {
                 // Fallback for existing API structure
@@ -293,14 +291,14 @@ export const UserProvider = ({ children }) => {
     };
 
     // Load user balance
-    const loadUserBalance = async () => {
-        try {
-            const balanceData = await userService.getBalance();
-            dispatch({ type: USER_ACTIONS.SET_BALANCE, payload: balanceData.balance });
-        } catch (error) {
-            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
-        }
-    };
+    // const loadUserBalance = async () => {
+    //     try {
+    //         const balanceData = await userService.getBalance();
+    //         dispatch({ type: USER_ACTIONS.SET_BALANCE, payload: balanceData.balance });
+    //     } catch (error) {
+    //         dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
+    //     }
+    // };
 
     // Load transactions
     const loadTransactions = async (params = {}) => {
@@ -314,57 +312,57 @@ export const UserProvider = ({ children }) => {
     };
 
     // Load notifications
-    const loadUserNotifications = async (params = {}) => {
-        try {
-            const notifications = await userService.getNotifications(params);
-            dispatch({ type: USER_ACTIONS.SET_NOTIFICATIONS, payload: notifications });
-        } catch (error) {
-            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
-        }
-    };
+    // const loadUserNotifications = async (params = {}) => {
+    //     try {
+    //         const notifications = await userService.getNotifications(params);
+    //         dispatch({ type: USER_ACTIONS.SET_NOTIFICATIONS, payload: notifications });
+    //     } catch (error) {
+    //         dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
+    //     }
+    // };
 
     // Mark notification as read
-    const markNotificationAsRead = async (notificationId) => {
-        try {
-            await userService.markNotificationAsRead(notificationId);
-            dispatch({ type: USER_ACTIONS.MARK_NOTIFICATION_READ, payload: notificationId });
-        } catch (error) {
-            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
-        }
-    };
+    // const markNotificationAsRead = async (notificationId) => {
+    //     try {
+    //         await userService.markNotificationAsRead(notificationId);
+    //         dispatch({ type: USER_ACTIONS.MARK_NOTIFICATION_READ, payload: notificationId });
+    //     } catch (error) {
+    //         dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
+    //     }
+    // };
 
     // Mark all notifications as read
-    const markAllNotificationsAsRead = async () => {
-        try {
-            await userService.markAllNotificationsAsRead();
-            dispatch({ type: USER_ACTIONS.MARK_ALL_NOTIFICATIONS_READ });
-        } catch (error) {
-            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
-        }
-    };
+    // const markAllNotificationsAsRead = async () => {
+    //     try {
+    //         await userService.markAllNotificationsAsRead();
+    //         dispatch({ type: USER_ACTIONS.MARK_ALL_NOTIFICATIONS_READ });
+    //     } catch (error) {
+    //         dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
+    //     }
+    // };
 
     // Load user settings
-    const loadUserSettings = async () => {
-        try {
-            const settings = await userService.getSettings();
-            dispatch({ type: USER_ACTIONS.SET_SETTINGS, payload: settings });
-        } catch (error) {
-            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
-        }
-    };
+    // const loadUserSettings = async () => {
+    //     try {
+    //         const settings = await userService.getSettings();
+    //         dispatch({ type: USER_ACTIONS.SET_SETTINGS, payload: settings });
+    //     } catch (error) {
+    //         dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
+    //     }
+    // };
 
     // Update user settings
-    const updateUserSettings = async (settingsData) => {
-        try {
-            dispatch({ type: USER_ACTIONS.SET_LOADING, payload: true });
-            const updatedSettings = await userService.updateSettings(settingsData);
-            dispatch({ type: USER_ACTIONS.UPDATE_SETTINGS, payload: updatedSettings });
-            return { success: true, settings: updatedSettings };
-        } catch (error) {
-            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
-            return { success: false, error: error.message };
-        }
-    };
+    // const updateUserSettings = async (settingsData) => {
+    //     try {
+    //         dispatch({ type: USER_ACTIONS.SET_LOADING, payload: true });
+    //         const updatedSettings = await userService.updateSettings(settingsData);
+    //         dispatch({ type: USER_ACTIONS.UPDATE_SETTINGS, payload: updatedSettings });
+    //         return { success: true, settings: updatedSettings };
+    //     } catch (error) {
+    //         dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message });
+    //         return { success: false, error: error.message };
+    //     }
+    // };
 
     // Load dashboard data
     const loadDashboardData = async () => {
@@ -448,13 +446,13 @@ export const UserProvider = ({ children }) => {
         updateUserProfile,
         uploadProfilePicture,
         changePassword,
-        loadUserBalance,
+        // loadUserBalance,
         loadTransactions,
-        loadUserNotifications,
-        markNotificationAsRead,
-        markAllNotificationsAsRead,
-        loadUserSettings,
-        updateUserSettings,
+        // loadUserNotifications,
+        // markNotificationAsRead,
+        // markAllNotificationsAsRead,
+        // loadUserSettings,
+        // updateUserSettings,
         loadDashboardData,
         clearError,
         handleSendOtpProfileUpdate,

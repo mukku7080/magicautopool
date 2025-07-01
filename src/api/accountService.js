@@ -9,8 +9,7 @@ class AccountService {
             const response = await axiosInstance.post('/request-withdraw', {
                 amount: parseFloat(amount)
             });
-            console.log('✅ Withdraw request response:', response);
-            console.log('📊 Withdraw response data:', response.data);
+           
 
             return {
                 success: true,
@@ -30,13 +29,11 @@ class AccountService {
     // Get withdraw history
     async getWithdrawHistory(params = {}) {
         try {
-            console.log('📊 Getting withdraw history with params:', params);
 
             const response = await axiosInstance.get('/withdraw-history', {
                 params: params
             });
 
-            console.log('✅ Withdraw history response:', response);
 
             return {
                 success: true,
@@ -81,7 +78,6 @@ class AccountService {
 
             const response = await axios.post('https://api.zipwallet.net/api/deposit-asset', request);
 
-            console.log('✅ deposit asset respons via gateway:', response);
 
             return {
                 success: true,
@@ -102,9 +98,6 @@ class AccountService {
         try {
 
             const response = await axios.get(`https://api.zipwallet.net/api/deposit-details?access_key=${request.access_key}&client_id=${request.client_id}`);
-
-            console.log('✅ deposit asset respons via gateway:', response);
-
             return {
                 success: true,
                 data: response?.data || response,
@@ -124,9 +117,6 @@ class AccountService {
         try {
 
             const response = await axiosInstance.post('/update-deposit', request);
-
-            console.log('✅ update deposit tnx  respons via gateway:', response);
-
             return {
                 success: true,
                 data: response?.data || response,
