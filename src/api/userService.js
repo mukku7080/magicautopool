@@ -70,7 +70,69 @@ class UserService {
             };
         }
     }
+    async updateProfile(profileData) {
+        try {
+            console.log('📝 Updating profile with data:', profileData);
 
+            const response = await axiosInstance.post('/profile/update', profileData);
+
+            console.log('✅ Update profile response:', response);
+            console.log('📊 Updated profile data:', response.data);
+
+            return {
+                success: true,
+                data: response.data?.user || response.data,
+                message: response.data?.message || 'Profile updated successfully'
+            };
+        } catch (error) {
+            console.error('❌ Update profile error:', error);
+            throw {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Failed to update profile',
+                error: error
+            };
+        }
+    }
+
+    async SendOtp() {
+        try {
+            const response = await axiosInstance.post('/mail/otpSent');
+            console.log('✅ otp send response:', response);
+            console.log('📊 otp send data:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('❌ otp error:', error);
+            throw {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Failed to send otp',
+                error: error
+            };
+        }
+    }
+
+    async updateWalletAddress(walletDetails) {
+        try {
+            console.log('📝 Updating profile with data:', walletDetails);
+
+            const response = await axiosInstance.post('/update-wallet-address', walletDetails);
+
+            console.log('✅ Update profile response:', response);
+            console.log('📊 Updated profile data:', response.data);
+
+            return {
+                success: true,
+                data: response.data?.user || response.data,
+                message: response.data?.message || 'Profile updated successfully'
+            };
+        } catch (error) {
+            console.error('❌ Update profile error:', error);
+            throw {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Failed to update profile',
+                error: error
+            };
+        }
+    }
 
     // // Upload profile picture
     // async uploadProfilePicture(file) {

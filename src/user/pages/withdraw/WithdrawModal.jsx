@@ -25,6 +25,7 @@ import {
 } from "@chakra-ui/react";
 import { FaWallet, FaHandHoldingUsd } from "react-icons/fa";
 import { AiOutlineBank } from "react-icons/ai";
+import { useUser } from "../../../Context";
 
 const WithdrawModal = ({
     isOpen,
@@ -53,6 +54,7 @@ const WithdrawModal = ({
 }) => {
     const selectBgColor = useColorModeValue("white", "gray.700");
     const inputReadOnlyBg = useColorModeValue("gray.50", "gray.800");
+    const { sendOtp, updateWalletAddress } = useUser();
 
     // Update modal disclosure
     const { isOpen: isUpdateModalOpen, onOpen: onUpdateModalOpen, onClose: onUpdateModalClose } = useDisclosure();
@@ -70,7 +72,39 @@ const WithdrawModal = ({
 
     const handleUpdateWalletAddress = () => {
         onUpdateWalletAddress();
+        onUpdateModalClose();
     };
+
+    const handleSendOtpProfileUpdate = async () => {
+        try {
+            const result = await sendOtp();
+            console.log("OTP sent successfully:", result);
+            if (result.status) {
+                onUpdateModalOpen();
+                setUpdateFormErrors({});
+            } else {
+                setUpdateFormErrors({ otp: result.error });
+            }
+        } catch (error) {
+            setUpdateFormErrors({ otp: "Failed to send OTP. Please try again." });
+        }
+    }
+//    const  UpdateWalletAddress = async () => {
+//         try {
+//             const result = await updateWalletAddress(newWalletAddress, otp);
+//             console.log("Wallet address updated successfully:", result);
+//             if (result.status) {
+//                 onUpdateModalClose();
+//                 setUpdateFormErrors({});
+//                 setNewWalletAddress("");
+//                 setOtp("");
+//             } else {
+//                 setUpdateFormErrors({ ...updateFormErrors, address: result.error });
+//             }
+//         } catch (error) {
+//             setUpdateFormErrors({ ...updateFormErrors, address: "Failed to update wallet address. Please try again." });
+//         }
+//     }
 
     // Calculate remaining balance
     const remainingAmount = availableBalance - (parseFloat(withdrawAmount) || 0);
@@ -144,7 +178,7 @@ const WithdrawModal = ({
                                         size="sm"
                                         colorScheme="blue"
                                         variant="outline"
-                                        onClick={onUpdateModalOpen}
+                                        onClick={handleSendOtpProfileUpdate}
                                     >
                                         Update
                                     </Button>
@@ -192,7 +226,7 @@ const WithdrawModal = ({
                     <ModalHeader>
                         <HStack spacing={3}>
                             <Icon as={AiOutlineBank} color="blue.500" boxSize={6} />
-                            <Text>Update Wallet Address</Text>
+                            <Box fontSize={'16px'}>Update Wallet Address</Box>
                         </HStack>
                     </ModalHeader>
                     <ModalCloseButton />

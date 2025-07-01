@@ -228,6 +228,36 @@ export const UserProvider = ({ children }) => {
             return { success: false, error: error.message };
         }
     };
+    const sendOtp = async () => {
+        try {
+            const result = await userService.SendOtp();
+            return result;
+        } catch (error) {
+            console.error('Update user profile error:', error);
+            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message || 'Failed to update profile' });
+            return { success: false, error: error.message };
+        }
+    };
+    const updateWalletAddress = async (walletDetail) => {
+        try {
+            dispatch({ type: USER_ACTIONS.SET_LOADING, payload: true });
+            const result = await userService.updateWalletAddress(walletDetail);
+
+            // Handle both old and new response formats
+            if (result.success) {
+                dispatch({ type: USER_ACTIONS.UPDATE_PROFILE, payload: result.data });
+                return { success: true, profile: result.data, message: result.message };
+            } else {
+                // Fallback for existing API structure
+                dispatch({ type: USER_ACTIONS.UPDATE_PROFILE, payload: result });
+                return { success: true, profile: result };
+            }
+        } catch (error) {
+            console.error('Update user profile error:', error);
+            dispatch({ type: USER_ACTIONS.SET_ERROR, payload: error.message || 'Failed to update profile' });
+            return { success: false, error: error.message };
+        }
+    };
 
     // Upload profile picture
     const uploadProfilePicture = async (file) => {
@@ -427,7 +457,8 @@ export const UserProvider = ({ children }) => {
         updateUserSettings,
         loadDashboardData,
         clearError,
-        handleSendOtpProfileUpdate
+        handleSendOtpProfileUpdate,
+        sendOtp, updateWalletAddress
     };
 
     return (

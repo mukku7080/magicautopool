@@ -63,6 +63,7 @@ import decryptWithKey from "../../../Components/decryptWithKey";
 import provider from "./Provider";
 
 const WithdrawScreen = () => {
+    const {updateWalletAddress}=useUser();
     // State management - simplified without unnecessary useMemo/useCallback
     const [withdrawAmount, setWithdrawAmount] = useState("");
     const [withdrawAddress, setWithdrawAddress] = useState("");
@@ -439,19 +440,25 @@ const WithdrawScreen = () => {
             try {
                 // API call to update wallet address
                 // Replace with your actual API endpoint
-                const response = await fetch('/api/user/update-wallet', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // Add authorization headers
-                    },
-                    body: JSON.stringify({
-                        new_wallet_address: newWalletAddress,
-                        otp: otp
-                    })
-                });
+                // const response = await fetch('/api/user/update-wallet', {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json',
+                //         // Add authorization headers
+                //     },
+                //     body: JSON.stringify({
+                //         new_wallet_address: newWalletAddress,
+                //         otp: otp
+                //     })
+                // });
+                const dto ={
+                    address: newWalletAddress,
+                    otp: otp
+                }
+                const   response = await updateWalletAddress(dto);
+                console.log("Update Wallet Address Response:", response);
 
-                if (response.ok) {
+                if (response?.success) {
                     toast({
                         title: "Success",
                         description: "Wallet address updated successfully",

@@ -297,6 +297,7 @@ const Dashboard = () => {
                                     leftIcon={<FiArrowUpRight />}
                                     colorScheme="green"
                                     variant="outline"
+                                    onClick={() => window.location.href = '/user/deposit'}
                                 >
                                     Make Deposit
                                 </Button>
@@ -305,6 +306,7 @@ const Dashboard = () => {
                                     leftIcon={<FiArrowDownRight />}
                                     colorScheme="blue"
                                     variant="outline"
+                                    onClick={() => window.location.href = '/user/Withdraw'}
                                 >
                                     Request Withdrawal
                                 </Button>

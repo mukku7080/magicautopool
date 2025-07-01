@@ -64,6 +64,7 @@ import {
     FiEyeOff,
 } from 'react-icons/fi';
 import { AiOutlineWallet, AiOutlineBank, AiOutlineHistory } from 'react-icons/ai';
+import { useNavigate } from 'react-router-dom';
 
 const Wallet = () => {
     const [showBalance, setShowBalance] = useState(true);
@@ -71,6 +72,7 @@ const Wallet = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [modalType, setModalType] = useState('');
     const toast = useToast();
+    const navigate = useNavigate();
 
     const cardBg = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.700');
@@ -214,7 +216,7 @@ const Wallet = () => {
                         leftIcon={<FiArrowUpRight />}
                         colorScheme="green"
                         size="sm"
-                        onClick={() => handleQuickAction('Deposit')}
+                        onClick={() => navigate('/user/deposit')}
                     >
                         Deposit
                     </Button>
@@ -222,7 +224,7 @@ const Wallet = () => {
                         leftIcon={<FiArrowDownRight />}
                         colorScheme="blue"
                         size="sm"
-                        onClick={() => handleQuickAction('Withdraw')}
+                        onClick={() => navigate('/user/Withdraw')}
                     >
                         Withdraw
                     </Button>
@@ -346,7 +348,7 @@ const Wallet = () => {
                                                         size="sm"
                                                         colorScheme={
                                                             transaction.status === 'Completed' ? 'green' :
-                                                            transaction.status === 'Processing' ? 'yellow' : 'red'
+                                                                transaction.status === 'Processing' ? 'yellow' : 'red'
                                                         }
                                                         variant="subtle"
                                                     >
