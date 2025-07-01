@@ -51,6 +51,7 @@ import { useUser } from "../../../Context";
 import { ethers } from "ethers";
 
 import WithdrawModal from "./WithdrawModal";
+import WithdrawHistory from "./WithdrawHistory";
 import {
     BEP20_ABI,
     MDC_CONTRACT_ADDRESS,
@@ -61,9 +62,12 @@ import {
 } from "./constants";
 import decryptWithKey from "../../../Components/decryptWithKey";
 import provider from "./Provider";
+import { useNavigate } from "react-router-dom";
+import { generateSampleWithdrawHistory } from "./sampleData";
 
 const WithdrawScreen = () => {
     const { updateWalletAddress } = useUser();
+    const navigate = useNavigate();
     // State management - simplified without unnecessary useMemo/useCallback
     const [withdrawAmount, setWithdrawAmount] = useState("");
     const [withdrawAddress, setWithdrawAddress] = useState("");
@@ -495,6 +499,15 @@ const WithdrawScreen = () => {
         }
     };
 
+    // Navigate to full history page
+    const handleViewAllHistory = () => {
+        navigate('/user/withdraw-history');
+    };
+
+    // Generate sample data for testing if no real data available
+    const sampleWithdrawHistory = generateSampleWithdrawHistory(25);
+    const displayWithdrawHistory = withdrawHistory && withdrawHistory.length > 0 ? withdrawHistory : sampleWithdrawHistory;
+
     return (
         <Box p={8} bg={bgColor} minH="100vh">
             {/* Available Amount Section */}
@@ -617,179 +630,12 @@ const WithdrawScreen = () => {
             </SimpleGrid>
 
             {/* Withdrawal History */}
-            <Card bg={cardBgColor} border="1px" borderColor={borderColor} boxShadow="md">
-                <CardBody>
-                    <Flex justify="space-between" align="center" mb={4}>
-                        <Text fontSize="lg" fontWeight="bold" color={fontColor}>
-                            Withdrawal History
-                        </Text>
-                        <HStack spacing={2}>
-                            <IconButton
-                                icon={<FaFilter />}
-                                size="sm"
-                                variant="outline"
-                                aria-label="Filter"
-                            />
-                            <IconButton
-                                icon={<FaDownload />}
-                                size="sm"
-                                variant="outline"
-                                aria-label="Download"
-                            />
-                        </HStack>
-                    </Flex>
-
-                    <TableContainer>
-                        <Table variant="simple" size="sm">
-                            <Thead bg={theadBgColor}>
-                                <Tr>
-                                    <Th color={thColor}>Transaction</Th>
-                                    <Th color={thColor}>Amount</Th>
-                                    <Th color={thColor}>Balance</Th>
-                                    <Th color={thColor}>Addresses</Th>
-                                    <Th color={thColor}>Date & Status</Th>
-                                    <Th></Th>
-                                </Tr>
-                            </Thead>
-                            <Tbody>
-                                {withdrawHistory && withdrawHistory.length > 0 ? (
-                                    withdrawHistory.map((withdraw, index) => (
-                                        <Tr key={withdraw.id || index} _hover={{ bg: tableHoverColor }}>
-                                            <Td>
-                                                <VStack align="start" spacing={1}>
-                                                    <Text fontWeight="bold" color={fontColor}>
-                                                        #{withdraw.id || index + 1}
-                                                    </Text>
-                                                    <Text fontSize="sm" color="gray.500">
-                                                        {withdraw.txn_hash ?
-                                                            `${withdraw.txn_hash.substring(0, 8)}...${withdraw.txn_hash.substring(withdraw.txn_hash.length - 6)}`
-                                                            : "N/A"
-                                                        }
-                                                    </Text>
-                                                </VStack>
-                                            </Td>
-                                            <Td>
-                                                <VStack align="start" spacing={1}>
-                                                    <HStack>
-                                                        <Icon as={MdTrendingDown} color="red.500" boxSize={4} />
-                                                        <Text fontWeight="bold" color="red.500" fontSize="lg">
-                                                            -${withdraw.withdraw_amount || withdraw.amount || "0.00"}
-                                                        </Text>
-                                                    </HStack>
-                                                    <Text fontSize="sm" color="gray.500">
-                                                        Paid: ${withdraw.paid_amount || "0.00"}
-                                                    </Text>
-                                                    <Text fontSize="sm" color="orange.500">
-                                                        Fee: ${withdraw.fees_deduction || "0.00"}
-                                                    </Text>
-                                                </VStack>
-                                            </Td>
-                                            <Td>
-                                                <VStack align="start" spacing={1}>
-                                                    <Text fontSize="sm" color="gray.600">
-                                                        Available: ${withdraw.available_amount || "N/A"}
-                                                    </Text>
-                                                    <Text fontSize="sm" color="gray.600">
-                                                        Remaining: ${withdraw.remain_amount || "N/A"}
-                                                    </Text>
-                                                </VStack>
-                                            </Td>
-                                            <Td>
-                                                <VStack align="start" spacing={1}>
-                                                    <HStack>
-                                                        <Text fontSize="xs" color="gray.500">From:</Text>
-                                                        <Text fontSize="xs" fontFamily="mono">
-                                                            {withdraw.from_address ?
-                                                                `${withdraw.from_address.substring(0, 6)}...${withdraw.from_address.substring(withdraw.from_address.length - 4)}`
-                                                                : "N/A"
-                                                            }
-                                                        </Text>
-                                                        {withdraw.from_address && (
-                                                            <IconButton
-                                                                aria-label="Copy from address"
-                                                                icon={<CopyIcon />}
-                                                                size="xs"
-                                                                variant="ghost"
-                                                                onClick={() => copyToClipboard(withdraw.from_address, "From Address")}
-                                                            />
-                                                        )}
-                                                    </HStack>
-                                                    <HStack>
-                                                        <Text fontSize="xs" color="gray.500">To:</Text>
-                                                        <Text fontSize="xs" fontFamily="mono">
-                                                            {withdraw.to_address ?
-                                                                `${withdraw.to_address.substring(0, 6)}...${withdraw.to_address.substring(withdraw.to_address.length - 4)}`
-                                                                : "N/A"
-                                                            }
-                                                        </Text>
-                                                        {withdraw.to_address && (
-                                                            <IconButton
-                                                                aria-label="Copy to address"
-                                                                icon={<CopyIcon />}
-                                                                size="xs"
-                                                                variant="ghost"
-                                                                onClick={() => copyToClipboard(withdraw.to_address, "To Address")}
-                                                            />
-                                                        )}
-                                                    </HStack>
-                                                </VStack>
-                                            </Td>
-                                            <Td>
-                                                <VStack align="start" spacing={2}>
-                                                    <Text fontSize="sm" color="gray.600">
-                                                        {withdraw.date_time || "N/A"}
-                                                    </Text>
-                                                    <Badge
-                                                        colorScheme={STATUS_COLORS[withdraw.status] || "gray"}
-                                                        variant="subtle"
-                                                        px={3}
-                                                        py={1}
-                                                        borderRadius="full"
-                                                        textTransform="capitalize"
-                                                    >
-                                                        {STATUS_LABELS[withdraw.status] || withdraw.status || "Unknown"}
-                                                    </Badge>
-                                                </VStack>
-                                            </Td>
-                                            <Td>
-                                                <Menu>
-                                                    <MenuButton
-                                                        as={IconButton}
-                                                        icon={<BsThreeDotsVertical />}
-                                                        variant="ghost"
-                                                        size="sm"
-                                                    />
-                                                    <MenuList>
-                                                        <MenuItem icon={<FaEye />}>
-                                                            View Details
-                                                        </MenuItem>
-                                                        {withdraw.txn_hash && (
-                                                            <MenuItem
-                                                                icon={<ExternalLinkIcon />}
-                                                                onClick={() => window.open(`https://bscscan.com/tx/${withdraw.txn_hash}`, '_blank')}
-                                                            >
-                                                                View on BSCScan
-                                                            </MenuItem>
-                                                        )}
-                                                    </MenuList>
-                                                </Menu>
-                                            </Td>
-                                        </Tr>
-                                    ))
-                                ) : (
-                                    <Tr>
-                                        <Td colSpan={6} textAlign="center" py={8}>
-                                            <Box color="gray.500">
-                                                {isLoading ? <Spinner /> : "No withdrawal history found"}
-                                            </Box>
-                                        </Td>
-                                    </Tr>
-                                )}
-                            </Tbody>
-                        </Table>
-                    </TableContainer>
-                </CardBody>
-            </Card>
+            <WithdrawHistory
+                withdrawHistory={displayWithdrawHistory}
+                isLoading={isLoading}
+                showFullHistory={false}
+                onViewAll={handleViewAllHistory}
+            />
 
             {/* Withdraw Modal */}
             <WithdrawModal

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     Modal,
     ModalOverlay,
@@ -55,6 +55,7 @@ const WithdrawModal = ({
     const selectBgColor = useColorModeValue("white", "gray.700");
     const inputReadOnlyBg = useColorModeValue("gray.50", "gray.800");
     const { sendOtp, updateWalletAddress } = useUser();
+    const [isloading, setLoading] = useState(false);
 
     // Update modal disclosure
     const { isOpen: isUpdateModalOpen, onOpen: onUpdateModalOpen, onClose: onUpdateModalClose } = useDisclosure();
@@ -77,11 +78,13 @@ const WithdrawModal = ({
 
     const handleSendOtpProfileUpdate = async () => {
         try {
+            setLoading(true);
             const result = await sendOtp();
             console.log("OTP sent successfully:", result);
             if (result.status) {
                 onUpdateModalOpen();
                 setUpdateFormErrors({});
+                setLoading(false);
             } else {
                 setUpdateFormErrors({ otp: result.error });
             }
@@ -89,22 +92,22 @@ const WithdrawModal = ({
             setUpdateFormErrors({ otp: "Failed to send OTP. Please try again." });
         }
     }
-//    const  UpdateWalletAddress = async () => {
-//         try {
-//             const result = await updateWalletAddress(newWalletAddress, otp);
-//             console.log("Wallet address updated successfully:", result);
-//             if (result.status) {
-//                 onUpdateModalClose();
-//                 setUpdateFormErrors({});
-//                 setNewWalletAddress("");
-//                 setOtp("");
-//             } else {
-//                 setUpdateFormErrors({ ...updateFormErrors, address: result.error });
-//             }
-//         } catch (error) {
-//             setUpdateFormErrors({ ...updateFormErrors, address: "Failed to update wallet address. Please try again." });
-//         }
-//     }
+    //    const  UpdateWalletAddress = async () => {
+    //         try {
+    //             const result = await updateWalletAddress(newWalletAddress, otp);
+    //             console.log("Wallet address updated successfully:", result);
+    //             if (result.status) {
+    //                 onUpdateModalClose();
+    //                 setUpdateFormErrors({});
+    //                 setNewWalletAddress("");
+    //                 setOtp("");
+    //             } else {
+    //                 setUpdateFormErrors({ ...updateFormErrors, address: result.error });
+    //             }
+    //         } catch (error) {
+    //             setUpdateFormErrors({ ...updateFormErrors, address: "Failed to update wallet address. Please try again." });
+    //         }
+    //     }
 
     // Calculate remaining balance
     const remainingAmount = availableBalance - (parseFloat(withdrawAmount) || 0);
@@ -179,6 +182,8 @@ const WithdrawModal = ({
                                         colorScheme="blue"
                                         variant="outline"
                                         onClick={handleSendOtpProfileUpdate}
+                                        isLoading={isloading}
+                                        loadingText={"OTP..."}
                                     >
                                         Update
                                     </Button>
