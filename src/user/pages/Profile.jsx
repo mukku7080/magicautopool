@@ -38,8 +38,21 @@ import {
     IconButton,
     Spinner,
     Center,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalCloseButton,
+    ModalBody,
+    ModalFooter,
+    useDisclosure,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    MenuDivider,
 } from '@chakra-ui/react';
-import { FiEdit2, FiCamera, FiShield, FiEye, FiEyeOff, FiCheck, FiX } from 'react-icons/fi';
+import { FiEdit2, FiCamera, FiShield, FiEye, FiEyeOff, FiCheck, FiX, FiUpload, FiImage } from 'react-icons/fi';
 import { AiOutlineUser, AiOutlineMail, AiOutlinePhone, AiOutlineHome } from 'react-icons/ai';
 import { useUser } from '../../Context/UserContext';
 
@@ -48,7 +61,14 @@ const Profile = () => {
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [cameraStream, setCameraStream] = useState(null);
+    const [capturedImage, setCapturedImage] = useState(null);
     const toast = useToast();
+
+    // Camera modal disclosure
+    const { isOpen: isCameraOpen, onOpen: onCameraOpen, onClose: onCameraClose } = useDisclosure();
+    const fileInputRef = React.createRef();
 
     // Use User Context
     const {
@@ -63,7 +83,8 @@ const Profile = () => {
         getUserEmail,
         getUserAvatar,
         isProfileLoaded,
-        handleSendOtpProfileUpdate
+        handleSendOtpProfileUpdate,
+        uploadProfilePicture
 
     } = useUser();
 
@@ -296,6 +317,137 @@ const Profile = () => {
 
     const profileCompleteness = 85;
 
+    // Handle file upload
+    const handleFileUpload = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            toast({
+                title: 'Invalid File Type',
+                description: 'Please select an image file (JPG, PNG, GIF, etc.)',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+            return;
+        }
+
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            toast({
+                title: 'File Too Large',
+                description: 'Please select an image smaller than 5MB',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+            return;
+        }
+
+        await uploadImage(file);
+    };
+
+    // Handle camera capture
+    const handleCameraCapture = async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { width: 640, height: 480 }
+            });
+            setCameraStream(stream);
+            onCameraOpen();
+        } catch (error) {
+            console.error('Camera access error:', error);
+            toast({
+                title: 'Camera Access Denied',
+                description: 'Please allow camera access to capture your photo',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+        }
+    };
+
+    // Capture photo from camera
+    const capturePhoto = () => {
+        const video = document.getElementById('cameraVideo');
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+
+        canvas.toBlob(async (blob) => {
+            if (blob) {
+                const file = new File([blob], 'camera-capture.jpg', { type: 'image/jpeg' });
+                await uploadImage(file);
+                closeCameraModal();
+            }
+        }, 'image/jpeg', 0.8);
+    };
+
+    // Close camera modal and stop stream
+    const closeCameraModal = () => {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            setCameraStream(null);
+        }
+        setCapturedImage(null);
+        onCameraClose();
+    };
+
+    // Upload image to server
+    const uploadImage = async (file) => {
+        try {
+            setIsUploadingImage(true);
+            console.log('📤 Uploading profile image:', file.name);
+            const result = await uploadProfilePicture(file);
+            console.log(file);
+
+            if (result.success) {
+                console.log('✅ Profile image uploaded successfully:', result);
+                toast({
+                    title: 'Image Updated',
+                    description: 'Your profile image has been updated successfully',
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                });
+
+                // Reload profile to get updated image
+                loadUserProfile();
+            } else {
+                throw new Error(result.error || 'Failed to upload image');
+            }
+        } catch (error) {
+            console.error('❌ Image upload failed:', error);
+            toast({
+                title: 'Upload Failed',
+                description: error.message || 'Failed to upload image. Please try again.',
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+            });
+        } finally {
+            setIsUploadingImage(false);
+            // Reset file input
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
+    };
+
+    // Cleanup camera stream on unmount
+    useEffect(() => {
+        return () => {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+            }
+        };
+    }, [cameraStream]);
+
     return (
         <Box>
             <HStack justify="space-between" align="center" mb={6}>
@@ -340,16 +492,61 @@ const Profile = () => {
                                         name={profile ? `${profile?.USER?.name}`.trim() : 'User'}
                                         src={profile?.USER?.profile_image}
                                         bg="blue.500"
+                                        opacity={isUploadingImage ? 0.6 : 1}
                                     />
-                                    <IconButton
-                                        icon={<FiCamera />}
-                                        size="sm"
-                                        borderRadius="full"
-                                        position="absolute"
-                                        bottom="0"
-                                        right="0"
-                                        colorScheme="blue"
-                                        aria-label="Change avatar"
+                                    {isUploadingImage && (
+                                        <Box
+                                            position="absolute"
+                                            top="50%"
+                                            left="50%"
+                                            transform="translate(-50%, -50%)"
+                                            bg="rgba(0,0,0,0.8)"
+                                            borderRadius="full"
+                                            p={3}
+                                        >
+                                            <Spinner color="white" size="md" />
+                                        </Box>
+                                    )}
+                                    <Menu>
+                                        <MenuButton
+                                            as={IconButton}
+                                            icon={isUploadingImage ? <Spinner size="sm" /> : <FiImage />}
+                                            size="sm"
+                                            borderRadius="full"
+                                            position="absolute"
+                                            bottom="0"
+                                            right="0"
+                                            colorScheme="blue"
+                                            aria-label="Change avatar"
+                                            isLoading={isUploadingImage}
+                                            disabled={isUploadingImage}
+                                        />
+                                        <MenuList>
+                                            <MenuItem
+                                                icon={<FiUpload />}
+                                                onClick={() => fileInputRef.current?.click()}
+                                                isDisabled={isUploadingImage}
+                                            >
+                                                Upload from Device
+                                            </MenuItem>
+                                            <MenuDivider />
+                                            <MenuItem
+                                                icon={<FiCamera />}
+                                                onClick={handleCameraCapture}
+                                                isDisabled={isUploadingImage}
+                                            >
+                                                Take Photo with Camera
+                                            </MenuItem>
+                                        </MenuList>
+                                    </Menu>
+
+                                    {/* Hidden file input */}
+                                    <Input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={handleFileUpload}
+                                        accept="image/*"
+                                        display="none"
                                     />
                                 </Box>
 
@@ -844,6 +1041,62 @@ const Profile = () => {
                     </Tabs>
                 </GridItem>
             </Grid>
+
+            {/* Camera Modal */}
+            <Modal isOpen={isCameraOpen} onClose={closeCameraModal} size="lg">
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>Capture Profile Photo</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <VStack spacing={4}>
+                            {cameraStream && (
+                                <Box position="relative" borderRadius="md" overflow="hidden">
+                                    <video
+                                        id="cameraVideo"
+                                        autoPlay
+                                        playsInline
+                                        ref={(video) => {
+                                            if (video && cameraStream) {
+                                                video.srcObject = cameraStream;
+                                            }
+                                        }}
+                                        style={{
+                                            width: '100%',
+                                            maxWidth: '400px',
+                                            height: 'auto',
+                                            transform: 'scaleX(-1)', // Mirror effect
+                                        }}
+                                    />
+                                </Box>
+                            )}
+
+                            {!cameraStream && (
+                                <Center p={8}>
+                                    <VStack>
+                                        <Spinner size="xl" />
+                                        <Text>Accessing camera...</Text>
+                                    </VStack>
+                                </Center>
+                            )}
+                        </VStack>
+                    </ModalBody>
+
+                    <ModalFooter>
+                        <Button variant="ghost" mr={3} onClick={closeCameraModal}>
+                            Cancel
+                        </Button>
+                        <Button
+                            colorScheme="blue"
+                            onClick={capturePhoto}
+                            disabled={!cameraStream}
+                            leftIcon={<FiCamera />}
+                        >
+                            Capture Photo
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         </Box>
     );
 };

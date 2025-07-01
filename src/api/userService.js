@@ -117,22 +117,22 @@ class UserService {
         }
     }
 
-    // // Upload profile picture
-    // async uploadProfilePicture(file) {
-    //     try {
-    //         const formData = new FormData();
-    //         formData.append('avatar', file);
+    // Upload profile picture
+    async uploadProfilePicture(file) {
+        try {
+            const formData = new FormData();
+            formData.append('profile_image', file);
 
-    //         const response = await axiosInstance.post('/user/upload-avatar', formData, {
-    //             headers: {
-    //                 'Content-Type': 'multipart/form-data',
-    //             },
-    //         });
-    //         return response.data;
-    //     } catch (error) {
-    //         throw this.handleError(error);
-    //     }
-    // }
+            const response = await axiosInstance.post('/profile/update-image', formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            return response.data;
+        } catch (error) {
+            throw this.handleError(error);
+        }
+    }
 
     // Change password
     async changePassword(passwordData) {

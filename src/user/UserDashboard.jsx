@@ -10,6 +10,7 @@ import Withdraw from './pages/Withdraw';
 import Referrals from './pages/Referrals';
 import DepositForm from './pages/DepositForm';
 import WithdrawScreen from './pages/WithdrawScreen';
+import WithdrawHistory from './pages/WithdrawHistory';
 import Tree from './pages/Tree';
 import BinaryTreeNew from './pages/tree/BinaryTreeNew';
 import BinaryTree from './pages/tree/BinaryTree';
@@ -27,6 +28,7 @@ const UserDashboard = () => {
                 <Route path="/deposit" element={<DepositForm />} />
                 <Route path="/deposit/:txn_id" element={<DepositForm />} />
                 <Route path="/withdraw" element={<WithdrawScreen />} />
+                <Route path="/withdraw-history" element={<WithdrawHistory />} />
                 <Route path="/tree" element={<NewTree />} />
                 <Route path="/referrals" element={<Referrals />} />
                 <Route path="/btree" element={<NewTree />} />

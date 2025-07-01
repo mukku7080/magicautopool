@@ -48,7 +48,7 @@ const CongratulationsModal = ({
         // Small delay to allow modal to close smoothly before opening OTP modal
         setTimeout(() => {
             onProceedToOTP();
-        }, 200);
+        }, 10000);
     };
 
     return (
@@ -163,7 +163,7 @@ const CongratulationsModal = ({
                         </Box>
 
                         {/* Next Steps */}
-                        <Alert status="info" borderRadius="md">
+                        {/* <Alert status="info" borderRadius="md">
                             <AlertIcon />
                             <AlertDescription>
                                 <VStack align="start" spacing={2}>
@@ -179,12 +179,12 @@ const CongratulationsModal = ({
                                     </Text>
                                 </VStack>
                             </AlertDescription>
-                        </Alert>
+                        </Alert> */}
 
                         {/* Welcome Message */}
                         <Box textAlign="center">
                             <Text fontSize="sm" color={textColor}>
-                                Thank you for joining NessanForex! We're excited to have you on board.
+                                Thank you for joining MagicAutoPool! We're excited to have you on board.
                             </Text>
                         </Box>
                     </VStack>

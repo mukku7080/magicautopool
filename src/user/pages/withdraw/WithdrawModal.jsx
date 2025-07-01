@@ -67,13 +67,31 @@ const WithdrawModal = ({
         onClose();
     };
 
+    const handleUpdateModalClose = () => {
+        setNewWalletAddress("");
+        setOtp("");
+        setUpdateFormErrors({});
+        onUpdateModalClose();
+    };
+
+    // Reset all form states when main modal opens
+    React.useEffect(() => {
+        if (isOpen) {
+            setWithdrawAmount("");
+            setFormErrors({});
+            setNewWalletAddress("");
+            setOtp("");
+            setUpdateFormErrors({});
+        }
+    }, [isOpen]);
+
     const handleWithdrawRequest = () => {
         onSubmit();
     };
 
     const handleUpdateWalletAddress = () => {
         onUpdateWalletAddress();
-        onUpdateModalClose();
+        handleUpdateModalClose();
     };
 
     const handleSendOtpProfileUpdate = async () => {
@@ -82,14 +100,19 @@ const WithdrawModal = ({
             const result = await sendOtp();
             console.log("OTP sent successfully:", result);
             if (result.status) {
-                onUpdateModalOpen();
+                // Clear any existing state before opening modal
+                setNewWalletAddress("");
+                setOtp("");
                 setUpdateFormErrors({});
+                onUpdateModalOpen();
                 setLoading(false);
             } else {
                 setUpdateFormErrors({ otp: result.error });
+                setLoading(false);
             }
         } catch (error) {
             setUpdateFormErrors({ otp: "Failed to send OTP. Please try again." });
+            setLoading(false);
         }
     }
     //    const  UpdateWalletAddress = async () => {
@@ -170,12 +193,12 @@ const WithdrawModal = ({
                                 <FormLabel>Withdraw Address</FormLabel>
                                 <HStack spacing={2}>
                                     <Input
-                                        disabled
                                         placeholder="Your wallet address"
                                         value={userWalletAddress || withdrawAddress}
-                                        onChange={(e) => setWithdrawAddress(e.target.value)}
+                                        onChange={userWalletAddress ? undefined : (e) => setWithdrawAddress(e.target.value)}
                                         isReadOnly={!!userWalletAddress}
                                         bg={userWalletAddress ? inputReadOnlyBg : "transparent"}
+                                        cursor={userWalletAddress ? "not-allowed" : "text"}
                                     />
                                     <Button
                                         size="sm"
@@ -225,7 +248,7 @@ const WithdrawModal = ({
             </Modal>
 
             {/* Update Wallet Address Modal */}
-            <Modal isOpen={isUpdateModalOpen} onClose={onUpdateModalClose} size="md">
+            <Modal isOpen={isUpdateModalOpen} onClose={handleUpdateModalClose} size="md">
                 <ModalOverlay />
                 <ModalContent>
                     <ModalHeader>
@@ -288,7 +311,7 @@ const WithdrawModal = ({
                     </ModalBody>
 
                     <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={onUpdateModalClose}>
+                        <Button variant="ghost" mr={3} onClick={handleUpdateModalClose}>
                             Cancel
                         </Button>
                         <Button
