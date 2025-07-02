@@ -276,9 +276,9 @@ export const AuthProvider = ({ children }) => {
     };
 
     // Reset password
-    const resetPassword = async (token, password) => {
+    const resetPassword = async (data) => {
         try {
-            const result = await authService.resetPassword(token, password);
+            const result = await authService.resetPassword(data);
             return { success: true, message: result.message };
         } catch (error) {
             return { success: false, error: error.message };
@@ -314,6 +314,26 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    // Send OTP to email for password reset
+    const sendOTPToEmail = async (email) => {
+        try {
+            const result = await authService.sendOTPToEmail(email);
+            return { success: true, data: result };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    };
+
+    // Reset password with OTP
+    const resetPasswordWithOTP = async (email, otp, newPassword, confirmPassword) => {
+        try {
+            const result = await authService.resetPasswordWithOTP(email, otp, newPassword, confirmPassword);
+            return { success: true, data: result };
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    };
+
     // Context value
     const value = {
         // State
@@ -334,6 +354,8 @@ export const AuthProvider = ({ children }) => {
         resetPassword,
         verifyEmailOTP,
         resendOTP,
+        sendOTPToEmail,
+        resetPasswordWithOTP,
     };
 
     return (

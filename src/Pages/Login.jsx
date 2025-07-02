@@ -51,10 +51,21 @@ const Login = () => {
     // const [isRedirecting, setIsRedirecting] = useState(false);
     // const [showCongratulationsModal, setShowCongratulationsModal] = useState(false);
     const [registrationData, setRegistrationData] = useState({ email: '', password: '', name: '' });
-    const { login, register, isAuthenticated, isLoading: authLoading, user } = useAuth();
+    const { login, register, isAuthenticated, isLoading: authLoading, user, sendOTPToEmail, resetPasswordWithOTP, resetPassword } = useAuth();
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [registeredEmail, setRegisteredEmail] = useState('');
     const [registeredPassword, setRegisteredPassword] = useState('');
+
+    // Forgot password states
+    const [forgotPasswordForm, setForgotPasswordForm] = useState({
+        email: '',
+        otp: '',
+        password: '',
+        confirmPassword: ''
+    });
+    const [forgotPasswordStep, setForgotPasswordStep] = useState(1); // 1: email, 2: otp + password
+    const [isOTPSent, setIsOTPSent] = useState(false);
+    const [otpLoading, setOtpLoading] = useState(false);
 
 
     const toast = useToast();
@@ -178,6 +189,13 @@ const Login = () => {
 
     const handleRegisterInputChange = (field, value) => {
         setRegisterForm(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: '' }));
+        }
+    };
+
+    const handleForgotPasswordInputChange = (field, value) => {
+        setForgotPasswordForm(prev => ({ ...prev, [field]: value }));
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: '' }));
         }
@@ -355,6 +373,135 @@ const Login = () => {
             setIsLoading(false);
         }
     };
+
+    // Handle send OTP for forgot password
+    const handleSendOTP = async (e) => {
+        e.preventDefault();
+        const newErrors = {};
+
+        if (!forgotPasswordForm.email) {
+            newErrors.email = 'Email is required';
+        } else if (!validateEmail(forgotPasswordForm.email)) {
+            newErrors.email = 'Please enter a valid email';
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        setOtpLoading(true);
+        try {
+            const result = await sendOTPToEmail(forgotPasswordForm.email);
+
+            if (result.success) {
+                toast({
+                    title: 'OTP Sent!',
+                    description: 'Please check your email for the verification code.',
+                    status: 'success',
+                    duration: 5000,
+                    isClosable: true,
+                });
+                setIsOTPSent(true);
+                setForgotPasswordStep(2);
+                setErrors({});
+            } else {
+                throw new Error(result.error || 'Failed to send OTP');
+            }
+        } catch (error) {
+            toast({
+                title: 'Failed to Send OTP',
+                description: error.message || 'Please try again',
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+            });
+        } finally {
+            setOtpLoading(false);
+        }
+    };
+
+    // Handle reset password with OTP
+    const handleResetPassword = async (e) => {
+        e.preventDefault();
+        const newErrors = {};
+
+        if (!forgotPasswordForm.otp) {
+            newErrors.otp = 'OTP is required';
+        }
+
+        if (!forgotPasswordForm.password) {
+            newErrors.password = 'New password is required';
+        } else if (!validatePassword(forgotPasswordForm.password)) {
+            newErrors.password = 'Password must be at least 6 characters';
+        }
+
+        if (!forgotPasswordForm.confirmPassword) {
+            newErrors.confirmPassword = 'Please confirm your password';
+        } else if (forgotPasswordForm.password !== forgotPasswordForm.confirmPassword) {
+            newErrors.confirmPassword = 'Passwords do not match';
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const result = await resetPassword(
+                {
+                    email: forgotPasswordForm.email,
+                    password: forgotPasswordForm.password,
+                    confirm_password: forgotPasswordForm.confirmPassword,
+                    otp: forgotPasswordForm.otp
+
+                }
+            );
+
+            if (result.success) {
+                toast({
+                    title: 'Password Reset Successful!',
+                    description: 'Your password has been reset. You can now login with your new password.',
+                    status: 'success',
+                    duration: 5000,
+                    isClosable: true,
+                });
+
+                // Reset form and go back to login tab
+                setForgotPasswordForm({
+                    email: '',
+                    otp: '',
+                    password: '',
+                    confirmPassword: ''
+                });
+                setForgotPasswordStep(1);
+                setIsOTPSent(false);
+                setTabIndex(0); // Switch to login tab
+                setErrors({});
+            } else {
+                throw new Error(result.error || 'Failed to reset password');
+            }
+        } catch (error) {
+            toast({
+                title: 'Password Reset Failed',
+                description: error.message || 'Please try again',
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Handle forgot password link click
+    const handleForgotPasswordClick = () => {
+        setTabIndex(2); // Switch to forgot password tab
+        // Clear any existing errors
+        setErrors({});
+    };
+
     // Social login handlers
     const handleSocialLogin = (provider) => {
         toast({
@@ -387,7 +534,7 @@ const Login = () => {
                     borderRadius="2xl"
                     border="1px"
                     borderColor={borderColor}
-                    // overflow="hidden"
+                // overflow="hidden"
                 >
                     <CardBody p={cardPadding}>
                         {/* Header */}
@@ -411,7 +558,22 @@ const Login = () => {
                         {/* Tabs */}
                         <Tabs
                             index={tabIndex}
-                            onChange={setTabIndex}
+                            onChange={(index) => {
+                                setTabIndex(index);
+                                // Reset errors when switching tabs
+                                setErrors({});
+                                // Reset forgot password form when leaving the tab
+                                if (index !== 2) {
+                                    setForgotPasswordForm({
+                                        email: '',
+                                        otp: '',
+                                        password: '',
+                                        confirmPassword: ''
+                                    });
+                                    setForgotPasswordStep(1);
+                                    setIsOTPSent(false);
+                                }
+                            }}
                             variant="soft-rounded"
                             colorScheme="blue"
                             isFitted
@@ -439,6 +601,17 @@ const Login = () => {
                                 >
                                     Sign Up
                                 </Tab>
+                                {/* <Tab
+                                    fontSize={fontSize}
+                                    fontWeight="semibold"
+                                    _selected={{
+                                        bg: brandColor,
+                                        color: 'white',
+                                        shadow: 'md'
+                                    }}
+                                >
+                                    Reset Password
+                                </Tab> */}
                             </TabList>
 
                             <TabPanels>
@@ -516,6 +689,8 @@ const Login = () => {
                                                     fontSize={fontSize}
                                                     fontWeight="medium"
                                                     _hover={{ textDecoration: 'underline' }}
+                                                    onClick={handleForgotPasswordClick}
+                                                    cursor="pointer"
                                                 >
                                                     Forgot password?
                                                 </Link>
@@ -719,6 +894,219 @@ const Login = () => {
                                             </Button>
                                         </VStack>
                                     </form>
+                                </TabPanel>
+
+                                {/* Forgot Password Panel */}
+                                <TabPanel p={0}>
+                                    {forgotPasswordStep === 1 ? (
+                                        // Step 1: Enter Email
+                                        <form onSubmit={handleSendOTP}>
+                                            <VStack spacing={4}>
+                                                <Text
+                                                    fontSize={fontSize}
+                                                    color={textColor}
+                                                    textAlign="center"
+                                                    mb={2}
+                                                >
+                                                    Enter your email address to receive a verification code
+                                                </Text>
+
+                                                <FormControl isInvalid={errors.email}>
+                                                    <FormLabel fontSize={fontSize} color={textColor}>
+                                                        Email Address
+                                                    </FormLabel>
+                                                    <InputGroup>
+                                                        <Input
+                                                            type="email"
+                                                            placeholder="Enter your email"
+                                                            value={forgotPasswordForm.email}
+                                                            onChange={(e) => handleForgotPasswordInputChange('email', e.target.value)}
+                                                            bg={inputBg}
+                                                            border="1px"
+                                                            borderColor={borderColor}
+                                                            _hover={{ borderColor: brandColor }}
+                                                            _focus={{ borderColor: brandColor, boxShadow: `0 0 0 1px ${brandColor}` }}
+                                                            fontSize={fontSize}
+                                                            h="48px"
+                                                        />
+                                                        <InputRightElement h="48px">
+                                                            <AiOutlineMail color="gray" />
+                                                        </InputRightElement>
+                                                    </InputGroup>
+                                                    <FormErrorMessage fontSize="sm">{errors.email}</FormErrorMessage>
+                                                </FormControl>
+
+                                                <Button
+                                                    type="submit"
+                                                    w="full"
+                                                    bg={brandColor}
+                                                    color="white"
+                                                    _hover={{ bg: 'blue.600' }}
+                                                    _active={{ bg: 'blue.700' }}
+                                                    isLoading={otpLoading}
+                                                    loadingText="Sending OTP..."
+                                                    size="lg"
+                                                    fontSize={fontSize}
+                                                    fontWeight="semibold"
+                                                    borderRadius="xl"
+                                                    h="48px"
+                                                >
+                                                    Send Verification Code
+                                                </Button>
+
+                                                <Text fontSize="sm" color="gray.500" textAlign="center">
+                                                    Remember your password?{' '}
+                                                    <Link
+                                                        color={brandColor}
+                                                        fontWeight="medium"
+                                                        onClick={() => setTabIndex(0)}
+                                                        cursor="pointer"
+                                                    >
+                                                        Back to Sign In
+                                                    </Link>
+                                                </Text>
+                                            </VStack>
+                                        </form>
+                                    ) : (
+                                        // Step 2: Enter OTP and New Password
+                                        <form onSubmit={handleResetPassword}>
+                                            <VStack spacing={4}>
+                                                <Text
+                                                    fontSize={fontSize}
+                                                    color={textColor}
+                                                    textAlign="center"
+                                                    mb={2}
+                                                >
+                                                    Enter the verification code sent to {forgotPasswordForm.email} and your new password
+                                                </Text>
+
+                                                <FormControl isInvalid={errors.otp}>
+                                                    <FormLabel fontSize={fontSize} color={textColor}>
+                                                        Verification Code (OTP)
+                                                    </FormLabel>
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="Enter 6-digit code"
+                                                        value={forgotPasswordForm.otp}
+                                                        onChange={(e) => handleForgotPasswordInputChange('otp', e.target.value)}
+                                                        bg={inputBg}
+                                                        border="1px"
+                                                        borderColor={borderColor}
+                                                        _hover={{ borderColor: brandColor }}
+                                                        _focus={{ borderColor: brandColor, boxShadow: `0 0 0 1px ${brandColor}` }}
+                                                        fontSize={fontSize}
+                                                        h="48px"
+                                                        maxLength={6}
+                                                    />
+                                                    <FormErrorMessage fontSize="sm">{errors.otp}</FormErrorMessage>
+                                                </FormControl>
+
+                                                <FormControl isInvalid={errors.password}>
+                                                    <FormLabel fontSize={fontSize} color={textColor}>
+                                                        New Password
+                                                    </FormLabel>
+                                                    <InputGroup>
+                                                        <Input
+                                                            type={showPassword ? 'text' : 'password'}
+                                                            placeholder="Enter new password"
+                                                            value={forgotPasswordForm.password}
+                                                            onChange={(e) => handleForgotPasswordInputChange('password', e.target.value)}
+                                                            bg={inputBg}
+                                                            border="1px"
+                                                            borderColor={borderColor}
+                                                            _hover={{ borderColor: brandColor }}
+                                                            _focus={{ borderColor: brandColor, boxShadow: `0 0 0 1px ${brandColor}` }}
+                                                            fontSize={fontSize}
+                                                            h="48px"
+                                                        />
+                                                        <InputRightElement h="48px">
+                                                            <IconButton
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => setShowPassword(!showPassword)}
+                                                                icon={showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                                                                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                                            />
+                                                        </InputRightElement>
+                                                    </InputGroup>
+                                                    <FormErrorMessage fontSize="sm">{errors.password}</FormErrorMessage>
+                                                </FormControl>
+
+                                                <FormControl isInvalid={errors.confirmPassword}>
+                                                    <FormLabel fontSize={fontSize} color={textColor}>
+                                                        Confirm New Password
+                                                    </FormLabel>
+                                                    <InputGroup>
+                                                        <Input
+                                                            type={showConfirmPassword ? 'text' : 'password'}
+                                                            placeholder="Confirm new password"
+                                                            value={forgotPasswordForm.confirmPassword}
+                                                            onChange={(e) => handleForgotPasswordInputChange('confirmPassword', e.target.value)}
+                                                            bg={inputBg}
+                                                            border="1px"
+                                                            borderColor={borderColor}
+                                                            _hover={{ borderColor: brandColor }}
+                                                            _focus={{ borderColor: brandColor, boxShadow: `0 0 0 1px ${brandColor}` }}
+                                                            fontSize={fontSize}
+                                                            h="48px"
+                                                        />
+                                                        <InputRightElement h="48px">
+                                                            <IconButton
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                                icon={showConfirmPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                                                                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                                                            />
+                                                        </InputRightElement>
+                                                    </InputGroup>
+                                                    <FormErrorMessage fontSize="sm">{errors.confirmPassword}</FormErrorMessage>
+                                                </FormControl>
+
+                                                <Button
+                                                    type="submit"
+                                                    w="full"
+                                                    bg={brandColor}
+                                                    color="white"
+                                                    _hover={{ bg: 'blue.600' }}
+                                                    _active={{ bg: 'blue.700' }}
+                                                    isLoading={isLoading}
+                                                    loadingText="Resetting Password..."
+                                                    size="lg"
+                                                    fontSize={fontSize}
+                                                    fontWeight="semibold"
+                                                    borderRadius="xl"
+                                                    h="48px"
+                                                    onClick={handleResetPassword}
+                                                >
+                                                    Reset Password
+                                                </Button>
+
+                                                <HStack spacing={4} fontSize="sm" color="gray.500">
+                                                    <Link
+                                                        color={brandColor}
+                                                        fontWeight="medium"
+                                                        onClick={() => {
+                                                            setForgotPasswordStep(1);
+                                                            setIsOTPSent(false);
+                                                        }}
+                                                        cursor="pointer"
+                                                    >
+                                                        Change Email
+                                                    </Link>
+                                                    <Text>•</Text>
+                                                    <Link
+                                                        color={brandColor}
+                                                        fontWeight="medium"
+                                                        onClick={() => setTabIndex(0)}
+                                                        cursor="pointer"
+                                                    >
+                                                        Back to Sign In
+                                                    </Link>
+                                                </HStack>
+                                            </VStack>
+                                        </form>
+                                    )}
                                 </TabPanel>
                             </TabPanels>
                         </Tabs>

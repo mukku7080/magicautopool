@@ -70,12 +70,11 @@ class AuthService {
     }
 
     // Reset password
-    async resetPassword(token, password) {
+    async resetPassword(data) {
         try {
-            const response = await axiosInstance.post('/auth/reset-password', {
-                token,
-                password,
-            });
+            const response = await axiosInstance.post('/password-reset', data
+
+            );
             return response.data;
         } catch (error) {
             throw this.handleError(error);
@@ -112,10 +111,35 @@ class AuthService {
         }
     }
 
+    // Send OTP to email for password reset
+    async sendOTPToEmail(email) {
+        try {
+            const response = await axiosInstance.post('/verify-email', { email });
+            return response.data;
+        } catch (error) {
+            throw this.handleError(error);
+        }
+    }
+
     // Verify email (legacy method for token-based verification)
     async verifyEmail(token) {
         try {
             const response = await axiosInstance.post('/auth/verify-email', { token });
+            return response.data;
+        } catch (error) {
+            throw this.handleError(error);
+        }
+    }
+
+    // Reset password with OTP
+    async resetPasswordWithOTP(email, otp, newPassword, confirmPassword) {
+        try {
+            const response = await axiosInstance.post('/reset-password', {
+                email,
+                otp,
+                password: newPassword,
+                password_confirmation: confirmPassword
+            });
             return response.data;
         } catch (error) {
             throw this.handleError(error);
