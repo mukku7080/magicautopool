@@ -16,6 +16,7 @@ import Tree from './pages/Tree';
 import BinaryTreeNew from './pages/tree/BinaryTreeNew';
 import BinaryTree from './pages/tree/BinaryTree';
 import NewTree from './pages/tree/NewTree';
+import SupportTicket from '../Pages/SupportTicket';
 
 const UserDashboard = () => {
     return (
@@ -38,7 +39,7 @@ const UserDashboard = () => {
                     <Route path="/transactions" element={<div>Transactions Page - Coming Soon</div>} />
                     <Route path="/analytics" element={<div>Analytics Page - Coming Soon</div>} />
                     <Route path="/settings" element={<div>Settings Page - Coming Soon</div>} />
-                    <Route path="/support" element={<div>Support Page - Coming Soon</div>} />
+                    <Route path="/support" element={<SupportTicket />} />
                 </Routes>
             </UserLayout>
         </NavigationLoadingProvider>

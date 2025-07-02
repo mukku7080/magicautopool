@@ -4,6 +4,7 @@ import { UserProvider } from './UserContext';
 import { ForexProvider } from './ForexContext';
 import { AccountProvider } from './AccountContext';
 import { Web3Provider } from './Web3Context';
+import { OtherProvider } from './OtherContext';
 
 // Combined provider component that wraps all contexts
 const AppProvider = ({ children }) => {
@@ -13,7 +14,9 @@ const AppProvider = ({ children }) => {
                 <ForexProvider>
                     <AccountProvider>
                         <Web3Provider>
-                            {children}
+                            <OtherProvider>
+                                {children}
+                            </OtherProvider>
                         </Web3Provider>
                     </AccountProvider>
                 </ForexProvider>

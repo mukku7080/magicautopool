@@ -728,7 +728,7 @@ const Login = () => {
                                                         Full Name
                                                     </FormLabel>
                                                     <Input
-                                                        placeholder="First name"
+                                                        placeholder="Full name"
                                                         value={registerForm.firstName}
                                                         onChange={(e) => handleRegisterInputChange('firstName', e.target.value)}
                                                         bg={inputBg}
