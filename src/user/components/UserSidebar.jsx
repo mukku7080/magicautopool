@@ -26,6 +26,7 @@ import {
     FiBarChart,
     FiUsers,
     FiGitBranch,
+    FiUserPlus,
 } from 'react-icons/fi';
 import { AiOutlineWallet, AiOutlineHistory } from 'react-icons/ai';
 import { useUser } from '../../Context';
@@ -38,10 +39,11 @@ const LinkItems = [
     { name: 'Packages', icon: FiPackage, path: '/user/packages' },
     { name: 'Deposit', icon: FiUpload, path: '/user/deposit' },
     { name: 'Withdraw', icon: FiDownload, path: '/user/withdraw' },
+    { name: 'My Team', icon: FiUserPlus, path: '/user/team' },
     { name: 'Tree', icon: FiGitBranch, path: '/user/tree' },
-    { name: 'Transactions', icon: AiOutlineHistory, path: '/user/transactions' },
-    { name: 'Referrals', icon: FiUsers, path: '/user/referrals' },
-    { name: 'Analytics', icon: FiBarChart, path: '/user/analytics' },
+    // { name: 'Transactions', icon: AiOutlineHistory, path: '/user/transactions' },
+    // { name: 'Referrals', icon: FiUsers, path: '/user/referrals' },
+    // { name: 'Analytics', icon: FiBarChart, path: '/user/analytics' },
     { name: 'Settings', icon: FiSettings, path: '/user/settings' },
     { name: 'Support', icon: FiHelpCircle, path: '/user/support' },
 ];
@@ -88,7 +90,7 @@ const UserSidebar = ({ onClose, ...rest }) => {
                         fontWeight="bold"
                         color="blue.500"
                     >
-                        NessanForex
+                        MagicAutoPool
                     </Box>
                 </HStack>
                 <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />

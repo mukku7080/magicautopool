@@ -41,6 +41,7 @@ export const NavigationLoadingProvider = ({ children }) => {
             '/user/deposit': 'Deposit',
             '/user/withdraw': 'Withdraw',
             '/user/withdraw-history': 'Withdraw History',
+            '/user/team': 'My Team',
             '/user/tree': 'Tree',
             '/user/referrals': 'Referrals',
             '/user/transactions': 'Transactions',

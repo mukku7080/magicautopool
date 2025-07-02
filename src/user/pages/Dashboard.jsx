@@ -43,17 +43,19 @@ import {
 } from 'react-icons/fi';
 import { AiOutlineWallet, AiOutlineBank } from 'react-icons/ai';
 import ReferralButton from '../../Components/ReferralButton';
+import { useUser } from '../../Context';
 
 const Dashboard = () => {
     const cardBg = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.700');
     const textColor = useColorModeValue('gray.600', 'gray.400');
+    const { profile } = useUser();
 
     // Sample data
     const stats = [
         {
             label: 'Total Balance',
-            value: '$15,420.50',
+            value: `$ ${profile?.USER.available_amount}`,
             change: '+12.5%',
             isPositive: true,
             icon: AiOutlineWallet,
@@ -61,7 +63,7 @@ const Dashboard = () => {
         },
         {
             label: 'Active Investments',
-            value: '$8,750.00',
+            value: `$ ${profile?.USER.my_stake}`,
             change: '+8.2%',
             isPositive: true,
             icon: FiTrendingUp,
@@ -69,15 +71,15 @@ const Dashboard = () => {
         },
         {
             label: 'Total Profit',
-            value: '$2,340.75',
+            value: `$ ${profile?.USER.total_income}`,
             change: '+15.3%',
             isPositive: true,
             icon: FiDollarSign,
             color: 'purple',
         },
         {
-            label: 'Pending Withdrawals',
-            value: '$1,200.00',
+            label: 'Total Withdrawals',
+            value: `$ ${profile?.USER.withdraw_amount}`,
             change: '-5.1%',
             isPositive: false,
             icon: AiOutlineBank,
@@ -125,7 +127,7 @@ const Dashboard = () => {
     ];
 
     const activePackages = [
-        
+
         {
             name: 'Silver Package',
             investment: '$500.00',
@@ -168,7 +170,7 @@ const Dashboard = () => {
                             Here's what's happening with your investments today.
                         </Text>
                     </Box>
-                    <ReferralButton 
+                    <ReferralButton
                         colorScheme="blue"
                         size="md"
                         display={{ base: 'none', md: 'flex' }}
@@ -264,7 +266,7 @@ const Dashboard = () => {
                                                         size="sm"
                                                         colorScheme={
                                                             transaction.status === 'Completed' ? 'green' :
-                                                            transaction.status === 'Processing' ? 'yellow' : 'blue'
+                                                                transaction.status === 'Processing' ? 'yellow' : 'blue'
                                                         }
                                                         variant="subtle"
                                                     >
@@ -316,6 +318,8 @@ const Dashboard = () => {
                                     leftIcon={<FiActivity />}
                                     colorScheme="purple"
                                     variant="outline"
+                                    onClick={() => window.location.href = '/user/packages'}
+
                                 >
                                     View Packages
                                 </Button>
@@ -335,15 +339,15 @@ const Dashboard = () => {
                                         Verification Status
                                     </Text>
                                     <Badge colorScheme="green" variant="subtle">
-                                        Verified
+                                        {profile?.USER.user_status}
                                     </Badge>
                                 </HStack>
                                 <HStack justify="space-between">
                                     <Text fontSize="sm" color={textColor}>
-                                        Account Type
+                                        Package Status
                                     </Text>
                                     <Badge colorScheme="purple" variant="subtle">
-                                        Premium
+                                        {profile?.USER.stake_status}
                                     </Badge>
                                 </HStack>
                                 <HStack justify="space-between">
@@ -351,7 +355,12 @@ const Dashboard = () => {
                                         Member Since
                                     </Text>
                                     <Text fontSize="sm" fontWeight="medium">
-                                        Jan 2024
+                                        {/* {new Date(profile.USER.created_at).toLocaleDateString()} */}
+                                        {new Date(profile?.USER.created_at).toLocaleDateString('en-GB', {
+                                            day: 'numeric',
+                                            month: 'long',
+                                            year: 'numeric',
+                                        })}
                                     </Text>
                                 </HStack>
                             </VStack>
@@ -383,7 +392,7 @@ const Dashboard = () => {
                                             {pkg.status}
                                         </Badge>
                                     </HStack>
-                                    
+
                                     <VStack align="stretch" spacing={2}>
                                         <HStack justify="space-between">
                                             <Text fontSize="sm" color={textColor}>Investment:</Text>

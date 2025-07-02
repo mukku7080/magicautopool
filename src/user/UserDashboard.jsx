@@ -17,6 +17,7 @@ import BinaryTreeNew from './pages/tree/BinaryTreeNew';
 import BinaryTree from './pages/tree/BinaryTree';
 import NewTree from './pages/tree/NewTree';
 import SupportTicket from '../Pages/SupportTicket';
+import MyTeam from '../Pages/MyTeam';
 
 const UserDashboard = () => {
     return (
@@ -32,6 +33,7 @@ const UserDashboard = () => {
                     <Route path="/deposit/:txn_id" element={<DepositForm />} />
                     <Route path="/withdraw" element={<WithdrawScreen />} />
                     <Route path="/withdraw-history" element={<WithdrawHistory />} />
+                    <Route path="/team" element={<MyTeam />} />
                     <Route path="/tree" element={<NewTree />} />
                     <Route path="/referrals" element={<Referrals />} />
                     <Route path="/btree" element={<NewTree />} />

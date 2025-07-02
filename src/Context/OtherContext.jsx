@@ -5,6 +5,10 @@ import { otherService } from '../api';
 const initialState = {
     supportTickets: [],
     currentTicket: null,
+    teamStats: null,
+    teamMembers: [],
+    directReferrals: [],
+    teamHistory: [],
     isLoading: false,
     error: null,
     isSubmitting: false,
@@ -21,6 +25,10 @@ const OTHER_ACTIONS = {
     ADD_SUPPORT_TICKET: 'ADD_SUPPORT_TICKET',
     UPDATE_SUPPORT_TICKET: 'UPDATE_SUPPORT_TICKET',
     DELETE_SUPPORT_TICKET: 'DELETE_SUPPORT_TICKET',
+    SET_TEAM_STATS: 'SET_TEAM_STATS',
+    SET_TEAM_MEMBERS: 'SET_TEAM_MEMBERS',
+    SET_DIRECT_REFERRALS: 'SET_DIRECT_REFERRALS',
+    SET_TEAM_HISTORY: 'SET_TEAM_HISTORY',
     RESET_STATE: 'RESET_STATE',
 };
 
@@ -94,6 +102,38 @@ const otherReducer = (state, action) => {
                 supportTickets: state.supportTickets.filter(ticket => ticket.id !== action.payload),
                 currentTicket: state.currentTicket?.id === action.payload ? null : state.currentTicket,
                 isSubmitting: false,
+                error: null,
+            };
+
+        case OTHER_ACTIONS.SET_TEAM_STATS:
+            return {
+                ...state,
+                teamStats: action.payload,
+                isLoading: false,
+                error: null,
+            };
+
+        case OTHER_ACTIONS.SET_TEAM_MEMBERS:
+            return {
+                ...state,
+                teamMembers: action.payload,
+                isLoading: false,
+                error: null,
+            };
+
+        case OTHER_ACTIONS.SET_DIRECT_REFERRALS:
+            return {
+                ...state,
+                directReferrals: action.payload,
+                isLoading: false,
+                error: null,
+            };
+
+        case OTHER_ACTIONS.SET_TEAM_HISTORY:
+            return {
+                ...state,
+                teamHistory: action.payload,
+                isLoading: false,
                 error: null,
             };
 
@@ -240,11 +280,112 @@ export const OtherProvider = ({ children }) => {
         dispatch({ type: OTHER_ACTIONS.RESET_STATE });
     };
 
+    // Get team statistics
+    // const getTeamStats = async () => {
+    //     try {
+    //         dispatch({ type: OTHER_ACTIONS.SET_LOADING, payload: true });
+    //         const response = await otherService.getTeamStats();
+
+    //         if (response.status === true) {
+    //             dispatch({
+    //                 type: OTHER_ACTIONS.SET_TEAM_STATS,
+    //                 payload: response.data,
+    //             });
+    //             return { success: true, data: response.data };
+    //         } else {
+    //             throw new Error(response.message || 'Failed to fetch team stats');
+    //         }
+    //     } catch (error) {
+    //         dispatch({
+    //             type: OTHER_ACTIONS.SET_ERROR,
+    //             payload: error.message,
+    //         });
+    //         return { success: false, error: error.message };
+    //     }
+    // };
+
+    // Get team members
+    // const getTeamMembers = async () => {
+    //     try {
+    //         dispatch({ type: OTHER_ACTIONS.SET_LOADING, payload: true });
+    //         const response = await otherService.getTeamMembers();
+
+    //         if (response.status === true) {
+    //             dispatch({
+    //                 type: OTHER_ACTIONS.SET_TEAM_MEMBERS,
+    //                 payload: response.data || [],
+    //             });
+    //             return { success: true, data: response.data };
+    //         } else {
+    //             throw new Error(response.message || 'Failed to fetch team members');
+    //         }
+    //     } catch (error) {
+    //         dispatch({
+    //             type: OTHER_ACTIONS.SET_ERROR,
+    //             payload: error.message,
+    //         });
+    //         return { success: false, error: error.message };
+    //     }
+    // };
+
+    // Get direct referrals
+    const getDirectReferrals = async () => {
+        try {
+            dispatch({ type: OTHER_ACTIONS.SET_LOADING, payload: true });
+            const response = await otherService.getDirectReferrals();
+            console.log("Response:", response);
+
+            if (response.status === true) {
+                dispatch({
+                    type: OTHER_ACTIONS.SET_DIRECT_REFERRALS,
+                    payload: response || [],
+                });
+                return { success: true, data: response.data };
+            } else {
+                throw new Error(response.message || 'Failed to fetch direct referrals');
+            }
+        } catch (error) {
+            dispatch({
+                type: OTHER_ACTIONS.SET_ERROR,
+                payload: error.message,
+            });
+            return { success: false, error: error.message };
+        }
+    };
+
+    // Get team history
+    // const getTeamHistory = async () => {
+    //     try {
+    //         dispatch({ type: OTHER_ACTIONS.SET_LOADING, payload: true });
+    //         const response = await otherService.getTeamHistory();
+
+    //         if (response.status === true) {
+    //             dispatch({
+    //                 type: OTHER_ACTIONS.SET_TEAM_HISTORY,
+    //                 payload: response.data || [],
+    //             });
+    //             return { success: true, data: response.data };
+    //         } else {
+    //             throw new Error(response.message || 'Failed to fetch team history');
+    //         }
+    //     } catch (error) {
+    //         dispatch({
+    //             type: OTHER_ACTIONS.SET_ERROR,
+    //             payload: error.message,
+    //         });
+    //         return { success: false, error: error.message };
+    //     }
+    // };
+
     // Context value
     const value = {
         // State
         supportTickets: state.supportTickets,
         currentTicket: state.currentTicket,
+        teamStats: state.teamStats,
+        teamMembers: state.teamMembers,
+        directReferrals: state.directReferrals,
+        teamHistory: state.teamHistory,
         isLoading: state.isLoading,
         isSubmitting: state.isSubmitting,
         error: state.error,
@@ -255,6 +396,10 @@ export const OtherProvider = ({ children }) => {
         createSupportTicket,
         updateSupportTicket,
         deleteSupportTicket,
+        // getTeamStats,
+        // getTeamMembers,
+        getDirectReferrals,
+        // getTeamHistory,
         clearError,
         resetState,
     };

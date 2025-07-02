@@ -34,7 +34,7 @@ import {
     Spinner,
     useDisclosure,
 } from '@chakra-ui/react';
-import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineMail, AiOutlineLock, AiOutlineUser } from 'react-icons/ai';
+import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineMail, AiOutlineLock, AiOutlineUser, AiOutlinePhone } from 'react-icons/ai';
 import { FaGoogle, FaFacebook, FaTwitter } from 'react-icons/fa';
 import { useAuth } from '../Context';
 import CongratulationsModal from '../Components/CongratulationsModal';
@@ -81,6 +81,7 @@ const Login = () => {
     const [registerForm, setRegisterForm] = useState({
         firstName: '',
         email: '',
+        mobile: '',
         inviteCode: '',
         password: '',
         confirmPassword: '',
@@ -233,7 +234,7 @@ const Login = () => {
             const result = await login(credentials);
             console.log('Login result:', result);
 
-            if (result.status === true) {
+            if (result?.status === true) {
                 toast({
                     title: 'Login Successful!',
                     description: `Welcome back to NessanForex, ${result.user?.name || 'User'}!`,
@@ -276,9 +277,9 @@ const Login = () => {
             newErrors.firstName = 'First name is required';
         }
 
-        // if (!registerForm.lastName) {
-        //     newErrors.lastName = 'Last name is required';
-        // }
+        if (!registerForm.mobile) {
+            newErrors.mobile = 'mobile is required';
+        }
 
         if (!registerForm.email) {
             newErrors.email = 'Email is required';
@@ -314,6 +315,7 @@ const Login = () => {
             const userData = {
                 name: registerForm.firstName,
                 email: registerForm.email,
+                mobile: registerForm.mobile,
                 inviteCode: registerForm.inviteCode,
                 password: registerForm.password,
             };
@@ -321,7 +323,7 @@ const Login = () => {
             // Call the register API
             const result = await register(userData);
 
-            if (result.status === true) {
+            if (result?.status === true) {
                 setRegisteredEmail(registerForm.email);
                 setRegisteredPassword(registerForm.password);
                 setHasJustRegistered(true); // ✅ Set this to stop auto-redirect in useEffect
@@ -346,6 +348,7 @@ const Login = () => {
                 setRegisterForm({
                     firstName: '',
                     email: '',
+                    mobile: '',
                     inviteCode: '',
                     password: '',
                     confirmPassword: '',
@@ -361,13 +364,13 @@ const Login = () => {
             }
         } catch (error) {
             console.error('❌ Registration error:', error);
-            toast({
-                title: 'Registration Failed',
-                description: error.message || 'Something went wrong. Please try again.',
-                status: 'error',
-                duration: 5000,
-                isClosable: true,
-            });
+            // toast({
+            //     title: 'Registration Failed',
+            //     description: error.message || 'Something went wrong. Please try again.',
+            //     status: 'error',
+            //     duration: 5000,
+            //     isClosable: true,
+            // });
         } finally {
             console.log('🔄 Registration process finished, setting loading to false');
             setIsLoading(false);
@@ -724,9 +727,9 @@ const Login = () => {
                                         <VStack spacing={4}>
                                             <HStack spacing={3} w="full">
                                                 <FormControl isInvalid={errors.firstName}>
-                                                    <FormLabel fontSize={fontSize} color={textColor}>
+                                                    {/* <FormLabel fontSize={fontSize} color={textColor}>
                                                         Full Name
-                                                    </FormLabel>
+                                                    </FormLabel> */}
                                                     <Input
                                                         placeholder="Full name"
                                                         value={registerForm.firstName}
@@ -745,9 +748,9 @@ const Login = () => {
                                             </HStack>
 
                                             <FormControl isInvalid={errors.email}>
-                                                <FormLabel fontSize={fontSize} color={textColor}>
+                                                {/* <FormLabel fontSize={fontSize} color={textColor}>
                                                     Email Address
-                                                </FormLabel>
+                                                </FormLabel> */}
                                                 <InputGroup>
                                                     <Input
                                                         type="email"
@@ -768,12 +771,36 @@ const Login = () => {
                                                 </InputGroup>
                                                 <FormErrorMessage fontSize="sm">{errors.email}</FormErrorMessage>
                                             </FormControl>
+                                            <FormControl isInvalid={errors.email}>
+                                                {/* <FormLabel fontSize={fontSize} color={textColor}>
+                                                    Email Address
+                                                </FormLabel> */}
+                                                <InputGroup>
+                                                    <Input
+                                                        placeholder="Phone"
+                                                        value={registerForm.mobile}
+                                                        onChange={(e) => handleRegisterInputChange('mobile', e.target.value)}
+                                                        bg={inputBg}
+                                                        border="1px"
+                                                        borderColor={borderColor}
+                                                        _hover={{ borderColor: brandColor }}
+                                                        _focus={{ borderColor: brandColor, boxShadow: `0 0 0 1px ${brandColor}` }}
+                                                        fontSize={fontSize}
+                                                        h="48px"
+                                                    />
+                                                    <InputRightElement h="48px">
+                                                        <AiOutlinePhone color="gray" />
+                                                    </InputRightElement>
+                                                </InputGroup>
+                                                <FormErrorMessage fontSize="sm">{errors.email}</FormErrorMessage>
+                                            </FormControl>
+
 
 
                                             <FormControl isInvalid={errors.email}>
-                                                <FormLabel fontSize={fontSize} color={textColor}>
+                                                {/* <FormLabel fontSize={fontSize} color={textColor}>
                                                     Invite Code
-                                                </FormLabel>
+                                                </FormLabel> */}
                                                 <InputGroup>
                                                     <Input
                                                         type="text"
@@ -794,9 +821,9 @@ const Login = () => {
                                             </FormControl>
 
                                             <FormControl isInvalid={errors.password}>
-                                                <FormLabel fontSize={fontSize} color={textColor}>
+                                                {/* <FormLabel fontSize={fontSize} color={textColor}>
                                                     Password
-                                                </FormLabel>
+                                                </FormLabel> */}
                                                 <InputGroup>
                                                     <Input
                                                         type={showPassword ? 'text' : 'password'}
@@ -825,9 +852,9 @@ const Login = () => {
                                             </FormControl>
 
                                             <FormControl isInvalid={errors.confirmPassword}>
-                                                <FormLabel fontSize={fontSize} color={textColor}>
+                                                {/* <FormLabel fontSize={fontSize} color={textColor}>
                                                     Confirm Password
-                                                </FormLabel>
+                                                </FormLabel> */}
                                                 <InputGroup>
                                                     <Input
                                                         type={showConfirmPassword ? 'text' : 'password'}
@@ -1112,7 +1139,7 @@ const Login = () => {
                         </Tabs>
 
                         {/* Social Login */}
-                        <Box mt={6}>
+                        {/* <Box mt={6}>
                             <HStack>
                                 <Divider />
                                 <Text fontSize="sm" color="gray.500" whiteSpace="nowrap">
@@ -1163,7 +1190,7 @@ const Login = () => {
                                     Twitter
                                 </Button>
                             </HStack>
-                        </Box>
+                        </Box> */}
 
                         {/* Footer */}
                         <Text
@@ -1172,7 +1199,7 @@ const Login = () => {
                             color="gray.500"
                             mt={6}
                         >
-                            © 2024 MagicAutoPool. All rights reserved.
+                            ©2025 MagicAutoPool. All rights reserved.
                         </Text>
                     </CardBody>
                 </Card>

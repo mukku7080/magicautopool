@@ -64,6 +64,46 @@ class OtherService {
         }
     }
 
+    // Get team statistics
+    // async getTeamStats() {
+    //     try {
+    //         const response = await axiosInstance.get('/team/stats');
+    //         return response.data;
+    //     } catch (error) {
+    //         throw this.handleError(error);
+    //     }
+    // }
+
+    // Get team members list
+    // async getTeamMembers() {
+    //     try {
+    //         const response = await axiosInstance.get('/my-team');
+    //         return response.data;
+    //     } catch (error) {
+    //         throw this.handleError(error);
+    //     }
+    // }
+
+    // Get direct referrals
+    async getDirectReferrals() {
+        try {
+            const response = await axiosInstance.get('/my-team');
+            return response.data;
+        } catch (error) {
+            throw this.handleError(error);
+        }
+    }
+
+    // // Get team history
+    // async getTeamHistory() {
+    //     try {
+    //         const response = await axiosInstance.get('/team/history');
+    //         return response.data;
+    //     } catch (error) {
+    //         throw this.handleError(error);
+    //     }
+    // }
+
     // Handle API errors
     handleError(error) {
         if (error.response) {
