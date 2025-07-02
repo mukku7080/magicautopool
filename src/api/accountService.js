@@ -9,7 +9,7 @@ class AccountService {
             const response = await axiosInstance.post('/request-withdraw', {
                 amount: parseFloat(amount)
             });
-           
+
 
             return {
                 success: true,
@@ -67,6 +67,28 @@ class AccountService {
             throw {
                 success: false,
                 message: error.response?.data?.message || error.message || 'Failed to load withdraw history',
+                error: error
+            };
+        }
+    }
+
+    async updateWithdraw(request) {
+        try {
+
+            const response = await axiosInstance.post('/update-withdraw', request);
+
+            console.log('✅update Withdraw response:', response);
+
+            return {
+                success: true,
+                data: response.data?.data || response.data,
+                message: response.data?.message || 'Withdraw updated successfully'
+            };
+        } catch (error) {
+            console.error('❌ update withdraw  error:', error);
+            throw {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Failed to update withdraw ',
                 error: error
             };
         }

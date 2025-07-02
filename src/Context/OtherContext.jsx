@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useReducer } from 'react';
-import { otherService } from '../api';
+import React, { createContext, useContext, useReducer, useState } from 'react';
+import { authService, otherService } from '../api';
 
 // Initial state
 const initialState = {
@@ -151,6 +151,7 @@ const OtherContext = createContext();
 // Other provider component
 export const OtherProvider = ({ children }) => {
     const [state, dispatch] = useReducer(otherReducer, initialState);
+    // const [myleveldata, setMyLevelData] = useState();
 
     // Get all support tickets
     const getSupportTickets = async () => {
@@ -280,6 +281,17 @@ export const OtherProvider = ({ children }) => {
         dispatch({ type: OTHER_ACTIONS.RESET_STATE });
     };
 
+    const MyTeamLevelViewData = async (data) => {
+        try {
+
+            const response = await otherService.myTeamLevelView(data);
+            return response;
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
     // Get team statistics
     // const getTeamStats = async () => {
     //     try {
@@ -402,6 +414,7 @@ export const OtherProvider = ({ children }) => {
         // getTeamHistory,
         clearError,
         resetState,
+        MyTeamLevelViewData
     };
 
     return (

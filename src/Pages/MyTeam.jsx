@@ -45,6 +45,14 @@ import {
     AlertIcon,
     AlertTitle,
     AlertDescription,
+    Modal,
+    ModalOverlay,
+    ModalContent,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+    ModalCloseButton,
+    useDisclosure,
 } from '@chakra-ui/react';
 import {
     FiUsers,
@@ -65,6 +73,7 @@ import {
     FiMapPin,
     FiLink,
     FiShare2,
+    FiLayers,
 } from 'react-icons/fi';
 import { useOther } from '../Context';
 
@@ -81,14 +90,18 @@ const MyTeam = () => {
         getDirectReferrals,
         // getTeamHistory,
         clearError,
+        MyTeamLevelViewData
     } = useOther();
 
     const toast = useToast();
     const [activeTab, setActiveTab] = useState(0);
     const [refreshing, setRefreshing] = useState(false);
+    const [selectedLevelUsers, setSelectedLevelUsers] = useState([]);
+    const [selectedLevelNumber, setSelectedLevelNumber] = useState(null);
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
     // Responsive values
-    const columns = useBreakpointValue({ base: 1, md: 2, lg: 4 });
+    const columns = useBreakpointValue({ base: 1, md: 2, lg: 3 });
     const spacing = useBreakpointValue({ base: 4, md: 6 });
     const cardPadding = useBreakpointValue({ base: 4, md: 6 });
 
@@ -134,7 +147,7 @@ const MyTeam = () => {
             console.error('Error loading team data:', error);
         }
     };
-console.log(directReferrals);
+    console.log(directReferrals);
     // Refresh data
     const handleRefresh = async () => {
         setRefreshing(true);
@@ -147,6 +160,7 @@ console.log(directReferrals);
             isClosable: true,
         });
     };
+
 
     // Format date
     const formatDate = (dateString) => {
@@ -187,40 +201,63 @@ console.log(directReferrals);
         weeklyJoined: 8,
     };
 
-    const mockDirectReferrals = [
-        { id: 1, name: 'John Doe', email: 'john@example.com', joinDate: '2024-01-15', status: 'active', earnings: 250.00 },
-        { id: 2, name: 'Jane Smith', email: 'jane@example.com', joinDate: '2024-01-14', status: 'active', earnings: 180.00 },
-        { id: 3, name: 'Mike Johnson', email: 'mike@example.com', joinDate: '2024-01-13', status: 'inactive', earnings: 95.00 },
-        { id: 4, name: 'Sarah Wilson', email: 'sarah@example.com', joinDate: '2024-01-12', status: 'pending', earnings: 0.00 },
-    ];
 
-    const mockTeamHistory = [
-        { id: 1, name: 'Alex Turner', action: 'Joined Team', date: '2024-01-15 10:30 AM', level: 'Direct' },
-        { id: 2, name: 'Emily Davis', action: 'Made First Purchase', date: '2024-01-14 03:45 PM', level: 'Level 2' },
-        { id: 3, name: 'David Brown', action: 'Earned Commission', date: '2024-01-14 11:20 AM', level: 'Direct' },
-        { id: 4, name: 'Lisa Johnson', action: 'Upgraded Package', date: '2024-01-13 09:15 AM', level: 'Level 3' },
-    ];
+
+
+
+
+
+    // Mock users data for each level (you can replace this with actual API data)
+    const mockLevelUsersData = {
+        1: [
+            { id: 1, name: 'John Doe', level: 1, joinDate: '2024-01-15' },
+            { id: 2, name: 'Jane Smith', level: 1, joinDate: '2024-01-14' },
+            { id: 3, name: 'Mike Johnson', level: 1, joinDate: '2024-01-13' },
+        ],
+        2: [
+            { id: 4, name: 'Sarah Wilson', level: 2, joinDate: '2024-01-12' },
+            { id: 5, name: 'Alex Turner', level: 2, joinDate: '2024-01-11' },
+            { id: 6, name: 'Chris Brown', level: 2, joinDate: '2024-01-10' },
+        ],
+        3: [
+            { id: 7, name: 'Emily Davis', level: 3, joinDate: '2024-01-09' },
+            { id: 8, name: 'David Wilson', level: 3, joinDate: '2024-01-08' },
+        ],
+    };
+
+    // Function to handle view button click
+    const handleViewLevel =async (levelNumber) => {
+        const dto={
+            level:levelNumber
+        }
+        const data = await MyTeamLevelViewData(dto);
+        console.log(data);
+
+        const users = data?.downline || [];
+        setSelectedLevelUsers(users);
+        setSelectedLevelNumber(levelNumber);
+        onOpen();
+    };
 
     const displayStats = teamStats || mockTeamStats;
-    const displayReferrals = directReferrals?.my_referral?.length > 0 ? directReferrals?.my_referral : mockDirectReferrals;
-    const displayHistory = teamHistory.length > 0 ? teamHistory : mockTeamHistory;
+    const displayReferrals = directReferrals?.my_referral?.length;
     const activeReferrals = directReferrals?.my_referral?.flat()?.filter(item => item.user_status === "active");
-    console.log("activeReferrals",activeReferrals);
+    console.log("activeReferrals", activeReferrals);
 
-    if (isLoading && !teamStats && !teamMembers.length) {
-        return (
-            <Box minH="100vh" bg={bgColor} py={8}>
-                <Container maxW="container.xl">
-                    <Center minH="400px">
-                        <VStack spacing={4}>
-                            <Spinner size="xl" color={brandColor} thickness="4px" />
-                            <Text color={mutedColor}>Loading team data...</Text>
-                        </VStack>
-                    </Center>
-                </Container>
-            </Box>
-        );
-    }
+    // if (isLoading && !teamStats && !teamMembers.length) {
+    //     return (
+    //         <Box minH="100vh" bg={bgColor} py={8}>
+    //             <Container maxW="container.xl">
+    //                 <Center minH="400px">
+    //                     <VStack spacing={4}>
+    //                         <Spinner size="xl" color={brandColor} thickness="4px" />
+    //                         <Text color={mutedColor}>Loading team data...</Text>
+    //                     </VStack>
+    //                 </Center>
+    //             </Container>
+    //         </Box>
+    //     );
+    // }
 
     return (
         <Box minH="100vh" bg={bgColor} py={8}>
@@ -322,7 +359,7 @@ console.log(directReferrals);
                                             Active Referrals
                                         </StatLabel>
                                         <StatNumber color={textColor} fontSize="2xl">
-                                            {displayStats.activeReferrals}
+                                            {activeReferrals?.length}
                                         </StatNumber>
                                         <StatHelpText color={successColor} fontSize="sm" mb={0}>
                                             {Math.round((displayStats.activeReferrals / displayStats.directReferrals) * 100)}% active rate
@@ -340,33 +377,7 @@ console.log(directReferrals);
                         </CardBody>
                     </Card>
 
-                    <Card bg={cardBg} borderColor={borderColor} shadow="md">
-                        <CardBody p={cardPadding}>
-                            <Stat>
-                                <HStack justify="space-between">
-                                    <VStack align="start" spacing={1}>
-                                        <StatLabel color={mutedColor} fontSize="sm">
-                                            Total Earnings
-                                        </StatLabel>
-                                        <StatNumber color={textColor} fontSize="2xl">
-                                            ${displayStats.totalEarnings?.toFixed(2)}
-                                        </StatNumber>
-                                        <StatHelpText color={successColor} fontSize="sm" mb={0}>
-                                            <StatArrow type="increase" />
-                                            From referrals
-                                        </StatHelpText>
-                                    </VStack>
-                                    <Box
-                                        p={3}
-                                        bg={useColorModeValue('purple.50', 'purple.900')}
-                                        borderRadius="lg"
-                                    >
-                                        <Icon as={FiDollarSign} boxSize={6} color="purple.500" />
-                                    </Box>
-                                </HStack>
-                            </Stat>
-                        </CardBody>
-                    </Card>
+
                 </SimpleGrid>
 
                 {/* Tabs for Different Views */}
@@ -377,19 +388,19 @@ console.log(directReferrals);
                                 <Tab>
                                     <HStack>
                                         <FiUsers />
-                                        <Text>Direct Referrals</Text>
+                                        <Box>Direct Referrals</Box>
                                     </HStack>
                                 </Tab>
                                 <Tab>
                                     <HStack>
                                         <FiTrendingUp />
-                                        <Text>Active Members</Text>
+                                        <Box>Active Members</Box>
                                     </HStack>
                                 </Tab>
                                 <Tab>
                                     <HStack>
-                                        <FiClock />
-                                        <Text>Level view</Text>
+                                        <FiLayers />
+                                        <Box>Level View</Box>
                                     </HStack>
                                 </Tab>
                             </TabList>
@@ -400,7 +411,7 @@ console.log(directReferrals);
                             <TabPanels>
                                 {/* Direct Referrals Tab */}
                                 <TabPanel p={0}>
-                                    {displayReferrals.length === 0 ? (
+                                    {displayReferrals?.length === 0 ? (
                                         <Center py={8}>
                                             <VStack spacing={4}>
                                                 <Icon as={FiUserPlus} boxSize={12} color={mutedColor} />
@@ -497,95 +508,224 @@ console.log(directReferrals);
                                                 </VStack>
                                             </Center>
                                         ) : (
-                                                                                            
-                                               activeReferrals?.map((member) => (
-                                                    <Card key={member.id} variant="outline">
-                                                        <CardBody>
-                                                            <HStack justify="space-between">
-                                                                <HStack spacing={4}>
-                                                                    <Avatar
-                                                                        name={member.name}
-                                                                        bg={brandColor}
-                                                                    />
-                                                                    <VStack align="start" spacing={1}>
-                                                                        <Text fontWeight="semibold" color={textColor}>
-                                                                            {member.name}
-                                                                        </Text>
-                                                                        <Text fontSize="sm" color={mutedColor}>
-                                                                            Joined {formatDate(member.created_at)}
-                                                                        </Text>
-                                                                    </VStack>
-                                                                </HStack>
-                                                                <VStack align="end" spacing={1}>
-                                                                    <Text fontWeight="semibold" color={successColor}>
-                                                                        ${member.direct_income?.toFixed(2)}
-                                                                    </Text>
-                                                                    <Badge colorScheme="green" size="sm">
-                                                                        {member.user_status}
-                                                                    </Badge>
-                                                                </VStack>
-                                                            </HStack>
-                                                        </CardBody>
-                                                    </Card>
-                                                ))
-                                        )}
-                                    </VStack>
-                                </TabPanel>
 
-                                {/* LevelView Tab */}
-                                <TabPanel p={0}>
-                                    {directReferrals?.my_referral?.length === 0 ? (
-                                        <Center py={8}>
-                                            <VStack spacing={4}>
-                                                <Icon as={FiClock} boxSize={12} color={mutedColor} />
-                                                <Text fontSize="lg" fontWeight="semibold" color={textColor}>
-                                                    No Level view yet
-                                                </Text>
-                                                <Text color={mutedColor} textAlign="center">
-                                                    Team activities will appear here
-                                                </Text>
-                                            </VStack>
-                                        </Center>
-                                    ) : (
-                                        <VStack spacing={3} align="stretch">
-                                            {directReferrals?.my_referral?.map((activity) => (
-                                                <Card key={activity.id} variant="outline">
+                                            activeReferrals?.map((member) => (
+                                                <Card key={member.id} variant="outline">
                                                     <CardBody>
                                                         <HStack justify="space-between">
                                                             <HStack spacing={4}>
                                                                 <Avatar
-                                                                    size="sm"
-                                                                    name={activity.name}
+                                                                    name={member.name}
                                                                     bg={brandColor}
                                                                 />
-                                                                <VStack align="start" spacing={0}>
-                                                                    <Box fontWeight="medium" color={textColor}>
-                                                                        {activity.name}
-                                                                    </Box>
-                                                                    <Box fontSize="sm" color={mutedColor}>
-                                                                        {activity.mining_status}
-                                                                    </Box>
+                                                                <VStack align="start" spacing={1}>
+                                                                    <Text fontWeight="semibold" color={textColor}>
+                                                                        {member.name}
+                                                                    </Text>
+                                                                    <Text fontSize="sm" color={mutedColor}>
+                                                                        Joined {formatDate(member.created_at)}
+                                                                    </Text>
                                                                 </VStack>
                                                             </HStack>
                                                             <VStack align="end" spacing={1}>
-                                                                <Badge colorScheme="blue" size="sm">
-                                                                    {activity.active_level}
-                                                                </Badge>
-                                                                <Text fontSize="xs" color={mutedColor}>
-                                                                    {activity.last_login}
+                                                                <Text fontWeight="semibold" color={successColor}>
+                                                                    ${member.direct_income?.toFixed(2)}
                                                                 </Text>
+                                                                <Badge colorScheme="green" size="sm">
+                                                                    {member.user_status}
+                                                                </Badge>
                                                             </VStack>
                                                         </HStack>
                                                     </CardBody>
                                                 </Card>
-                                            ))}
-                                        </VStack>
+                                            ))
+                                        )}
+                                    </VStack>
+                                </TabPanel>
+
+                                {/* Level View Tab */}
+                                <TabPanel p={0}>
+                                    {(!directReferrals?.downline || directReferrals?.downline?.length === 0) ? (
+                                        <Center py={8}>
+                                            <VStack spacing={4}>
+                                                <Icon as={FiLayers} boxSize={12} color={mutedColor} />
+                                                <Text fontSize="lg" fontWeight="semibold" color={textColor}>
+                                                    No Level Data Available
+                                                </Text>
+                                                <Text color={mutedColor} textAlign="center">
+                                                    Level information will appear here when available
+                                                </Text>
+                                            </VStack>
+                                        </Center>
+                                    ) : (
+                                        <Card variant="outline" bg={cardBg}>
+                                            <CardHeader>
+                                                <HStack spacing={3}>
+                                                    <Icon as={FiLayers} color={brandColor} boxSize={5} />
+                                                    <Heading size="md" color={textColor}>
+                                                        Team Level Overview
+                                                    </Heading>
+                                                </HStack>
+                                            </CardHeader>
+                                            <CardBody pt={0}>
+                                                <TableContainer>
+                                                    <Table variant="simple">
+                                                        <Thead>
+                                                            <Tr>
+                                                                <Th>Level</Th>
+                                                                <Th>Users</Th>
+                                                                <Th>Action</Th>
+                                                            </Tr>
+                                                        </Thead>
+                                                        <Tbody>
+                                                            {directReferrals?.downline?.map((levelData, index) => (
+                                                                <Tr key={index}>
+                                                                    <Td>
+                                                                        <Badge
+                                                                            colorScheme="purple"
+                                                                            variant="subtle"
+                                                                            size="lg"
+                                                                        >
+                                                                            Level {levelData.level}
+                                                                        </Badge>
+                                                                    </Td>
+                                                                    <Td>
+                                                                        <HStack spacing={2}>
+                                                                            <Icon as={FiUsers} color={brandColor} />
+                                                                            <Text
+                                                                                fontWeight="semibold"
+                                                                                color={textColor}
+                                                                                fontSize="md"
+                                                                            >
+                                                                                {levelData.members_count}
+                                                                            </Text>
+                                                                            <Box fontSize="sm" color={mutedColor}>
+                                                                                members
+                                                                            </Box>
+                                                                        </HStack>
+                                                                    </Td>
+
+                                                                    <Td align="right">
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="outline"
+                                                                            colorScheme="blue"
+                                                                            leftIcon={<FiEye />}
+                                                                            onClick={() => handleViewLevel(levelData.level)}
+                                                                            _hover={{
+                                                                                bg: useColorModeValue('blue.50', 'blue.900'),
+                                                                                borderColor: 'blue.500'
+                                                                            }}
+                                                                        >
+                                                                            View Details
+                                                                        </Button>
+                                                                    </Td>
+                                                                </Tr>
+                                                            ))}
+                                                        </Tbody>
+                                                    </Table>
+                                                </TableContainer>
+                                            </CardBody>
+                                        </Card>
+
                                     )}
                                 </TabPanel>
                             </TabPanels>
                         </Tabs>
                     </CardBody>
                 </Card>
+
+                {/* User List Modal */}
+                <Modal isOpen={isOpen} onClose={onClose} size="4xl">
+                    <ModalOverlay />
+                    <ModalContent>
+                        <ModalHeader>
+                            <HStack spacing={3}>
+                                <Icon as={FiUsers} color={brandColor} />
+                                <Box fontSize={'16px'} color={'gray.500'}>Level {selectedLevelNumber} Users</Box>
+                            </HStack>
+                        </ModalHeader>
+                        <ModalCloseButton />
+                        <ModalBody>
+                            {selectedLevelUsers.length === 0 ? (
+                                <Center py={8}>
+                                    <VStack spacing={4}>
+                                        <Icon as={FiUsers} boxSize={12} color={mutedColor} />
+                                        <Text fontSize="lg" fontWeight="semibold" color={textColor}>
+                                            No Users Found
+                                        </Text>
+                                        <Text color={mutedColor} textAlign="center">
+                                            No users available for this level
+                                        </Text>
+                                    </VStack>
+                                </Center>
+                            ) : (
+                                <TableContainer>
+                                    <Table variant="simple">
+                                        <Thead>
+                                            <Tr>
+                                                <Th>ID</Th>
+                                                <Th>Name</Th>
+                                                <Th>Level</Th>
+                                                <Th>Join Date</Th>
+                                            </Tr>
+                                        </Thead>
+                                        <Tbody>
+                                            {selectedLevelUsers.map((user) => (
+                                                <Tr key={user.id}>
+                                                    <Td>
+                                                        <Badge
+                                                            colorScheme="blue"
+                                                            variant="subtle"
+                                                        >
+                                                            #{user?.data?.id}
+                                                        </Badge>
+                                                    </Td>
+                                                    <Td>
+                                                        <HStack spacing={3}>
+                                                            <Avatar
+                                                                size="sm"
+                                                                name={user?.user_data?.name}
+                                                                bg={brandColor}
+                                                            />
+                                                            <Box fontSize={'16px'}
+                                                                fontWeight="medium"
+                                                                color={textColor}
+                                                            >
+                                                                {user?.user_data?.name}
+                                                            </Box>
+                                                        </HStack>
+                                                    </Td>
+                                                    <Td>
+                                                        <Badge
+                                                            colorScheme="purple"
+                                                            variant="subtle"
+                                                        >
+                                                            Level {user?.data?.level}
+                                                        </Badge>
+                                                    </Td>
+                                                    <Td>
+                                                        <HStack spacing={2}>
+                                                            <Icon as={FiCalendar} color={mutedColor} size="sm" />
+                                                            <Box fontSize="md" color={textColor}>
+                                                                {formatDate(user?.user_data?.created_at)}
+                                                            </Box>
+                                                        </HStack>
+                                                    </Td>
+                                                </Tr>
+                                            ))}
+                                        </Tbody>
+                                    </Table>
+                                </TableContainer>
+                            )}
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button variant="ghost" onClick={onClose}>
+                                Close
+                            </Button>
+                        </ModalFooter>
+                    </ModalContent>
+                </Modal>
             </Container>
         </Box>
     );

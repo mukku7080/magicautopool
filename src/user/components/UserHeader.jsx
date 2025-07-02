@@ -35,6 +35,8 @@ const UserHeader = ({ onOpen, user }) => {
     const borderColor = useColorModeValue('gray.200', 'gray.700');
     const textColor = useColorModeValue('gray.700', 'gray.200');
     const { profile } = useUser();
+    const account_blc=profile?.USER?.available_amount;
+
 
     const handleLogout = async () => {
         try {
@@ -139,7 +141,7 @@ const UserHeader = ({ onOpen, user }) => {
                         color={useColorModeValue('blue.700', 'blue.200')}
                         whiteSpace="nowrap"
                     >
-                        ${user.balance.toLocaleString()}
+                        {`$${account_blc}`}
                     </Box>
                 </Box>
 

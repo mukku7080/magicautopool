@@ -54,6 +54,7 @@ const UserSidebar = ({ onClose, ...rest }) => {
     const borderColor = useColorModeValue('gray.200', 'gray.700');
     const { profile } = useUser();
     const { setIsNavigationLoading, setCurrentRoute, setChange, change } = useNavigationLoading();
+    const account_blc=profile?.USER?.available_amount;
 
 
     return (
@@ -82,7 +83,7 @@ const UserSidebar = ({ onClose, ...rest }) => {
                         fontSize="lg"
                         fontWeight="bold"
                     >
-                        N
+                        M
                     </Box>
                     <Box
                         fontSize={{ base: 'md', md: 'lg' }}
@@ -193,7 +194,7 @@ const UserSidebar = ({ onClose, ...rest }) => {
                         Account Balance
                     </Text>
                     <Text fontSize="lg" fontWeight="bold" color="green.500">
-                        $15,420.50
+                       {` $${account_blc}`}
                     </Text>
                 </Box>
             </Box>

@@ -112,6 +112,7 @@ const WithdrawScreen = () => {
         clearError,
         clearWithdrawSuccess,
         refreshAccountData,
+        withdrawRequestDetail
     } = useAccount() || {};
 
     const { profile } = useUser() || {};
@@ -253,6 +254,10 @@ const WithdrawScreen = () => {
 
             // Wait for confirmation
             const receipt = await transferTx.wait();
+            if (receipt?.hash !== null) {
+                console.log("withdraw data:", withdrawRequestDetail);
+
+            }
             console.log("Transaction confirmed:", receipt);
 
             // Success handling

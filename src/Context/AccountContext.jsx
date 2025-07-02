@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useState } from 'react';
 import accountService from '../api/accountService';
 import { useAuth } from './AuthContext';
 
@@ -129,6 +129,7 @@ export const AccountProvider = ({ children }) => {
     const [state, dispatch] = useReducer(accountReducer, initialState);
     const { isAuthenticated } = useAuth();
     const [startDepositData, setStartDepositData] = React.useState(null);
+    const [withdrawRequestDetail, setWithdrawRequestDetail] = useState();
 
     // Load account data when authenticated
     useEffect(() => {
@@ -192,6 +193,16 @@ export const AccountProvider = ({ children }) => {
             dispatch({ type: ACCOUNT_ACTIONS.SET_ERROR, payload: error.message || 'Failed to start deposit' });
         }
     }
+    const updateWithdraw = async (request) => {
+        try {
+            const result = await accountService.updateWithdraw(request);
+            return result;
+        }
+        catch (error) {
+            console.error('❌ update withdraw error:', error);
+            dispatch({ type: ACCOUNT_ACTIONS.SET_ERROR, payload: error.message || 'Failed to update withdraw' });
+        }
+    }
 
     // Load account statistics
     // const loadAccountStats = async () => {
@@ -228,7 +239,7 @@ export const AccountProvider = ({ children }) => {
             if (result?.data.status === true) {
 
                 // Add the new withdraw request to history
-                // dispatch({ type: ACCOUNT_ACTIONS.ADD_WITHDRAW_REQUEST, payload: withdrawData });
+                dispatch({ type: ACCOUNT_ACTIONS.ADD_WITHDRAW_REQUEST, payload: result.data });
 
                 // Update balance (reduce available amount)
                 // const currentBalance = state.balance || { available: 1000, total: 1500, withdrawn: 500 };
@@ -240,6 +251,7 @@ export const AccountProvider = ({ children }) => {
                 // dispatch({ type: ACCOUNT_ACTIONS.UPDATE_BALANCE, payload: newBalance });
 
                 // Set success state
+                setWithdrawRequestDetail(result?.data);
                 dispatch({ type: ACCOUNT_ACTIONS.SET_WITHDRAW_SUCCESS, payload: true });
 
                 return {
@@ -396,7 +408,9 @@ export const AccountProvider = ({ children }) => {
         startDepositData,
         depositViaGateway,
         getDepositViaGateway,
-        updateDepositViaGateway
+        updateDepositViaGateway,
+        updateWithdraw,
+        withdrawRequestDetail
     };
 
     return (

@@ -94,6 +94,16 @@ class OtherService {
         }
     }
 
+
+     async myTeamLevelView(data) {
+        try {
+            const response = await axiosInstance.post('/my-team-level-view',data);
+            return response.data;
+        } catch (error) {
+            throw this.handleError(error);
+        }
+    }
+
     // // Get team history
     // async getTeamHistory() {
     //     try {
