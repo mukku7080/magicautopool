@@ -1064,11 +1064,11 @@ const DepositForm = () => {
                                                     size="sm"
                                                     variant="outline"
                                                     colorScheme="teal"
-                                                    onClick={() => setDepositAmount("500")}
+                                                    onClick={() => setDepositAmount("1500")}
                                                     bg={depositAmount === "500" ? "teal.50" : "transparent"}
                                                     borderColor={depositAmount === "500" ? "teal.500" : "gray.300"}
                                                 >
-                                                    500 USDT
+                                                    1500 USDT
                                                 </Button>
                                             </>
                                         )}

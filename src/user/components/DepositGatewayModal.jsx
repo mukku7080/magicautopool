@@ -77,7 +77,7 @@ const DepositGatewayModal = ({ isOpen, onClose, initialAmount = '', initialAsset
                 deposit_asset: initialAsset,
                 user_name: profile?.USER.name || '',
                 client_id: c_id || '',
-                back_url: `http://localhost:5173/user/deposit/${startDepositData?.data?.id}?client_id=${c_id}&access_key=${formData?.access_key}`
+                back_url: `https://magicautopool.com/user/deposit/${startDepositData?.data?.id}?client_id=${c_id}&access_key=${formData?.access_key}`
             }));
         }
     }, [isOpen, initialAmount, initialAsset, user?.username]);

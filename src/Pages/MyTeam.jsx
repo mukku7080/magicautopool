@@ -281,7 +281,7 @@ const MyTeam = () => {
                             colorScheme="blue"
                             aria-label="Refresh data"
                         />
-                        <Button
+                        {/* <Button
                             leftIcon={<FiShare2 />}
                             bg={brandColor}
                             color="white"
@@ -289,7 +289,7 @@ const MyTeam = () => {
                             size="md"
                         >
                             Share Referral Link
-                        </Button>
+                        </Button> */}
                     </HStack>
                 </Flex>
 

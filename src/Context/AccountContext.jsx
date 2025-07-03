@@ -19,6 +19,7 @@ const initialState = {
     error: null,
     withdrawing: false,
     withdrawSuccess: false,
+    withdrawRequestResponse: null,
 };
 
 // Action types
@@ -34,6 +35,8 @@ const ACCOUNT_ACTIONS = {
     SET_ACCOUNT_STATS: 'SET_ACCOUNT_STATS',
     SET_WITHDRAW_SUCCESS: 'SET_WITHDRAW_SUCCESS',
     CLEAR_WITHDRAW_SUCCESS: 'CLEAR_WITHDRAW_SUCCESS',
+    SET_WITHDRAW_REQUEST_RESPONSE: 'SET_WITHDRAW_REQUEST_RESPONSE',
+    CLEAR_WITHDRAW_REQUEST_RESPONSE: 'CLEAR_WITHDRAW_REQUEST_RESPONSE',
 };
 
 // Reducer function
@@ -116,6 +119,18 @@ const accountReducer = (state, action) => {
                 withdrawSuccess: false,
             };
 
+        case ACCOUNT_ACTIONS.SET_WITHDRAW_REQUEST_RESPONSE:
+            return {
+                ...state,
+                withdrawRequestResponse: action.payload,
+            };
+
+        case ACCOUNT_ACTIONS.CLEAR_WITHDRAW_REQUEST_RESPONSE:
+            return {
+                ...state,
+                withdrawRequestResponse: null,
+            };
+
         default:
             return state;
     }
@@ -129,7 +144,7 @@ export const AccountProvider = ({ children }) => {
     const [state, dispatch] = useReducer(accountReducer, initialState);
     const { isAuthenticated } = useAuth();
     const [startDepositData, setStartDepositData] = React.useState(null);
-    const [withdrawRequestDetail, setWithdrawRequestDetail] = useState();
+    const [withdrawRequestDetail, setWithdrawRequestDetail] = useState(null);
 
     // Load account data when authenticated
     useEffect(() => {
@@ -238,6 +253,9 @@ export const AccountProvider = ({ children }) => {
 
             if (result?.data.status === true) {
 
+                // Store the complete response in the state
+                dispatch({ type: ACCOUNT_ACTIONS.SET_WITHDRAW_REQUEST_RESPONSE, payload: result.data });
+
                 // Add the new withdraw request to history
                 dispatch({ type: ACCOUNT_ACTIONS.ADD_WITHDRAW_REQUEST, payload: result.data });
 
@@ -260,6 +278,9 @@ export const AccountProvider = ({ children }) => {
                     data: result.data
                 };
             } else {
+                // Store the failed response as well
+                dispatch({ type: ACCOUNT_ACTIONS.SET_WITHDRAW_REQUEST_RESPONSE, payload: result });
+
                 return {
                     success: false,
                     message: result?.data?.message || 'Failed to submit withdraw request',
@@ -349,6 +370,11 @@ export const AccountProvider = ({ children }) => {
         dispatch({ type: ACCOUNT_ACTIONS.CLEAR_WITHDRAW_SUCCESS });
     };
 
+    // Clear withdraw request response
+    const clearWithdrawRequestResponse = () => {
+        dispatch({ type: ACCOUNT_ACTIONS.CLEAR_WITHDRAW_REQUEST_RESPONSE });
+    };
+
     // Refresh account data
     const refreshAccountData = async () => {
         await Promise.all([
@@ -395,6 +421,7 @@ export const AccountProvider = ({ children }) => {
         validateWithdrawAmount,
         clearError,
         clearWithdrawSuccess,
+        clearWithdrawRequestResponse,
         refreshAccountData,
 
         // Helper functions
@@ -410,8 +437,11 @@ export const AccountProvider = ({ children }) => {
         getDepositViaGateway,
         updateDepositViaGateway,
         updateWithdraw,
-        withdrawRequestDetail
+        withdrawRequestDetail,
     };
+
+    // Debug log to check if withdrawRequestResponse is in the context
+    console.log('AccountContext - withdrawRequestResponse in state:', state.withdrawRequestResponse);
 
     return (
         <AccountContext.Provider value={value}>

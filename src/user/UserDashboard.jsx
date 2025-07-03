@@ -18,6 +18,14 @@ import BinaryTree from './pages/tree/BinaryTree';
 import NewTree from './pages/tree/NewTree';
 import SupportTicket from '../Pages/SupportTicket';
 import MyTeam from '../Pages/MyTeam';
+import { 
+    DirectIncome, 
+    LevelIncome, 
+    MonthlyROI, 
+    PlatinumIncome, 
+    RewardIncome, 
+    TotalIncome 
+} from './pages/income';
 
 const UserDashboard = () => {
     return (
@@ -37,6 +45,13 @@ const UserDashboard = () => {
                     <Route path="/tree" element={<NewTree />} />
                     <Route path="/referrals" element={<Referrals />} />
                     <Route path="/btree" element={<NewTree />} />
+                    {/* Income Routes */}
+                    <Route path="/income/direct" element={<DirectIncome />} />
+                    <Route path="/income/level" element={<LevelIncome />} />
+                    <Route path="/income/roi" element={<MonthlyROI />} />
+                    <Route path="/income/platinum" element={<PlatinumIncome />} />
+                    <Route path="/income/reward" element={<RewardIncome />} />
+                    <Route path="/income/total" element={<TotalIncome />} />
                     {/* Add more routes as needed */}
                     <Route path="/transactions" element={<div>Transactions Page - Coming Soon</div>} />
                     <Route path="/analytics" element={<div>Analytics Page - Coming Soon</div>} />

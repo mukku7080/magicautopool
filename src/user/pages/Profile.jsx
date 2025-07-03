@@ -679,6 +679,8 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">Name</FormLabel>
                                                 <Input
                                                     value={profileData?.name}
+                                                    color={textColor}
+
                                                     onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -700,6 +702,7 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">Email</FormLabel>
                                                 <Input
                                                     value={profileData.email}
+                                                    color={textColor}
                                                     onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -712,6 +715,8 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">Phone</FormLabel>
                                                 <Input
                                                     value={profileData?.mobile || profileData?.phone || ''}
+                                                    color={textColor}
+
                                                     onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -725,6 +730,9 @@ const Profile = () => {
                                                 <Input
                                                     type="date"
                                                     value={profileData.dateOfBirth || ''}
+                                                    color={textColor}
+
+
                                                     onChange={(e) => setProfileData({ ...profileData, dateOfBirth: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -735,9 +743,12 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">Country</FormLabel>
                                                 <Select
                                                     value={profileData?.ADDRESS?.country || profileData.country || ''}
+                                                    color={textColor}
+
                                                     onChange={(e) => setProfileData({ ...profileData, country: e.target.value })}
                                                     isDisabled={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
+
                                                 >
                                                     <option value="United States">United States</option>
                                                     <option value="Canada">Canada</option>
@@ -750,6 +761,8 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">Address</FormLabel>
                                                 <Input
                                                     value={profileData.address || ''}
+                                                    color={textColor}
+
                                                     onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -761,6 +774,8 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">City</FormLabel>
                                                 <Input
                                                     value={profileData.city}
+                                                    color={textColor}
+
                                                     onChange={(e) => setProfileData({ ...profileData, city: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -772,6 +787,8 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">State/Province</FormLabel>
                                                 <Input
                                                     value={profileData.state || ''}
+                                                    color={textColor}
+
                                                     onChange={(e) => setProfileData({ ...profileData, state: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -783,6 +800,8 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">Pin Code</FormLabel>
                                                 <Input
                                                     value={profileData.pincode || ''}
+                                                    color={textColor}
+
                                                     onChange={(e) => setProfileData({ ...profileData, pincode: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -794,6 +813,8 @@ const Profile = () => {
                                                 <FormLabel fontSize="sm">Otp</FormLabel>
                                                 <Input
                                                     value={profileData.otp}
+                                                    color={textColor}
+
                                                     onChange={(e) => setProfileData({ ...profileData, otp: e.target.value })}
                                                     isReadOnly={!isEditing}
                                                     bg={isEditing ? 'white' : 'gray.50'}
@@ -811,6 +832,8 @@ const Profile = () => {
                                                     rows={3}
                                                     placeholder="Tell us about yourself..."
                                                     resize="vertical"
+                                                    color={textColor}
+                                                    
                                                 />
                                             </FormControl>
                                         </Grid>

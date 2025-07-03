@@ -26,30 +26,11 @@ import {
     StatNumber,
     StatHelpText,
     StatArrow,
-    Tabs,
-    TabList,
-    TabPanels,
-    Tab,
-    TabPanel,
-    Progress,
-    Divider,
+    Select,
     Alert,
     AlertIcon,
     AlertTitle,
     AlertDescription,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalFooter,
-    ModalBody,
-    ModalCloseButton,
-    useDisclosure,
-    FormControl,
-    FormLabel,
-    Input,
-    Select,
-    useToast,
     IconButton,
 } from '@chakra-ui/react';
 import {
@@ -65,52 +46,69 @@ import {
 } from 'react-icons/fi';
 import { AiOutlineWallet, AiOutlineBank, AiOutlineHistory } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../Context';
 
 const Wallet = () => {
     const [showBalance, setShowBalance] = useState(true);
     const [selectedPeriod, setSelectedPeriod] = useState('7d');
-    const { isOpen, onOpen, onClose } = useDisclosure();
-    const [modalType, setModalType] = useState('');
-    const toast = useToast();
     const navigate = useNavigate();
 
     const cardBg = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.700');
     const textColor = useColorModeValue('gray.600', 'gray.400');
+    const { profile } = useUser();
+    const userData = profile?.USER;
+    console.log("wallet", userData);
 
     // Sample wallet data
     const walletStats = [
         {
-            label: 'Total Balance',
-            value: 15420.50,
+            label: 'Referral Income',
+            value: userData?.direct_income,
             change: '+12.5%',
             isPositive: true,
             icon: AiOutlineWallet,
             color: 'blue',
         },
         {
-            label: 'Available Balance',
-            value: 12850.75,
+            label: 'Monthly ROI',
+            value: userData?.stake_income,
             change: '+8.2%',
             isPositive: true,
-            icon: FiDollarSign,
+            icon: FiTrendingUp,
             color: 'green',
         },
         {
-            label: 'Locked Balance',
-            value: 2569.75,
+            label: 'Autopool Income',
+            value: userData?.level_income,
             change: '+15.3%',
             isPositive: true,
-            icon: FiCreditCard,
+            icon: FiDollarSign,
             color: 'orange',
         },
         {
-            label: 'Pending Transactions',
-            value: 1200.00,
-            change: '-5.1%',
-            isPositive: false,
-            icon: FiRefreshCw,
+            label: 'Platinum Income',
+            value: 0,
+            change: '+5.1%',
+            isPositive: true,
+            icon: FiCreditCard,
             color: 'purple',
+        },
+        {
+            label: 'Reward Income',
+            value: userData?.rank_reward,
+            change: '+10.8%',
+            isPositive: true,
+            icon: FiTrendingUp,
+            color: 'teal',
+        },
+        {
+            label: 'Total Income',
+            value: userData?.total_income,
+            change: '+11.2%',
+            isPositive: true,
+            icon: AiOutlineBank,
+            color: 'red',
         },
     ];
 
@@ -191,22 +189,6 @@ const Wallet = () => {
         },
     ];
 
-    const handleQuickAction = (action) => {
-        setModalType(action);
-        onOpen();
-    };
-
-    const handleModalSubmit = () => {
-        toast({
-            title: `${modalType} Request Submitted`,
-            description: `Your ${modalType.toLowerCase()} request has been submitted successfully.`,
-            status: 'success',
-            duration: 3000,
-            isClosable: true,
-        });
-        onClose();
-    };
-
     return (
         <Box>
             <HStack justify="space-between" mb={6}>
@@ -232,11 +214,46 @@ const Wallet = () => {
             </HStack>
 
             {/* Wallet Stats */}
-            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }} gap={6} mb={8}>
+            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }} gap={6} mb={8}>
                 {walletStats.map((stat, index) => (
                     <GridItem key={index}>
-                        <Card bg={cardBg} border="1px" borderColor={borderColor}>
-                            <CardBody>
+                        <Card
+                            bg={cardBg}
+                            border="1px"
+                            borderColor={borderColor}
+                            cursor="pointer"
+                            transition="all 0.2s"
+                            _hover={{
+                                transform: 'translateY(-2px)',
+                                shadow: 'lg',
+                                borderColor: `${stat.color}.300`
+                            }}
+                            onClick={() => {
+                                switch (stat.label) {
+                                    case 'Referral Income':
+                                        navigate('/user/income/direct');
+                                        break;
+                                    case 'Monthly ROI':
+                                        navigate('/user/income/roi');
+                                        break;
+                                    case 'Autopool Income':
+                                        navigate('/user/income/level');
+                                        break;
+                                    case 'Platinum Income':
+                                        navigate('/user/income/platinum');
+                                        break;
+                                    case 'Reward Income':
+                                        navigate('/user/income/reward');
+                                        break;
+                                    case 'Total Income':
+                                        navigate('/user/income/total');
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }}
+                        >
+                            <CardBody display={'flex'} gap={10}>
                                 <HStack justify="space-between" mb={4}>
                                     <Box
                                         p={3}
@@ -246,25 +263,25 @@ const Wallet = () => {
                                     >
                                         <Icon as={stat.icon} boxSize={6} />
                                     </Box>
-                                    <IconButton
+                                    {/* <IconButton
                                         size="sm"
                                         variant="ghost"
                                         icon={showBalance ? <FiEye /> : <FiEyeOff />}
                                         onClick={() => setShowBalance(!showBalance)}
                                         aria-label="Toggle balance visibility"
-                                    />
+                                    /> */}
                                 </HStack>
                                 <Stat>
                                     <StatNumber fontSize="2xl" fontWeight="bold">
-                                        {showBalance ? `$${stat.value.toLocaleString()}` : '****'}
+                                        {showBalance ? `$${stat?.value?.toLocaleString()}` : '****'}
                                     </StatNumber>
                                     <StatLabel color={textColor} fontSize="sm">
                                         {stat.label}
                                     </StatLabel>
-                                    <StatHelpText>
+                                    {/* <StatHelpText>
                                         <StatArrow type={stat.isPositive ? 'increase' : 'decrease'} />
                                         {stat.change}
-                                    </StatHelpText>
+                                    </StatHelpText> */}
                                 </Stat>
                             </CardBody>
                         </Card>
@@ -272,7 +289,7 @@ const Wallet = () => {
                 ))}
             </Grid>
 
-            <Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={6}>
+            <Grid templateColumns={{ base: '1fr', lg: '1fr' }} gap={6}>
                 {/* Transaction History */}
                 <GridItem>
                     <Card bg={cardBg} border="1px" borderColor={borderColor}>
@@ -369,152 +386,8 @@ const Wallet = () => {
                     </Card>
                 </GridItem>
 
-                {/* Sidebar */}
-                <GridItem>
-                    <VStack spacing={6} align="stretch">
-                        {/* Quick Actions */}
-                        <Card bg={cardBg} border="1px" borderColor={borderColor}>
-                            <CardHeader>
-                                <Heading size="sm">Quick Actions</Heading>
-                            </CardHeader>
-                            <CardBody pt={0}>
-                                <VStack spacing={3}>
-                                    <Button
-                                        w="full"
-                                        leftIcon={<FiArrowUpRight />}
-                                        colorScheme="green"
-                                        variant="outline"
-                                        onClick={() => handleQuickAction('Deposit')}
-                                    >
-                                        Make Deposit
-                                    </Button>
-                                    <Button
-                                        w="full"
-                                        leftIcon={<FiArrowDownRight />}
-                                        colorScheme="blue"
-                                        variant="outline"
-                                        onClick={() => handleQuickAction('Withdraw')}
-                                    >
-                                        Request Withdrawal
-                                    </Button>
-                                    <Button
-                                        w="full"
-                                        leftIcon={<AiOutlineHistory />}
-                                        colorScheme="purple"
-                                        variant="outline"
-                                    >
-                                        View All Transactions
-                                    </Button>
-                                </VStack>
-                            </CardBody>
-                        </Card>
 
-                        {/* Crypto Wallets */}
-                        <Card bg={cardBg} border="1px" borderColor={borderColor}>
-                            <CardHeader>
-                                <Heading size="sm">Crypto Wallets</Heading>
-                            </CardHeader>
-                            <CardBody pt={0}>
-                                <VStack spacing={4} align="stretch">
-                                    {walletAddresses.map((wallet, index) => (
-                                        <Box
-                                            key={index}
-                                            p={3}
-                                            border="1px"
-                                            borderColor={borderColor}
-                                            borderRadius="lg"
-                                            bg={useColorModeValue('gray.50', 'gray.700')}
-                                        >
-                                            <VStack align="stretch" spacing={2}>
-                                                <HStack justify="space-between">
-                                                    <Text fontWeight="semibold" fontSize="sm">
-                                                        {wallet.currency}
-                                                    </Text>
-                                                    <Badge variant="outline" size="sm">
-                                                        {wallet.symbol}
-                                                    </Badge>
-                                                </HStack>
-                                                <Text fontSize="xs" color={textColor} fontFamily="mono">
-                                                    {wallet.address.substring(0, 20)}...
-                                                </Text>
-                                                <HStack justify="space-between">
-                                                    <Text fontSize="sm" fontWeight="medium">
-                                                        {wallet.balance} {wallet.symbol}
-                                                    </Text>
-                                                    <Text fontSize="sm" color="green.500">
-                                                        ${wallet.usdValue.toLocaleString()}
-                                                    </Text>
-                                                </HStack>
-                                            </VStack>
-                                        </Box>
-                                    ))}
-                                </VStack>
-                            </CardBody>
-                        </Card>
-
-                        {/* Security Notice */}
-                        <Alert status="info" borderRadius="lg">
-                            <AlertIcon />
-                            <Box>
-                                <AlertTitle fontSize="sm">Security Notice</AlertTitle>
-                                <AlertDescription fontSize="xs">
-                                    Always verify wallet addresses before making transactions. Enable 2FA for enhanced security.
-                                </AlertDescription>
-                            </Box>
-                        </Alert>
-                    </VStack>
-                </GridItem>
             </Grid>
-
-            {/* Quick Action Modal */}
-            <Modal isOpen={isOpen} onClose={onClose}>
-                <ModalOverlay />
-                <ModalContent>
-                    <ModalHeader>{modalType} Funds</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                        <VStack spacing={4}>
-                            <FormControl>
-                                <FormLabel>Amount</FormLabel>
-                                <Input placeholder="Enter amount" type="number" />
-                            </FormControl>
-                            <FormControl>
-                                <FormLabel>Method</FormLabel>
-                                <Select placeholder="Select payment method">
-                                    <option value="bank">Bank Transfer</option>
-                                    <option value="card">Credit/Debit Card</option>
-                                    <option value="paypal">PayPal</option>
-                                    <option value="crypto">Cryptocurrency</option>
-                                </Select>
-                            </FormControl>
-                            {modalType === 'Deposit' && (
-                                <Alert status="info" borderRadius="lg">
-                                    <AlertIcon />
-                                    <AlertDescription fontSize="sm">
-                                        Deposits are usually processed within 1-2 business days.
-                                    </AlertDescription>
-                                </Alert>
-                            )}
-                            {modalType === 'Withdraw' && (
-                                <Alert status="warning" borderRadius="lg">
-                                    <AlertIcon />
-                                    <AlertDescription fontSize="sm">
-                                        Withdrawals may take 3-5 business days to process.
-                                    </AlertDescription>
-                                </Alert>
-                            )}
-                        </VStack>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={onClose}>
-                            Cancel
-                        </Button>
-                        <Button colorScheme="blue" onClick={handleModalSubmit}>
-                            Submit Request
-                        </Button>
-                    </ModalFooter>
-                </ModalContent>
-            </Modal>
         </Box>
     );
 };

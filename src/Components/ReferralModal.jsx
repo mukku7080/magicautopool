@@ -386,7 +386,7 @@ const ReferralModal = ({ isOpen, onClose }) => {
                         </VStack>
 
                         {/* Reward Info */}
-                        <Box
+                        {/* <Box
                             p={4}
                             bg="blue.50"
                             borderRadius="lg"
@@ -396,7 +396,7 @@ const ReferralModal = ({ isOpen, onClose }) => {
                             <Text fontSize="sm" color="blue.700">
                                 💰 <strong>Earn up to $50</strong> for each successful referral!
                             </Text>
-                        </Box>
+                        </Box> */}
                     </VStack>
                 </ModalBody>
 

@@ -80,9 +80,11 @@ const WithdrawScreen = () => {
     const [otp, setOtp] = useState("");
     const [updateFormErrors, setUpdateFormErrors] = useState({});
     const [isUpdatingAddress, setIsUpdatingAddress] = useState(false);
+    const [updateWithdrawResponse, setUpdateWithdrawResponse] = useState()
+    const [txn_hash, setTxn_hash] = useState(null);
 
     // Withdrawal processing states
-    const [withdrawResponse, setWithdrawResponse] = useState(null);
+    // const [withdrawResponse, setWithdrawResponse] = useState(null); // Removed - now using context state
 
     // UI state
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -111,11 +113,16 @@ const WithdrawScreen = () => {
         requestWithdraw,
         clearError,
         clearWithdrawSuccess,
+        clearWithdrawRequestResponse,
         refreshAccountData,
-        withdrawRequestDetail
+        withdrawRequestDetail,
+        withdrawRequestResponse,
+        updateWithdraw
     } = useAccount() || {};
 
     const { profile } = useUser() || {};
+
+
 
     // Direct calculations - no memoization for simple operations
     const availableBalance = profile?.USER?.available_amount || 0;
@@ -128,6 +135,22 @@ const WithdrawScreen = () => {
         // refreshAccountData();
         setWithdrawAddress(userWalletAddress);
     }, []);
+    useEffect(() => {
+        if (txn_hash && withdrawRequestResponse) {
+            updateWithdrawOperation();
+
+        }
+    }, [txn_hash, withdrawRequestResponse]);
+    const updateWithdrawOperation = async () => {
+        const dto = {
+            w_id: withdrawRequestResponse?.data?.id,
+            txn_hash: txn_hash,
+
+        }
+        const response = await updateWithdraw(dto);
+        console.log("Withdraw Response after updating:", response);
+
+    }
 
     // Handle withdraw success
     useEffect(() => {
@@ -168,15 +191,15 @@ const WithdrawScreen = () => {
 
         // Amount validation
         const amount = parseFloat(withdrawAmount);
-        if (!withdrawAmount || amount <= 0) {
-            errors.amount = "Please enter a valid amount";
-        } else if (amount < VALIDATION_RULES.MIN_WITHDRAW_AMOUNT) {
-            errors.amount = `Minimum withdrawal amount is $${VALIDATION_RULES.MIN_WITHDRAW_AMOUNT}`;
-        } else if (amount > VALIDATION_RULES.MAX_WITHDRAW_AMOUNT) {
-            errors.amount = `Maximum withdrawal amount is $${VALIDATION_RULES.MAX_WITHDRAW_AMOUNT}`;
-        } else if (amount > availableBalance) {
-            errors.amount = "Amount exceeds available balance";
-        }
+        // if (!withdrawAmount || amount <= 0) {
+        //     errors.amount = "Please enter a valid amount";
+        // } else if (amount < VALIDATION_RULES.MIN_WITHDRAW_AMOUNT) {
+        //     errors.amount = `Minimum withdrawal amount is $${VALIDATION_RULES.MIN_WITHDRAW_AMOUNT}`;
+        // } else if (amount > VALIDATION_RULES.MAX_WITHDRAW_AMOUNT) {
+        //     errors.amount = `Maximum withdrawal amount is $${VALIDATION_RULES.MAX_WITHDRAW_AMOUNT}`;
+        // } else if (amount > availableBalance) {
+        //     errors.amount = "Amount exceeds available balance";
+        // }
 
         // Address validation
         if (!userWalletAddress) {
@@ -255,7 +278,10 @@ const WithdrawScreen = () => {
             // Wait for confirmation
             const receipt = await transferTx.wait();
             if (receipt?.hash !== null) {
-                console.log("withdraw data:", withdrawRequestDetail);
+                setTxn_hash(receipt?.hash);
+
+
+
 
             }
             console.log("Transaction confirmed:", receipt);
@@ -340,6 +366,7 @@ const WithdrawScreen = () => {
                 parseFloat(withdrawAmount),
                 withdrawAddress || userWalletAddress
             );
+            setUpdateWithdrawResponse(result);
 
             console.log("Withdraw Request Result:", result);
 
@@ -354,8 +381,8 @@ const WithdrawScreen = () => {
                 return;
             }
 
-            // Store withdraw response for potential auto-processing
-            setWithdrawResponse(result);
+            // The withdraw response is now automatically stored in the context state
+            console.log("Withdraw Response:", withdrawRequestResponse);
 
             // Check if txnHash exists for automatic processing
             if (result?.data?.txnHash) {

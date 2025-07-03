@@ -55,6 +55,7 @@ const Login = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [registeredEmail, setRegisteredEmail] = useState('');
     const [registeredPassword, setRegisteredPassword] = useState('');
+    const [urlinviteCode, setUrlInviteCode] = useState(false);
 
     // Forgot password states
     const [forgotPasswordForm, setForgotPasswordForm] = useState({
@@ -123,6 +124,7 @@ const Login = () => {
 
         if (inviteCodeFromUrl) {
             console.log('🔗 Invite code found in URL:', inviteCodeFromUrl);
+            setUrlInviteCode(true);
             setRegisterForm(prev => ({
                 ...prev,
                 inviteCode: inviteCodeFromUrl
@@ -814,6 +816,7 @@ const Login = () => {
                                                         _focus={{ borderColor: brandColor, boxShadow: `0 0 0 1px ${brandColor}` }}
                                                         fontSize={fontSize}
                                                         h="48px"
+                                                        isReadOnly={urlinviteCode}
                                                     />
 
                                                 </InputGroup>

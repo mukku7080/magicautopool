@@ -164,7 +164,7 @@ const Dashboard = () => {
                 <Flex justify="space-between" align="center" mb={2}>
                     <Box>
                         <Heading size="lg" mb={2}>
-                            Welcome back, John! 👋
+                            Welcome back, {profile?.USER.name} 👋
                         </Heading>
                         <Text color={textColor}>
                             Here's what's happening with your investments today.
