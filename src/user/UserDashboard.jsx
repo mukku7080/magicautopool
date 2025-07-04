@@ -51,7 +51,7 @@ const UserDashboard = () => {
                     <Route path="/income/roi" element={<MonthlyROI />} />
                     <Route path="/income/platinum" element={<PlatinumIncome />} />
                     <Route path="/income/reward" element={<RewardIncome />} />
-                    <Route path="/income/total" element={<TotalIncome />} />
+                    {/* <Route path="/income/total" element={<TotalIncome />} /> */}
                     {/* Add more routes as needed */}
                     <Route path="/transactions" element={<div>Transactions Page - Coming Soon</div>} />
                     <Route path="/analytics" element={<div>Analytics Page - Coming Soon</div>} />

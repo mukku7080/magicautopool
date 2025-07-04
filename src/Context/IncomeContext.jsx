@@ -102,8 +102,9 @@ export const IncomeProvider = ({ children }) => {
             setIsLoading(true);
             setError(null);
             const response = await incomeService.getMiningDetails();
+            console.log("Responseroi", response);
             if (response.success) {
-                setMonthlyROIHistory(response.data || []);
+                setMonthlyROIHistory(response?.data?.data || []);
               
             }
         } catch (err) {

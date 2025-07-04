@@ -308,7 +308,7 @@ const LevelIncome = () => {
                                             <Th>Level</Th>
                                             <Th>Total Amount</Th>
                                             <Th>Members Count</Th>
-                                            <Th>Action</Th>
+                                            {/* <Th>Action</Th> */}
                                         </Tr>
                                     </Thead>
                                     <Tbody>
@@ -339,7 +339,7 @@ const LevelIncome = () => {
                                                         </Box>
                                                     </HStack>
                                                 </Td>
-                                                <Td>
+                                                {/* <Td>
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
@@ -350,10 +350,11 @@ const LevelIncome = () => {
                                                             bg: useColorModeValue('blue.50', 'blue.900'),
                                                             borderColor: 'blue.500'
                                                         }}
+                                                        disabled
                                                     >
                                                         View Details
                                                     </Button>
-                                                </Td>
+                                                </Td> */}
                                             </Tr>
                                         ))}
                                     </Tbody>

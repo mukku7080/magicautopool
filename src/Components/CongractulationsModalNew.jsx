@@ -31,7 +31,7 @@ const CongratulationsModal = ({ isOpen, onClose, email, password }) => {
 
         <ModalBody>
           <Text textAlign="center" mb={4}>
-            Welcome to <strong>NessanForex</strong>. Here are your login credentials:
+            Welcome to <strong>MagicAutoPool</strong>. Here are your login credentials:
           </Text>
 
           <Box

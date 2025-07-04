@@ -39,6 +39,8 @@ import { FaGoogle, FaFacebook, FaTwitter } from 'react-icons/fa';
 import { useAuth } from '../Context';
 import CongratulationsModal from '../Components/CongratulationsModal';
 import CongractulationsModalNew from '../Components/CongractulationsModalNew';
+import PhoneInput from '../Components/PhoneInput';
+import { isValidPhoneNumber } from '../utils/phoneUtils';
 
 const Login = () => {
     const [hasJustRegistered, setHasJustRegistered] = useState(false);
@@ -82,7 +84,7 @@ const Login = () => {
     const [registerForm, setRegisterForm] = useState({
         firstName: '',
         email: '',
-        mobile: '',
+        mobile: '', // Will be set by PhoneInput component with default US code
         inviteCode: '',
         password: '',
         confirmPassword: '',
@@ -279,8 +281,10 @@ const Login = () => {
             newErrors.firstName = 'First name is required';
         }
 
-        if (!registerForm.mobile) {
-            newErrors.mobile = 'mobile is required';
+        if (!registerForm.mobile || registerForm.mobile.trim().length <= 4) {
+            newErrors.mobile = 'Phone number is required';
+        } else if (!isValidPhoneNumber(registerForm.mobile)) {
+            newErrors.mobile = 'Please enter a valid phone number (7-15 digits)';
         }
 
         if (!registerForm.email) {
@@ -317,10 +321,13 @@ const Login = () => {
             const userData = {
                 name: registerForm.firstName,
                 email: registerForm.email,
-                mobile: registerForm.mobile,
+                mobile: registerForm.mobile, // This includes country code like "+1 1234567890"
                 inviteCode: registerForm.inviteCode,
                 password: registerForm.password,
             };
+
+            console.log('📱 Sending mobile number with country code:', registerForm.mobile);
+            console.log('📄 Full registration data:', userData);
 
             // Call the register API
             const result = await register(userData);
@@ -350,7 +357,7 @@ const Login = () => {
                 setRegisterForm({
                     firstName: '',
                     email: '',
-                    mobile: '',
+                    mobile: '', // PhoneInput will reset to default country code
                     inviteCode: '',
                     password: '',
                     confirmPassword: '',
@@ -773,28 +780,24 @@ const Login = () => {
                                                 </InputGroup>
                                                 <FormErrorMessage fontSize="sm">{errors.email}</FormErrorMessage>
                                             </FormControl>
-                                            <FormControl isInvalid={errors.email}>
-                                                {/* <FormLabel fontSize={fontSize} color={textColor}>
-                                                    Email Address
-                                                </FormLabel> */}
-                                                <InputGroup>
-                                                    <Input
-                                                        placeholder="Phone"
-                                                        value={registerForm.mobile}
-                                                        onChange={(e) => handleRegisterInputChange('mobile', e.target.value)}
-                                                        bg={inputBg}
-                                                        border="1px"
-                                                        borderColor={borderColor}
-                                                        _hover={{ borderColor: brandColor }}
-                                                        _focus={{ borderColor: brandColor, boxShadow: `0 0 0 1px ${brandColor}` }}
-                                                        fontSize={fontSize}
-                                                        h="48px"
-                                                    />
-                                                    <InputRightElement h="48px">
-                                                        <AiOutlinePhone color="gray" />
-                                                    </InputRightElement>
-                                                </InputGroup>
-                                                <FormErrorMessage fontSize="sm">{errors.email}</FormErrorMessage>
+                                            <FormControl isInvalid={errors.mobile}>
+                                                <FormLabel fontSize={fontSize} color={textColor}>
+                                                    Phone Number
+                                                </FormLabel>
+                                                <PhoneInput
+                                                    value={registerForm.mobile}
+                                                    onChange={(value) => handleRegisterInputChange('mobile', value)}
+                                                    placeholder="Enter phone number"
+                                                    bg={inputBg}
+                                                    border="1px"
+                                                    borderColor={borderColor}
+                                                    _hover={{ borderColor: brandColor }}
+                                                    _focus={{ borderColor: brandColor, boxShadow: `0 0 0 1px ${brandColor}` }}
+                                                    fontSize={fontSize}
+                                                    h="48px"
+                                                    isInvalid={errors.mobile}
+                                                />
+                                                <FormErrorMessage fontSize="sm">{errors.mobile}</FormErrorMessage>
                                             </FormControl>
 
 

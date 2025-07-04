@@ -49,6 +49,7 @@ import {
     StatLabel,
     StatNumber,
     StatHelpText,
+    Flex,
 } from '@chakra-ui/react';
 import {
     FiStar,
@@ -76,14 +77,15 @@ const Packages = () => {
     const availablePackages = [
         {
             id: 1,
-            name: 'Starter Package',
+            name: 'Silver Package',
             icon: AiOutlineRocket,
             color: 'blue',
-            minInvestment: 100,
-            maxInvestment: 999,
-            dailyReturn: 1.5,
+            minInvestment: 10,
+            // maxInvestment: 49,
+            dailyReturn: 3,
             duration: 30,
-            totalReturn: 145,
+            referelIncome:['10','15','30'],
+            totalReturn: 10,
             features: [
                 'Daily returns',
                 'Basic support',
@@ -98,11 +100,13 @@ const Packages = () => {
             name: 'Gold Package',
             icon: AiOutlineCrown,
             color: 'yellow',
-            minInvestment: 1000,
-            maxInvestment: 4999,
-            dailyReturn: 2.5,
-            duration: 45,
-            totalReturn: 212.5,
+            minInvestment: 50,
+            // maxInvestment: 99,
+            dailyReturn: 4,
+            referelIncome:[10,15,30],
+
+            duration: 30,
+            totalReturn: 12,
             features: [
                 'Higher daily returns',
                 'Priority support',
@@ -115,35 +119,16 @@ const Packages = () => {
         },
         {
             id: 3,
-            name: 'Platinum Package',
-            icon: AiOutlineStar,
-            color: 'purple',
-            minInvestment: 5000,
-            maxInvestment: 19999,
-            dailyReturn: 3.2,
-            duration: 60,
-            totalReturn: 292,
-            features: [
-                'Premium daily returns',
-                'VIP support',
-                'Real-time analytics',
-                'All notifications',
-                'Personal advisor',
-                'Exclusive webinars'
-            ],
-            popular: false,
-            risk: 'Medium-High',
-        },
-        {
-            id: 4,
             name: 'Diamond Package',
             icon: FiAward,
             color: 'cyan',
-            minInvestment: 20000,
-            maxInvestment: 100000,
-            dailyReturn: 4.0,
-            duration: 90,
-            totalReturn: 460,
+            minInvestment: 100,
+            // maxInvestment: 1499,
+            dailyReturn: 5,
+            referelIncome:[10,15,30],
+
+            duration: 30,
+            totalReturn: 15,
             features: [
                 'Maximum daily returns',
                 'White-glove support',
@@ -156,6 +141,30 @@ const Packages = () => {
             popular: false,
             risk: 'High',
         },
+        {
+            id: 4,
+            name: 'Platinum Package',
+            icon: AiOutlineStar,
+            color: 'purple',
+            minInvestment: 1500,
+            // maxInvestment: 19999,
+            dailyReturn: 10,
+            referelIncome:[5,5,5],
+
+            duration: 30,
+            totalReturn: 5,
+            features: [
+                'Premium daily returns',
+                'VIP support',
+                'Real-time analytics',
+                'All notifications',
+                'Personal advisor',
+                'Exclusive webinars'
+            ],
+            popular: false,
+            risk: 'Medium-High',
+        },
+
     ];
 
     // Active investments
@@ -296,13 +305,13 @@ const Packages = () => {
                                                     <Icon as={pkg.icon} boxSize={8} />
                                                 </Box>
                                                 <VStack spacing={1}>
-                                                    <Heading size="md">{pkg.name}</Heading>
-                                                    <Badge
+                                                    <Heading color={'gray.500'} size="md">{pkg.name}</Heading>
+                                                    {/* <Badge
                                                         colorScheme={getRiskColor(pkg.risk)}
                                                         variant="subtle"
                                                     >
                                                         {pkg.risk} Risk
-                                                    </Badge>
+                                                    </Badge> */}
                                                 </VStack>
                                             </VStack>
                                         </CardHeader>
@@ -310,21 +319,45 @@ const Packages = () => {
                                         <CardBody pt={0}>
                                             <VStack spacing={4} align="stretch">
                                                 {/* Key Stats */}
-                                                <Grid templateColumns="repeat(2, 1fr)" gap={4}>
+                                                <Grid templateColumns="repeat(3, 1fr)" gap={4}>
                                                     <Box textAlign="center" p={3} bg={useColorModeValue('gray.50', 'gray.700')} borderRadius="lg">
-                                                        <Text fontSize="2xl" fontWeight="bold" color={`${pkg.color}.500`}>
+                                                        <Box fontSize="2xl" fontWeight="bold" color={`${pkg.color}.500`}>
                                                             {pkg.dailyReturn}%
-                                                        </Text>
+                                                        </Box>
                                                         <Text fontSize="sm" color={textColor}>
-                                                            Daily Return
+                                                            Monthly Return
                                                         </Text>
                                                     </Box>
                                                     <Box textAlign="center" p={3} bg={useColorModeValue('gray.50', 'gray.700')} borderRadius="lg">
-                                                        <Text fontSize="2xl" fontWeight="bold" color="green.500">
+                                                        <Box fontSize="2xl" fontWeight="bold" color="green.500">
                                                             {pkg.totalReturn}%
+                                                        </Box>
+                                                        <Text fontSize="sm" color={textColor} fontWeight={600}>
+                                                            3 Level AutoPool Income
                                                         </Text>
-                                                        <Text fontSize="sm" color={textColor}>
-                                                            Total Return
+                                                    </Box>
+                                                    <Box textAlign="center" p={3} bg={useColorModeValue('gray.50', 'gray.700')} borderRadius="lg">
+                                                        <Flex  justify={'center'}>
+                                                        {
+                                                            pkg.referelIncome.map((income,index)=>(
+                                                                <Box textAlign={'center'}  fontSize="xl" fontWeight="bold" color="green.500" key={index}>
+                                                                    {income}%
+                                                                </Box>
+                                                            ))
+                                                        }
+
+                                                            {/* <Box fontSize="2xl" fontWeight="bold" color="green.500">
+                                                                {pkg.totalReturn}%
+                                                            </Box>
+                                                            <Box fontSize="2xl" fontWeight="bold" color="green.500">
+                                                                {pkg.totalReturn}%
+                                                            </Box>
+                                                            <Box fontSize="2xl" fontWeight="bold" color="green.500">
+                                                                {pkg.totalReturn}%
+                                                            </Box> */}
+                                                        </Flex>
+                                                        <Text fontSize="sm" color={textColor} fontWeight={600}>
+                                                            3 Level Referral Income
                                                         </Text>
                                                     </Box>
                                                 </Grid>
@@ -337,13 +370,13 @@ const Packages = () => {
                                                         </Text>
                                                         <HStack>
                                                             <Icon as={FiClock} boxSize={4} color={textColor} />
-                                                            <Text fontSize="sm" color={textColor}>
+                                                            <Box fontSize="sm" color={textColor}>
                                                                 {pkg.duration} days
-                                                            </Text>
+                                                            </Box>
                                                         </HStack>
                                                     </HStack>
                                                     <Text fontSize="lg" fontWeight="bold">
-                                                        ${pkg.minInvestment.toLocaleString()} - ${pkg.maxInvestment.toLocaleString()}
+                                                        ${pkg.minInvestment.toLocaleString()}
                                                     </Text>
                                                 </Box>
 
@@ -356,9 +389,9 @@ const Packages = () => {
                                                     </Text>
                                                     <VStack spacing={2} align="stretch">
                                                         {pkg.features.map((feature, index) => (
-                                                            <HStack key={index} spacing={2}>
+                                                            <HStack key={index} spacing={3} mb={1}>
                                                                 <Icon as={FiTarget} color="green.500" boxSize={4} />
-                                                                <Text fontSize="sm">{feature}</Text>
+                                                                <Box color={'gray.500'} fontSize="sm">{feature}</Box>
                                                             </HStack>
                                                         ))}
                                                     </VStack>

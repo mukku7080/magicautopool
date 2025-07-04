@@ -43,12 +43,14 @@ import {
     FaReddit,
 } from 'react-icons/fa';
 import { useUser } from '../Context/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 const ReferralModal = ({ isOpen, onClose }) => {
     const [copied, setCopied] = useState(false);
     const [showQR, setShowQR] = useState(false);
     const toast = useToast();
     const { profile, isProfileLoaded } = useUser();
+    const navigate =useNavigate();
 
     // Get referral code from profile
     const referralCode = profile?.USER?.my_code || 'LOADING';
@@ -309,7 +311,9 @@ const ReferralModal = ({ isOpen, onClose }) => {
                                 <Button
                                     colorScheme="whatsapp"
                                     leftIcon={<AiOutlineWhatsApp />}
-                                    onClick={() => shareViaMethod('whatsapp')}
+                                    onClick={() => {shareViaMethod('whatsapp');
+                                    // window.open('https://www.instagram.com/magicautopool/', '_blank');
+                                    }}
                                     size="sm"
                                     bg="whatsapp.500"
                                     _hover={{ bg: 'whatsapp.600' }}
@@ -320,7 +324,9 @@ const ReferralModal = ({ isOpen, onClose }) => {
                                 <Button
                                     colorScheme="telegram"
                                     leftIcon={<FaTelegram />}
-                                    onClick={() => shareViaMethod('telegram')}
+                                    onClick={() => {shareViaMethod('telegram');
+                                    // window.open('https://www.instagram.com/magicautopool/', '_blank');
+                                    }}
                                     size="sm"
                                     bg="telegram.500"
                                     _hover={{ bg: 'telegram.600' }}
@@ -331,7 +337,7 @@ const ReferralModal = ({ isOpen, onClose }) => {
                                 <Button
                                     colorScheme="twitter"
                                     leftIcon={<FaTwitter />}
-                                    onClick={() => shareViaMethod('twitter')}
+                                    onClick={() => {shareViaMethod('twitter');window.open('https://x.com/MagicAutoPool', '_blank');}}
                                     size="sm"
                                     bg="twitter.500"
                                     _hover={{ bg: 'twitter.600' }}
@@ -342,7 +348,9 @@ const ReferralModal = ({ isOpen, onClose }) => {
                                 <Button
                                     colorScheme="facebook"
                                     leftIcon={<FaFacebook />}
-                                    onClick={() => shareViaMethod('facebook')}
+                                    onClick={() => {shareViaMethod('facebook');
+                                    // window.open('https://www.instagram.com/magicautopool/', '_blank');
+                                    }}
                                     size="sm"
                                     bg="facebook.500"
                                     _hover={{ bg: 'facebook.600' }}
@@ -353,7 +361,9 @@ const ReferralModal = ({ isOpen, onClose }) => {
                                 <Button
                                     colorScheme="pink"
                                     leftIcon={<FaInstagram />}
-                                    onClick={() => shareViaMethod('instagram')}
+                                    onClick={() => {shareViaMethod('instagram');
+                                    window.open('https://www.instagram.com/magicautopool/', '_blank');
+                                    }}
                                     size="sm"
                                     bg="pink.500"
                                     _hover={{ bg: 'pink.600' }}
@@ -364,7 +374,9 @@ const ReferralModal = ({ isOpen, onClose }) => {
                                 <Button
                                     colorScheme="linkedin"
                                     leftIcon={<FaLinkedin />}
-                                    onClick={() => shareViaMethod('linkedin')}
+                                    onClick={() => {shareViaMethod('linkedin');
+                                    // window.open('https://www.instagram.com/magicautopool/', '_blank');
+                                    }}
                                     size="sm"
                                     bg="linkedin.500"
                                     _hover={{ bg: 'linkedin.600' }}

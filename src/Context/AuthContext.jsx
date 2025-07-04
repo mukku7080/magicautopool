@@ -177,7 +177,8 @@ export const AuthProvider = ({ children }) => {
                 email: userData.email,
                 password: userData.password,
             }
-            if (response?.data.status === true) {
+            console.log("🚀 Response before login attempt:",response);
+            if (response?.status === true) {
 
                 const loginResponse = await authService.login(credentials);
                 const { user, token } = loginResponse;

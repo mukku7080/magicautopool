@@ -301,9 +301,9 @@ const MonthlyROI = () => {
                                     <Thead>
                                         <Tr>
                                             <Th>Amount</Th>
-                                            <Th>Locked Amount</Th>
-                                            <Th>Return %</Th>
-                                            <Th>Return Amount</Th>
+                                            {/* <Th>Locked Amount</Th> */}
+                                            <Th>Return monthly%</Th>
+                                            <Th>Daily Return</Th>
                                             <Th>Today Credit</Th>
                                             <Th>Total Credit</Th>
                                             <Th>Last Update</Th>
@@ -311,68 +311,75 @@ const MonthlyROI = () => {
                                         </Tr>
                                     </Thead>
                                     <Tbody>
+                                        {
+                                            monthlyROIHistory.map((item, index) => (
 
 
-                                        <Tr>
-                                            <Td>
-                                                <Text fontWeight="semibold" color={textColor}>
-                                                    {formatCurrency(monthlyROIHistory?.data?.return_amount)}
-                                                </Text>
-                                            </Td>
-                                            <Td>
+                                                <Tr>
+                                                    <Td>
+                                                        <Text fontWeight="semibold" color={textColor}>
+                                                            {formatCurrency(item?.stake_amount)}
+                                                        </Text>
+                                                    </Td>
+                                                    {/* <Td>
                                                 <Text fontWeight="semibold" color="orange.500">
                                                     {formatCurrency(monthlyROIHistory?.data?.mining_amount)}
                                                 </Text>
-                                            </Td>
-                                            <Td>
-                                                <HStack spacing={2}>
-                                                    <Badge
-                                                        colorScheme="green"
-                                                        variant="subtle"
-                                                        fontSize="sm"
-                                                    >
-                                                        {monthlyROIHistory?.data?.return_percentage || calculateROIPercentage(monthlyROIHistory?.data?.return_percentage)}%
-                                                    </Badge>
-                                                    <Progress
-                                                        value={monthlyROIHistory?.data?.return_percentage || calculateROIPercentage(monthlyROIHistory?.data?.return_percentage)}
-                                                        size="sm"
-                                                        colorScheme="green"
-                                                        w="60px"
-                                                    />
-                                                </HStack>
-                                            </Td>
-                                            <Td>
-                                                <Text fontWeight="semibold" color="green.500">
-                                                    {formatCurrency(monthlyROIHistory?.data?.return_amount)}
-                                                </Text>
-                                            </Td>
-                                            <Td>
-                                                <Text fontWeight="semibold" color="blue.500">
-                                                    {formatCurrency(monthlyROIHistory?.data?.today_credit)}
-                                                </Text>
-                                            </Td>
-                                            <Td>
-                                                <Text fontWeight="semibold" color="purple.500">
-                                                    {formatCurrency(monthlyROIHistory?.data?.total_credit)}
-                                                </Text>
-                                            </Td>
-                                            <Td>
-                                                <HStack spacing={2}>
-                                                    <Icon as={FiClock} color={mutedColor} size={'sm'} />
-                                                    <Box fontSize="sm" color={textColor}>
-                                                        {formatDate(monthlyROIHistory?.data?.last_update) || ''}
-                                                    </Box>
-                                                </HStack>
-                                            </Td>
-                                            <Td>
-                                                <HStack spacing={2}>
-                                                    <Icon as={FiCalendar} color={mutedColor} size="sm" />
-                                                    <Box fontSize="sm" color={textColor}>
-                                                        {formatDate(monthlyROIHistory?.data?.created_at)}
-                                                    </Box>
-                                                </HStack>
-                                            </Td>
-                                        </Tr>
+                                            </Td> */}
+                                                    <Td>
+                                                        <HStack spacing={2}>
+                                                            <Badge
+                                                                colorScheme="green"
+                                                                variant="subtle"
+                                                                fontSize="sm"
+                                                            >
+                                                                {monthlyROIHistory?.data?.return_percentage || calculateROIPercentage(item?.return_percentage)}%
+                                                            </Badge>
+                                                            <Progress
+                                                                value={monthlyROIHistory?.data?.return_percentage || calculateROIPercentage(monthlyROIHistory?.data?.return_percentage)}
+                                                                size="sm"
+                                                                colorScheme="green"
+                                                                w="60px"
+                                                            />
+                                                        </HStack>
+                                                    </Td>
+                                                    <Td>
+                                                        <Text fontWeight="semibold" color="green.500">
+                                                            {formatCurrency(monthlyROIHistory?.data?.return_amount)}
+                                                        </Text>
+                                                    </Td>
+                                                    <Td>
+                                                        <Text fontWeight="semibold" color="blue.500">
+                                                            {formatCurrency(monthlyROIHistory?.data?.today_credit)}
+                                                        </Text>
+                                                    </Td>
+                                                    <Td>
+                                                        <Text fontWeight="semibold" color="purple.500">
+                                                            {formatCurrency(monthlyROIHistory?.data?.total_credit)}
+                                                        </Text>
+                                                    </Td>
+                                                    <Td>
+                                                        <HStack spacing={2}>
+                                                            <Icon as={FiClock} color={mutedColor} size={'sm'} />
+                                                            <Box fontSize="sm" color={textColor}>
+                                                                {formatDate(monthlyROIHistory?.data?.last_update) || ''}
+                                                            </Box>
+                                                        </HStack>
+                                                    </Td>
+                                                    <Td>
+                                                        <HStack spacing={2}>
+                                                            <Icon as={FiCalendar} color={mutedColor} size="sm" />
+                                                            <Box fontSize="sm" color={textColor}>
+                                                                {formatDate(monthlyROIHistory?.data?.created_at)}
+                                                            </Box>
+                                                        </HStack>
+                                                    </Td>
+                                                </Tr>
+                                            ))
+
+                                        }
+
+
 
                                     </Tbody>
                                 </Table>

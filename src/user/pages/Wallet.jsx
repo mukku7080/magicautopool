@@ -44,9 +44,10 @@ import {
     FiEye,
     FiEyeOff,
 } from 'react-icons/fi';
-import { AiOutlineWallet, AiOutlineBank, AiOutlineHistory } from 'react-icons/ai';
+import { AiOutlineWallet, AiOutlineBank, AiOutlineHistory, AiFillWallet } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../Context';
+import { FaGrinTongueWink, FaMoneyBill } from 'react-icons/fa';
 
 const Wallet = () => {
     const [showBalance, setShowBalance] = useState(true);
@@ -107,7 +108,23 @@ const Wallet = () => {
             value: userData?.total_income,
             change: '+11.2%',
             isPositive: true,
+            icon: AiFillWallet,
+            color: 'red',
+        },
+          {
+            label: 'Available Amount',
+            value: userData?.available_amount,
+            change: '+11.2%',
+            isPositive: true,
             icon: AiOutlineBank,
+            color: 'red',
+        },
+          {
+            label: 'Map Point',
+            value: '0',
+            change: '+11.2%',
+            isPositive: true,
+            icon: FaMoneyBill,
             color: 'red',
         },
     ];
@@ -245,9 +262,9 @@ const Wallet = () => {
                                     case 'Reward Income':
                                         navigate('/user/income/reward');
                                         break;
-                                    case 'Total Income':
-                                        navigate('/user/income/total');
-                                        break;
+                                    // case 'Total Income':
+                                    //     navigate('/user/income/total');
+                                    //     break;
                                     default:
                                         break;
                                 }
@@ -289,9 +306,9 @@ const Wallet = () => {
                 ))}
             </Grid>
 
-            <Grid templateColumns={{ base: '1fr', lg: '1fr' }} gap={6}>
+            {/* <Grid templateColumns={{ base: '1fr', lg: '1fr' }} gap={6}> */}
                 {/* Transaction History */}
-                <GridItem>
+                {/* <GridItem>
                     <Card bg={cardBg} border="1px" borderColor={borderColor}>
                         <CardHeader>
                             <HStack justify="space-between">
@@ -384,10 +401,10 @@ const Wallet = () => {
                             </TableContainer>
                         </CardBody>
                     </Card>
-                </GridItem>
+                </GridItem> */}
 
 
-            </Grid>
+            {/* </Grid> */}
         </Box>
     );
 };
