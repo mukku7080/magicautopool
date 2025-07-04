@@ -145,6 +145,7 @@ export const AccountProvider = ({ children }) => {
     const { isAuthenticated } = useAuth();
     const [startDepositData, setStartDepositData] = React.useState(null);
     const [withdrawRequestDetail, setWithdrawRequestDetail] = useState(null);
+    const [deposits,setDeposits]=useState();
 
     // Load account data when authenticated
     useEffect(() => {
@@ -358,7 +359,21 @@ export const AccountProvider = ({ children }) => {
         }
 
     }
+    const handleGetDeposit = async () => {
+        try {
 
+            const result = await accountService.getDeposit();
+            console.log("getdeposit", result?.data?.deposits);
+            setDeposits(result?.data?.deposits);
+            return result?.data?.deposits;
+
+        }
+        catch (error) {
+            console.error('❌ get deposit  error:', error);
+            dispatch({ type: ACCOUNT_ACTIONS.SET_ERROR, payload: error.message || 'Failed to get deposit error' });
+        }
+
+    }
 
     // Clear error
     const clearError = () => {
@@ -408,6 +423,15 @@ export const AccountProvider = ({ children }) => {
     const getSuccessfulWithdraws = () => {
         return (state.withdrawHistory || []).filter(item => item.status === 'success');
     };
+    const handleJoinPackage = async (request) => {
+        try {
+            const result = await accountService.JoinPackage(request);
+            return result;
+        }
+        catch (error) {
+            console.error('❌ Join Package error:', error);
+        }
+    }
 
     const value = {
         // State
@@ -423,6 +447,8 @@ export const AccountProvider = ({ children }) => {
         clearWithdrawSuccess,
         clearWithdrawRequestResponse,
         refreshAccountData,
+        handleGetDeposit,
+        deposits,
 
         // Helper functions
         getAvailableBalance,
@@ -438,6 +464,7 @@ export const AccountProvider = ({ children }) => {
         updateDepositViaGateway,
         updateWithdraw,
         withdrawRequestDetail,
+        handleJoinPackage
     };
 
     // Debug log to check if withdrawRequestResponse is in the context

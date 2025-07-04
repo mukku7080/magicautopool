@@ -28,7 +28,9 @@ class AuthService {
 
             return response?.data;
         } catch (error) {
-            throw this.handleError(error);
+            return error;
+            // throw this.handleError(error);
+            
         }
     }
 

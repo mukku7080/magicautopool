@@ -71,6 +71,28 @@ class AccountService {
             };
         }
     }
+    async getDeposit() {
+        try {
+
+            const response = await axiosInstance.get('/deposits');
+
+            console.log('✅ get deposit response:', response);
+
+            return {
+                success: true,
+                data: response.data?.data || response.data,
+                message: response.data?.message || 'deposit history loaded successfully'
+            };
+        } catch (error) {
+            console.error('❌ Get deposit history error:', error);
+            throw {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Failed to load deposit history',
+                error: error
+            };
+        }
+    }
+
 
     async updateWithdraw(request) {
         try {
@@ -223,6 +245,28 @@ class AccountService {
             throw {
                 success: false,
                 message: error.response?.data?.message || error.message || 'Failed to validate withdraw amount',
+                error: error
+            };
+        }
+    }
+
+    async JoinPackage(request) {
+        try {
+
+            const response = await axiosInstance.post('/stake-amount', request);
+
+            console.log('✅ join package response:', response);
+
+            return {
+                success: true,
+                data: response.data,
+                message: response?.data?.message || 'Account statistics loaded successfully'
+            };
+        } catch (error) {
+            console.error('❌ Get account stats error:', error);
+            throw {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Failed to load account statistics',
                 error: error
             };
         }

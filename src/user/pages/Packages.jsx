@@ -50,6 +50,7 @@ import {
     StatNumber,
     StatHelpText,
     Flex,
+    Image,
 } from '@chakra-ui/react';
 import {
     FiStar,
@@ -62,6 +63,7 @@ import {
     FiCalendar,
 } from 'react-icons/fi';
 import { AiOutlineRocket, AiOutlineCrown, AiOutlineStar } from 'react-icons/ai';
+import { useAccount } from '../../Context';
 
 const Packages = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -72,6 +74,7 @@ const Packages = () => {
     const cardBg = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.700');
     const textColor = useColorModeValue('gray.600', 'gray.400');
+    const { handleJoinPackage } = useAccount();
 
     // Available packages
     const availablePackages = [
@@ -79,12 +82,13 @@ const Packages = () => {
             id: 1,
             name: 'Silver Package',
             icon: AiOutlineRocket,
+            imgsrc: '/assets/images/pool1.png',
             color: 'blue',
             minInvestment: 10,
             // maxInvestment: 49,
             dailyReturn: 3,
             duration: 30,
-            referelIncome:['10','15','30'],
+            referelIncome: ['10', '15', '30'],
             totalReturn: 10,
             features: [
                 'Daily returns',
@@ -99,12 +103,13 @@ const Packages = () => {
             id: 2,
             name: 'Gold Package',
             icon: AiOutlineCrown,
+            imgsrc: '/assets/images/pool2.png',
+
             color: 'yellow',
             minInvestment: 50,
             // maxInvestment: 99,
             dailyReturn: 4,
-            referelIncome:[10,15,30],
-
+            referelIncome: [10, 15, 30],
             duration: 30,
             totalReturn: 12,
             features: [
@@ -121,12 +126,12 @@ const Packages = () => {
             id: 3,
             name: 'Diamond Package',
             icon: FiAward,
+            imgsrc: '/assets/images/pool3.png',
             color: 'cyan',
             minInvestment: 100,
             // maxInvestment: 1499,
             dailyReturn: 5,
-            referelIncome:[10,15,30],
-
+            referelIncome: [10, 15, 30],
             duration: 30,
             totalReturn: 15,
             features: [
@@ -145,12 +150,12 @@ const Packages = () => {
             id: 4,
             name: 'Platinum Package',
             icon: AiOutlineStar,
+            imgsrc: '/assets/images/pool4.png',
             color: 'purple',
             minInvestment: 1500,
             // maxInvestment: 19999,
             dailyReturn: 10,
-            referelIncome:[5,5,5],
-
+            referelIncome: [5, 5, 5],
             duration: 30,
             totalReturn: 5,
             features: [
@@ -199,6 +204,13 @@ const Packages = () => {
         setSelectedPackage(pkg);
         onOpen();
     };
+    const handleClickJoinNow = (amount) => {
+        // console.log("clicked")
+        const dto={
+            amount: amount,
+        }
+        handleJoinPackage(dto)
+    }
 
     const handleInvestmentSubmit = () => {
         const amount = parseFloat(investmentAmount);
@@ -302,7 +314,7 @@ const Packages = () => {
                                                     bg={`${pkg.color}.100`}
                                                     color={`${pkg.color}.600`}
                                                 >
-                                                    <Icon as={pkg.icon} boxSize={8} />
+                                                    <Image src={pkg.imgsrc} boxSize={10} />
                                                 </Box>
                                                 <VStack spacing={1}>
                                                     <Heading color={'gray.500'} size="md">{pkg.name}</Heading>
@@ -337,14 +349,14 @@ const Packages = () => {
                                                         </Text>
                                                     </Box>
                                                     <Box textAlign="center" p={3} bg={useColorModeValue('gray.50', 'gray.700')} borderRadius="lg">
-                                                        <Flex  justify={'center'}>
-                                                        {
-                                                            pkg.referelIncome.map((income,index)=>(
-                                                                <Box textAlign={'center'}  fontSize="xl" fontWeight="bold" color="green.500" key={index}>
-                                                                    {income}%
-                                                                </Box>
-                                                            ))
-                                                        }
+                                                        <Flex justify={'center'}>
+                                                            {
+                                                                pkg.referelIncome.map((income, index) => (
+                                                                    <Box textAlign={'center'} fontSize="xl" fontWeight="bold" color="green.500" key={index}>
+                                                                        {income}%
+                                                                    </Box>
+                                                                ))
+                                                            }
 
                                                             {/* <Box fontSize="2xl" fontWeight="bold" color="green.500">
                                                                 {pkg.totalReturn}%
@@ -383,7 +395,7 @@ const Packages = () => {
                                                 <Divider />
 
                                                 {/* Features */}
-                                                <Box>
+                                                {/* <Box>
                                                     <Text fontSize="sm" fontWeight="medium" mb={3}>
                                                         Package Features
                                                     </Text>
@@ -395,15 +407,15 @@ const Packages = () => {
                                                             </HStack>
                                                         ))}
                                                     </VStack>
-                                                </Box>
+                                                </Box> */}
 
                                                 <Button
                                                     colorScheme={pkg.color}
                                                     size="lg"
-                                                    onClick={() => handleInvest(pkg)}
+                                                    onClick={() => handleClickJoinNow(pkg.minInvestment)}
                                                     leftIcon={<FiDollarSign />}
                                                 >
-                                                    Invest Now
+                                                    Join Now
                                                 </Button>
                                             </VStack>
                                         </CardBody>
@@ -601,7 +613,7 @@ const Packages = () => {
                                         onChange={(e) => setInvestmentAmount(e.target.value)}
                                     />
                                     <Text fontSize="sm" color={textColor} mt={1}>
-                                        Investment range: ${selectedPackage.minInvestment.toLocaleString()} - ${selectedPackage.maxInvestment.toLocaleString()}
+                                        Investment range: ${selectedPackage?.minInvestment?.toLocaleString()} - ${selectedPackage?.maxInvestment?.toLocaleString()}
                                     </Text>
                                 </FormControl>
 

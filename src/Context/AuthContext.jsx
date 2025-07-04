@@ -177,7 +177,7 @@ export const AuthProvider = ({ children }) => {
                 email: userData.email,
                 password: userData.password,
             }
-            console.log("🚀 Response before login attempt:",response);
+            console.log("🚀 Response before login attempt:", response);
             if (response?.status === true) {
 
                 const loginResponse = await authService.login(credentials);
@@ -186,6 +186,13 @@ export const AuthProvider = ({ children }) => {
                     type: AUTH_ACTIONS.REGISTER_SUCCESS,
                     payload: { user, token },
                 });
+            }
+            else {
+                dispatch({
+                    type: AUTH_ACTIONS.REGISTER_FAILURE,
+                    payload: response.message || 'Registration failed',
+                });
+                return response;
             }
 
             console.log('🔄 Dispatched REGISTER_SUCCESS, auth state should be updated');

@@ -9,6 +9,7 @@ const initialState = {
     teamMembers: [],
     directReferrals: [],
     teamHistory: [],
+    countryCode: [], // Countries with dialing codes
     isLoading: false,
     error: null,
     isSubmitting: false,
@@ -29,6 +30,7 @@ const OTHER_ACTIONS = {
     SET_TEAM_MEMBERS: 'SET_TEAM_MEMBERS',
     SET_DIRECT_REFERRALS: 'SET_DIRECT_REFERRALS',
     SET_TEAM_HISTORY: 'SET_TEAM_HISTORY',
+    SET_COUNTRY_CODE: 'SET_COUNTRY_CODE',
     RESET_STATE: 'RESET_STATE',
 };
 
@@ -137,6 +139,14 @@ const otherReducer = (state, action) => {
                 error: null,
             };
 
+        case OTHER_ACTIONS.SET_COUNTRY_CODE:
+            return {
+                ...state,
+                countryCode: action.payload,
+                isLoading: false,
+                error: null,
+            };
+
         case OTHER_ACTIONS.RESET_STATE:
             return initialState;
 
@@ -149,7 +159,7 @@ const otherReducer = (state, action) => {
 const OtherContext = createContext();
 
 // Other provider component
-export const OtherProvider = ({ children }) => {
+export const OtherProvider = React.memo(({ children }) => {
     const [state, dispatch] = useReducer(otherReducer, initialState);
     // const [myleveldata, setMyLevelData] = useState();
 
@@ -292,6 +302,30 @@ export const OtherProvider = ({ children }) => {
         }
     }
 
+    // Get countries with dialing codes
+    const getDialingCodes = async () => {
+        try {
+            dispatch({ type: OTHER_ACTIONS.SET_LOADING, payload: true });
+            const response = await otherService.getDialingCodes();
+
+            if (response.status === true) {
+                dispatch({
+                    type: OTHER_ACTIONS.SET_COUNTRY_CODE,
+                    payload: response.data || [],
+                });
+                return { success: true, data: response.data };
+            } else {
+                throw new Error(response.message || 'Failed to fetch countries');
+            }
+        } catch (error) {
+            dispatch({
+                type: OTHER_ACTIONS.SET_ERROR,
+                payload: error.message,
+            });
+            return { success: false, error: error.message };
+        }
+    };
+
     // Get team statistics
     // const getTeamStats = async () => {
     //     try {
@@ -398,6 +432,7 @@ export const OtherProvider = ({ children }) => {
         teamMembers: state.teamMembers,
         directReferrals: state.directReferrals,
         teamHistory: state.teamHistory,
+        countryCode: state.countryCode,
         isLoading: state.isLoading,
         isSubmitting: state.isSubmitting,
         error: state.error,
@@ -412,6 +447,7 @@ export const OtherProvider = ({ children }) => {
         // getTeamMembers,
         getDirectReferrals,
         // getTeamHistory,
+        getDialingCodes,
         clearError,
         resetState,
         MyTeamLevelViewData
@@ -422,13 +458,22 @@ export const OtherProvider = ({ children }) => {
             {children}
         </OtherContext.Provider>
     );
-};
+});
 
 // Custom hook to use other context
 export const useOther = () => {
     const context = useContext(OtherContext);
     if (!context) {
         throw new Error('useOther must be used within an OtherProvider');
+    }
+    return context;
+};
+
+// Alias for backward compatibility
+export const useOtherDetail = () => {
+    const context = useContext(OtherContext);
+    if (!context) {
+        throw new Error('useOtherDetail must be used within an OtherProvider');
     }
     return context;
 };

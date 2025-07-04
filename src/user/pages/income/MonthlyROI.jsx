@@ -301,13 +301,14 @@ const MonthlyROI = () => {
                                     <Thead>
                                         <Tr>
                                             <Th>Amount</Th>
-                                            {/* <Th>Locked Amount</Th> */}
                                             <Th>Return monthly%</Th>
                                             <Th>Daily Return</Th>
-                                            <Th>Today Credit</Th>
+                                            {/* <Th>Today Credit</Th> */}
                                             <Th>Total Credit</Th>
+                                            <Th>Status</Th>
                                             <Th>Last Update</Th>
                                             <Th>DateTime</Th>
+
                                         </Tr>
                                     </Thead>
                                     <Tbody>
@@ -333,10 +334,10 @@ const MonthlyROI = () => {
                                                                 variant="subtle"
                                                                 fontSize="sm"
                                                             >
-                                                                {monthlyROIHistory?.data?.return_percentage || calculateROIPercentage(item?.return_percentage)}%
+                                                                {item?.daily_reward_percentage || calculateROIPercentage(item?.return_percentage)}%
                                                             </Badge>
                                                             <Progress
-                                                                value={monthlyROIHistory?.data?.return_percentage || calculateROIPercentage(monthlyROIHistory?.data?.return_percentage)}
+                                                                value={item?.daily_reward_percentage || calculateROIPercentage(monthlyROIHistory?.data?.return_percentage)}
                                                                 size="sm"
                                                                 colorScheme="green"
                                                                 w="60px"
@@ -345,32 +346,41 @@ const MonthlyROI = () => {
                                                     </Td>
                                                     <Td>
                                                         <Text fontWeight="semibold" color="green.500">
-                                                            {formatCurrency(monthlyROIHistory?.data?.return_amount)}
+                                                            {formatCurrency(monthlyROIHistory?.data?.daily_credit_reward)}
                                                         </Text>
                                                     </Td>
-                                                    <Td>
+                                                    {/* <Td>
                                                         <Text fontWeight="semibold" color="blue.500">
-                                                            {formatCurrency(monthlyROIHistory?.data?.today_credit)}
+                                                            {formatCurrency(item?.daily_credit_reward)}
                                                         </Text>
-                                                    </Td>
+                                                    </Td> */}
                                                     <Td>
                                                         <Text fontWeight="semibold" color="purple.500">
-                                                            {formatCurrency(monthlyROIHistory?.data?.total_credit)}
+                                                            {formatCurrency(item?.total_credit)}
                                                         </Text>
                                                     </Td>
-                                                    <Td>
+                                                     <Td>
                                                         <HStack spacing={2}>
-                                                            <Icon as={FiClock} color={mutedColor} size={'sm'} />
+                                                            {/* <Icon as={FiCalendar} color={mutedColor} size="sm" /> */}
                                                             <Box fontSize="sm" color={textColor}>
-                                                                {formatDate(monthlyROIHistory?.data?.last_update) || ''}
+                                                               {item?.stake_status}
                                                             </Box>
                                                         </HStack>
                                                     </Td>
                                                     <Td>
                                                         <HStack spacing={2}>
+                                                            <Icon as={FiClock} color={mutedColor} size={'sm'} />
+                                                            <Box fontSize="sm" color={textColor}>
+                                                                {formatDate(item?.last_update) || ''}
+                                                            </Box>
+                                                        </HStack>
+                                                    </Td>
+                                                   
+                                                     <Td>
+                                                        <HStack spacing={2}>
                                                             <Icon as={FiCalendar} color={mutedColor} size="sm" />
                                                             <Box fontSize="sm" color={textColor}>
-                                                                {formatDate(monthlyROIHistory?.data?.created_at)}
+                                                                {formatDate(item?.created_at)}
                                                             </Box>
                                                         </HStack>
                                                     </Td>

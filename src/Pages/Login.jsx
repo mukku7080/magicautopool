@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
     Box,
@@ -33,16 +33,19 @@ import {
     Image,
     Spinner,
     useDisclosure,
+    InputLeftAddon,
+    InputLeftElement,
 } from '@chakra-ui/react';
 import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineMail, AiOutlineLock, AiOutlineUser, AiOutlinePhone } from 'react-icons/ai';
 import { FaGoogle, FaFacebook, FaTwitter } from 'react-icons/fa';
-import { useAuth } from '../Context';
+import { useAuth, useOther } from '../Context';
 import CongratulationsModal from '../Components/CongratulationsModal';
 import CongractulationsModalNew from '../Components/CongractulationsModalNew';
-import PhoneInput from '../Components/PhoneInput';
+// import PhoneInput from '../Components/PhoneInput';
 import { isValidPhoneNumber } from '../utils/phoneUtils';
+import CountryCodeDropdown from './CountryCodeDropdown';
 
-const Login = () => {
+const Login = React.memo(() => {
     const [hasJustRegistered, setHasJustRegistered] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
@@ -92,6 +95,61 @@ const Login = () => {
     });
 
     const [errors, setErrors] = useState({});
+    // const {getDialingCodes}=useOther();
+    // useEffect(() => {
+    //     getDialingCodes();
+    // }, [])
+
+
+    // Handle input changes - optimized with useCallback (no dependencies to prevent recreation)
+    const handleLoginInputChange = useCallback((field, value) => {
+        setLoginForm(prev => ({ ...prev, [field]: value }));
+        setErrors(prev => {
+            if (prev[field]) {
+                const newErrors = { ...prev };
+                delete newErrors[field];
+                return newErrors;
+            }
+            return prev;
+        });
+    }, []);
+
+    const handleRegisterInputChange = useCallback((field, value) => {
+        setRegisterForm(prev => ({ ...prev, [field]: value }));
+        setErrors(prev => {
+            if (prev[field]) {
+                const newErrors = { ...prev };
+                delete newErrors[field];
+                return newErrors;
+            }
+            return prev;
+        });
+    }, []);
+
+    const handleForgotPasswordInputChange = useCallback((field, value) => {
+        setForgotPasswordForm(prev => ({ ...prev, [field]: value }));
+        setErrors(prev => {
+            if (prev[field]) {
+                const newErrors = { ...prev };
+                delete newErrors[field];
+                return newErrors;
+            }
+            return prev;
+        });
+    }, []);
+
+    // Optimized phone input handler
+    const handlePhoneInputChange = useCallback((value) => {
+        setRegisterForm(prev => ({ ...prev, mobile: value }));
+        setErrors(prev => {
+            if (prev.mobile) {
+                const newErrors = { ...prev };
+                delete newErrors.mobile;
+                return newErrors;
+            }
+            return prev;
+        });
+    }, []);
 
     // Responsive values
     const cardWidth = useBreakpointValue({ base: '95%', sm: '400px', md: '450px' });
@@ -111,9 +169,7 @@ const Login = () => {
 
 
     React.useEffect(() => {
-        // console.log('🔍 Auth state changed - isAuthenticated:', isAuthenticated, 'authLoading:', authLoading);
         if (!authLoading && isAuthenticated && !hasJustRegistered) {
-            console.log('🔐 User is authenticated, redirecting to dashboard...');
             const redirectTo = location.state?.from || '/user/dashboard';
             navigate(redirectTo, { replace: true });
         }
@@ -125,7 +181,6 @@ const Login = () => {
         const inviteCodeFromUrl = urlParams.get('invitecode');
 
         if (inviteCodeFromUrl) {
-            console.log('🔗 Invite code found in URL:', inviteCodeFromUrl);
             setUrlInviteCode(true);
             setRegisterForm(prev => ({
                 ...prev,
@@ -184,28 +239,6 @@ const Login = () => {
         return password.length >= 6;
     };
 
-    // Handle input changes
-    const handleLoginInputChange = (field, value) => {
-        setLoginForm(prev => ({ ...prev, [field]: value }));
-        if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: '' }));
-        }
-    };
-
-    const handleRegisterInputChange = (field, value) => {
-        setRegisterForm(prev => ({ ...prev, [field]: value }));
-        if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: '' }));
-        }
-    };
-
-    const handleForgotPasswordInputChange = (field, value) => {
-        setForgotPasswordForm(prev => ({ ...prev, [field]: value }));
-        if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: '' }));
-        }
-    };
-
     // Handle login
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -236,7 +269,6 @@ const Login = () => {
 
             // Call the login API
             const result = await login(credentials);
-            console.log('Login result:', result);
 
             if (result?.status === true) {
                 toast({
@@ -274,7 +306,6 @@ const Login = () => {
     // Handle registration
     const handleRegister = async (e) => {
         e.preventDefault();
-        console.log('🔄 Registration form submitted');
         const newErrors = {};
 
         if (!registerForm.firstName) {
@@ -326,9 +357,6 @@ const Login = () => {
                 password: registerForm.password,
             };
 
-            console.log('📱 Sending mobile number with country code:', registerForm.mobile);
-            console.log('📄 Full registration data:', userData);
-
             // Call the register API
             const result = await register(userData);
 
@@ -369,19 +397,26 @@ const Login = () => {
 
 
             } else {
-                throw new Error(result.error || 'Registration failed');
+                toast({
+                    title: 'Registration Failed',
+                    description: result?.response?.data?.error?.email[0] || 'Something went wrong. Please try again.',
+                    status: 'error',
+                    duration: 5000,
+                    isClosable: true,
+                });
+
+                // throw new Error(result.error || 'Registration failed');
             }
         } catch (error) {
             console.error('❌ Registration error:', error);
             // toast({
             //     title: 'Registration Failed',
-            //     description: error.message || 'Something went wrong. Please try again.',
+            //     description: error?.email?.message || 'Something went wrong. Please try again.',
             //     status: 'error',
             //     duration: 5000,
             //     isClosable: true,
             // });
         } finally {
-            console.log('🔄 Registration process finished, setting loading to false');
             setIsLoading(false);
         }
     };
@@ -781,12 +816,12 @@ const Login = () => {
                                                 <FormErrorMessage fontSize="sm">{errors.email}</FormErrorMessage>
                                             </FormControl>
                                             <FormControl isInvalid={errors.mobile}>
-                                                <FormLabel fontSize={fontSize} color={textColor}>
+                                                {/* <FormLabel fontSize={fontSize} color={textColor}>
                                                     Phone Number
-                                                </FormLabel>
-                                                <PhoneInput
+                                                </FormLabel> */}
+                                                {/* <PhoneInput
                                                     value={registerForm.mobile}
-                                                    onChange={(value) => handleRegisterInputChange('mobile', value)}
+                                                    onChange={handlePhoneInputChange}
                                                     placeholder="Enter phone number"
                                                     bg={inputBg}
                                                     border="1px"
@@ -796,7 +831,26 @@ const Login = () => {
                                                     fontSize={fontSize}
                                                     h="48px"
                                                     isInvalid={errors.mobile}
-                                                />
+                                                /> */}
+                                                <InputGroup>
+
+                                                    <Input
+                                                        placeholder="Enter your phone"
+                                                        value={registerForm.mobile}
+                                                        onChange={(e) => handleRegisterInputChange('mobile', e.target.value)}
+                                                        bg={inputBg}
+                                                        border="1px"
+                                                        borderColor={borderColor}
+                                                        _hover={{ borderColor: brandColor }}
+                                                        _focus={{ borderColor: brandColor, boxShadow: `0 0 0 1px ${brandColor}` }}
+                                                        fontSize={fontSize}
+                                                        h="48px"
+                                                    />
+                                                    <InputRightElement h="48px">
+                                                        <AiOutlinePhone color="gray" />
+
+                                                    </InputRightElement>
+                                                </InputGroup>
                                                 <FormErrorMessage fontSize="sm">{errors.mobile}</FormErrorMessage>
                                             </FormControl>
 
@@ -1205,6 +1259,7 @@ const Login = () => {
                             color="gray.500"
                             mt={6}
                         >
+                            <CountryCodeDropdown />
                             ©2025 MagicAutoPool. All rights reserved.
                         </Text>
                     </CardBody>
@@ -1222,6 +1277,8 @@ const Login = () => {
 
         </Box>
     );
-};
+});
+
+Login.displayName = 'Login';
 
 export default Login;

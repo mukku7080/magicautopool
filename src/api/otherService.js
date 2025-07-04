@@ -94,10 +94,29 @@ class OtherService {
         }
     }
 
-
-     async myTeamLevelView(data) {
+    // Get countries with dialing codes
+    async getDialingCodes() {
         try {
-            const response = await axiosInstance.post('/my-team-level-view',data);
+            const response = await fetch('https://api.onnbit.com/api/countries/dialing-code');
+            const result = await response.json();
+
+            if (result.status && result.data) {
+                return {
+                    status: true,
+                    data: result.data
+                };
+            } else {
+                throw new Error(result.message || 'Failed to fetch countries');
+            }
+        } catch (error) {
+            throw this.handleError(error);
+        }
+    }
+
+
+    async myTeamLevelView(data) {
+        try {
+            const response = await axiosInstance.post('/my-team-level-view', data);
             return response.data;
         } catch (error) {
             throw this.handleError(error);

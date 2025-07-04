@@ -108,6 +108,15 @@ const DepositForm = () => {
     const client_id = query.get('client_id');
     const access_key = query.get('access_key');
 
+    const { handleGetDeposit, deposits } = useAccount();
+    useEffect(() => {
+        getDepositDetail();
+    }, []);
+    const getDepositDetail = async () => {
+        const response = await handleGetDeposit();
+        // console.log("Deposit detail response:", response);
+    }
+    console.log("Deposit detail response:", deposits);
     useEffect(() => {
         if (txn_id && client_id && access_key) {
             const request = {
@@ -569,12 +578,12 @@ const DepositForm = () => {
                                             <Th color={useColorModeValue("gray.600", "gray.300")} fontWeight="semibold">
                                                 Status
                                             </Th>
-                                            <Th></Th>
+                                            {/* <Th></Th> */}
                                         </Tr>
                                     </Thead>
                                     <Tbody>
-                                        {depositHistory && depositHistory.length > 0 ? (
-                                            depositHistory.map((deposit, index) => (
+                                        {deposits && deposits.length > 0 ? (
+                                            deposits.map((deposit, index) => (
                                                 <Tr key={deposit.id || index} _hover={{ bg: useColorModeValue("gray.50", "gray.600") }}>
                                                     <Td fontWeight="bold">#{deposit.id || index + 1}</Td>
                                                     <Td>{deposit.deposit_asset || "N/A"}</Td>
@@ -582,7 +591,7 @@ const DepositForm = () => {
                                                         <HStack>
                                                             <Icon as={MdTrendingUp} color="green.500" boxSize={4} />
                                                             <Text fontWeight="bold" color="green.500">
-                                                                +${deposit.deposit_amount || "0.00"}
+                                                                +${deposit.request_amount || "0.00"}
                                                             </Text>
                                                         </HStack>
                                                     </Td>
@@ -662,7 +671,7 @@ const DepositForm = () => {
                                                                 : "Pending"}
                                                         </Badge>
                                                     </Td>
-                                                    <Td>
+                                                    {/* <Td>
                                                         <Menu>
                                                             <MenuButton
                                                                 as={IconButton}
@@ -677,7 +686,7 @@ const DepositForm = () => {
                                                                 <MenuItem icon={<ExternalLinkIcon />}>View on Explorer</MenuItem>
                                                             </MenuList>
                                                         </Menu>
-                                                    </Td>
+                                                    </Td> */}
                                                 </Tr>
                                             ))
                                         ) : (
