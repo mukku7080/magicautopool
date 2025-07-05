@@ -30,6 +30,8 @@ import {
     Avatar,
     Button,
     Divider,
+    Image,
+    SimpleGrid,
 } from '@chakra-ui/react';
 import {
     FiTrendingUp,
@@ -40,16 +42,27 @@ import {
     FiUsers,
     FiArrowUpRight,
     FiArrowDownRight,
+    FiClock,
+    FiTarget,
 } from 'react-icons/fi';
-import { AiOutlineWallet, AiOutlineBank } from 'react-icons/ai';
+import { AiOutlineWallet, AiOutlineBank, AiOutlineRocket } from 'react-icons/ai';
 import ReferralButton from '../../Components/ReferralButton';
 import { useUser } from '../../Context';
+import { useAccount } from '../../Context';
 
 const Dashboard = () => {
     const cardBg = useColorModeValue('white', 'gray.800');
     const borderColor = useColorModeValue('gray.200', 'gray.700');
     const textColor = useColorModeValue('gray.600', 'gray.400');
     const { profile } = useUser();
+    const { handleJoinPackage } = useAccount();
+
+    const handleJoinNow = (amount) => {
+        const dto = {
+            amount: amount,
+        };
+        handleJoinPackage(dto);
+    };
 
     // Sample data
     const stats = [
@@ -87,44 +100,27 @@ const Dashboard = () => {
         },
     ];
 
-    const recentTransactions = [
-        {
-            id: 1,
-            type: 'Deposit',
-            amount: '+$500.00',
-            status: 'Completed',
-            date: '2024-01-15',
-            method: 'Bank Transfer',
-            isPositive: true,
-        },
-        {
-            id: 2,
-            type: 'Investment',
-            amount: '-$1,000.00',
-            status: 'Active',
-            date: '2024-01-14',
-            method: 'Gold Package',
-            isPositive: false,
-        },
-        {
-            id: 3,
-            type: 'Profit',
-            amount: '+$125.50',
-            status: 'Completed',
-            date: '2024-01-13',
-            method: 'Daily Return',
-            isPositive: true,
-        },
-        {
-            id: 4,
-            type: 'Withdrawal',
-            amount: '-$300.00',
-            status: 'Processing',
-            date: '2024-01-12',
-            method: 'PayPal',
-            isPositive: false,
-        },
-    ];
+    // Silver Package Data
+    const silverPackage = {
+        id: 1,
+        name: 'Silver Package',
+        icon: AiOutlineRocket,
+        imgsrc: '/assets/images/pool1.png',
+        color: 'blue',
+        minInvestment: 10,
+        dailyReturn: 3,
+        duration: 30,
+        referelIncome: ['10', '15', '30'],
+        totalReturn: 10,
+        features: [
+            'Daily returns',
+            'Basic support',
+            'Mobile app access',
+            'Email notifications'
+        ],
+        popular: false,
+        risk: 'Low',
+    };
 
     const activePackages = [
 
@@ -181,32 +177,33 @@ const Dashboard = () => {
             </Box>
 
             {/* Stats Grid */}
-            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }} gap={6} mb={8}>
+            <Grid templateColumns={{ base: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }} gap={{ base: 4, md: 6 }} mb={8}>
                 {stats.map((stat, index) => (
                     <GridItem key={index}>
-                        <Card bg={cardBg} border="1px" borderColor={borderColor}>
-                            <CardBody>
+                        <Card bg={cardBg} border="1px" borderColor={borderColor} h="full">
+                            <CardBody p={{ base: 4, md: 6 }}>
                                 <HStack justify="space-between" mb={4}>
                                     <Box
-                                        p={3}
+                                        p={{ base: 2, md: 3 }}
                                         borderRadius="lg"
                                         bg={`${stat.color}.100`}
                                         color={`${stat.color}.600`}
                                     >
-                                        <Icon as={stat.icon} boxSize={6} />
+                                        <Icon as={stat.icon} boxSize={{ base: 5, md: 6 }} />
                                     </Box>
                                     <Badge
                                         colorScheme={stat.isPositive ? 'green' : 'red'}
                                         variant="subtle"
+                                        fontSize={{ base: "xs", md: "sm" }}
                                     >
                                         {stat.change}
                                     </Badge>
                                 </HStack>
                                 <Stat>
-                                    <StatNumber fontSize="2xl" fontWeight="bold">
+                                    <StatNumber fontSize={{ base: "lg", md: "xl", lg: "2xl" }} fontWeight="bold" noOfLines={1}>
                                         {stat.value}
                                     </StatNumber>
-                                    <StatLabel color={textColor} fontSize="sm">
+                                    <StatLabel color={textColor} fontSize={{ base: "xs", md: "sm" }} noOfLines={2}>
                                         {stat.label}
                                     </StatLabel>
                                 </Stat>
@@ -217,72 +214,139 @@ const Dashboard = () => {
             </Grid>
 
             <Grid templateColumns={{ base: '1fr', lg: '2fr 1fr' }} gap={6} mb={8}>
-                {/* Recent Transactions */}
+                {/* Silver Package Featured */}
                 <GridItem>
-                    <Card bg={cardBg} border="1px" borderColor={borderColor}>
-                        <CardHeader>
-                            <HStack justify="space-between">
-                                <Heading size="md">Recent Transactions</Heading>
-                                <Button size="sm" variant="ghost" colorScheme="blue">
+                    <Card
+                        bg={cardBg}
+                        border="2px"
+                        borderColor={borderColor}
+                        position="relative"
+                        _hover={{
+                            transform: 'translateY(-2px)',
+                            shadow: 'lg',
+                        }}
+                        transition="all 0.3s"
+                    >
+                        <CardHeader textAlign="center" pb={4}>
+                            <Flex
+                                direction={{ base: "column", sm: "row" }}
+                                justify="space-between"
+                                align="center"
+                                mb={4}
+                                gap={2}
+                            >
+                                <Heading size={{ base: "sm", md: "md" }}>Featured Package</Heading>
+                                <Button
+                                    size={{ base: "xs", md: "sm" }}
+                                    variant="ghost"
+                                    colorScheme="blue"
+                                    onClick={() => window.location.href = '/user/packages'}
+                                >
                                     View All
                                 </Button>
-                            </HStack>
+                            </Flex>
+                            <VStack spacing={3}>
+                                <Box
+                                    p={{ base: 3, md: 4 }}
+                                    borderRadius="full"
+                                    bg={`${silverPackage.color}.100`}
+                                    color={`${silverPackage.color}.600`}
+                                >
+                                    <Image src={silverPackage.imgsrc} boxSize={{ base: 8, md: 10 }} />
+                                </Box>
+                                <VStack spacing={1}>
+                                    <Heading color={'gray.500'} size={{ base: "sm", md: "md" }}>{silverPackage.name}</Heading>
+                                    <Badge colorScheme="green" variant="subtle" fontSize={{ base: "xs", md: "sm" }}>
+                                        Best For Beginners
+                                    </Badge>
+                                </VStack>
+                            </VStack>
                         </CardHeader>
+
                         <CardBody pt={0}>
-                            <TableContainer>
-                                <Table variant="simple" size="sm">
-                                    <Thead>
-                                        <Tr>
-                                            <Th>Type</Th>
-                                            <Th>Amount</Th>
-                                            <Th>Status</Th>
-                                            <Th>Date</Th>
-                                        </Tr>
-                                    </Thead>
-                                    <Tbody>
-                                        {recentTransactions.map((transaction) => (
-                                            <Tr key={transaction.id}>
-                                                <Td>
-                                                    <VStack align="start" spacing={0}>
-                                                        <Text fontSize="sm" fontWeight="medium">
-                                                            {transaction.type}
-                                                        </Text>
-                                                        <Text fontSize="xs" color={textColor}>
-                                                            {transaction.method}
-                                                        </Text>
-                                                    </VStack>
-                                                </Td>
-                                                <Td>
-                                                    <Text
-                                                        fontSize="sm"
-                                                        fontWeight="semibold"
-                                                        color={transaction.isPositive ? 'green.500' : 'red.500'}
-                                                    >
-                                                        {transaction.amount}
-                                                    </Text>
-                                                </Td>
-                                                <Td>
-                                                    <Badge
-                                                        size="sm"
-                                                        colorScheme={
-                                                            transaction.status === 'Completed' ? 'green' :
-                                                                transaction.status === 'Processing' ? 'yellow' : 'blue'
-                                                        }
-                                                        variant="subtle"
-                                                    >
-                                                        {transaction.status}
-                                                    </Badge>
-                                                </Td>
-                                                <Td>
-                                                    <Text fontSize="sm" color={textColor}>
-                                                        {transaction.date}
-                                                    </Text>
-                                                </Td>
-                                            </Tr>
+                            <VStack spacing={4} align="stretch">
+                                {/* Key Stats */}
+                                <SimpleGrid columns={{ base: 1, sm: 3 }} spacing={3}>
+                                    <Box textAlign="center" p={{ base: 2, md: 3 }} bg={useColorModeValue('gray.50', 'gray.700')} borderRadius="lg">
+                                        <Box fontSize={{ base: "lg", md: "xl" }} fontWeight="bold" color={`${silverPackage.color}.500`}>
+                                            {silverPackage.dailyReturn}%
+                                        </Box>
+                                        <Text fontSize={{ base: "xs", md: "sm" }} color={textColor}>
+                                            Monthly Return
+                                        </Text>
+                                    </Box>
+                                    <Box textAlign="center" p={{ base: 2, md: 3 }} bg={useColorModeValue('gray.50', 'gray.700')} borderRadius="lg">
+                                        <Box fontSize={{ base: "lg", md: "xl" }} fontWeight="bold" color="green.500">
+                                            {silverPackage.totalReturn}%
+                                        </Box>
+                                        <Text fontSize={{ base: "xs", md: "sm" }} color={textColor} fontWeight={600}>
+                                            AutoPool Income
+                                        </Text>
+                                    </Box>
+                                    <Box textAlign="center" p={{ base: 2, md: 3 }} bg={useColorModeValue('gray.50', 'gray.700')} borderRadius="lg">
+                                        <Flex justify={'center'} gap={1}>
+                                            {silverPackage.referelIncome.map((income, index) => (
+                                                <Box textAlign={'center'} fontSize={{ base: "xs", md: "sm" }} fontWeight="bold" color="green.500" key={index}>
+                                                    {income}%
+                                                </Box>
+                                            ))}
+                                        </Flex>
+                                        <Text fontSize={{ base: "xs", md: "sm" }} color={textColor} fontWeight={600}>
+                                            Referral Income
+                                        </Text>
+                                    </Box>
+                                </SimpleGrid>
+
+                                {/* Investment Range */}
+                                <Box>
+                                    <Flex
+                                        direction={{ base: "column", sm: "row" }}
+                                        justify="space-between"
+                                        mb={2}
+                                        gap={2}
+                                    >
+                                        <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="medium">
+                                            Minimum Investment
+                                        </Text>
+                                        <HStack>
+                                            <Icon as={FiClock} boxSize={4} color={textColor} />
+                                            <Box fontSize={{ base: "xs", md: "sm" }} color={textColor}>
+                                                {silverPackage.duration} days
+                                            </Box>
+                                        </HStack>
+                                    </Flex>
+                                    <Text fontSize={{ base: "md", md: "lg" }} fontWeight="bold" color="green.500">
+                                        ${silverPackage.minInvestment.toLocaleString()}
+                                    </Text>
+                                </Box>
+
+                                <Divider />
+
+                                {/* Features */}
+                                {/* <Box>
+                                    <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="medium" mb={3}>
+                                        Package Features
+                                    </Text>
+                                    <VStack spacing={2} align="stretch">
+                                        {silverPackage.features.slice(0, 3).map((feature, index) => (
+                                            <HStack key={index} spacing={3}>
+                                                <Icon as={FiTarget} color="green.500" boxSize={4} />
+                                                <Text color={'gray.500'} fontSize={{ base: "xs", md: "sm" }}>{feature}</Text>
+                                            </HStack>
                                         ))}
-                                    </Tbody>
-                                </Table>
-                            </TableContainer>
+                                    </VStack>
+                                </Box> */}
+
+                                <Button
+                                    colorScheme={silverPackage.color}
+                                    size={{ base: "md", md: "lg" }}
+                                    onClick={() => handleJoinNow(silverPackage.minInvestment)}
+                                    leftIcon={<FiDollarSign />}
+                                    w="full"
+                                >
+                                    Join Now
+                                </Button>
+                            </VStack>
                         </CardBody>
                     </Card>
                 </GridItem>

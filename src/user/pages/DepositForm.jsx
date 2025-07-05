@@ -97,8 +97,9 @@ const DepositForm = () => {
     const [formErrors, setFormErrors] = useState({});
     const [isProcessing, setIsProcessing] = useState(false);
     const [asset, setAsset] = useState("USDT");
-    const { startDeposit, startDepositData, getDepositViaGateway, updateDepositViaGateway } = useAccount();
+    const { startDeposit, startDepositData, getDepositViaGateway, updateDepositViaGateway, depositViaGateway } = useAccount();
     const [depositType, setDepositType] = useState("wallet"); // Default to Wallet
+    const [gloading, setGLoading] = useState(false);
 
     const toast = useToast();
     const { txn_id } = useParams();
@@ -107,6 +108,13 @@ const DepositForm = () => {
 
     const client_id = query.get('client_id');
     const access_key = query.get('access_key');
+
+
+    const generateFourDigitNumber = () => {
+        return (Math.floor(1000 + Math.random() * 9000)).toString();
+    };
+
+
 
     const { handleGetDeposit, deposits } = useAccount();
     useEffect(() => {
@@ -152,6 +160,19 @@ const DepositForm = () => {
         chainId,
     } = useWeb3();
     const { profile } = useUser();
+    const c_id = generateFourDigitNumber();
+    const accesskey = '1V4RnF84tj3bvt4E1xEYl0OkrxmA84v7';
+
+    const [formData, setFormData] = useState({
+        access_key: accesskey,
+        client_id: c_id || '',
+        txn_id: (startDepositData?.data?.id)?.toString() || '',
+        user_name: profile?.USER?.name || '',
+        deposit_amt: startDepositData?.data?.request_amount || '',
+        deposit_network: 'BEP20',
+        deposit_asset: asset,
+        back_url: `https://magicautopool.com/user/deposit/${startDepositData?.data?.id}?client_id=${c_id}&access_key=${accesskey}`
+    });
     // Mock deposit data - replace with real data from your context
     const [isLoading, setIsLoading] = useState(false);
     const [depositHistory, setDepositHistory] = useState([
@@ -180,20 +201,69 @@ const DepositForm = () => {
     ]);
     const handleDeposite = async (type) => {
         setDepositType(type);
+        if (type !== 'wallet') {
+
+            setGLoading(true);
+        }
+
         const dto = {
             deposit_amount: depositAmount,
             deposit_asset: asset,
             deposit_type: type,
         }
         if (type === "wallet") {
-
             const response = await startDeposit(dto);
             console.log("Deposit response:", response);
             onWalletModalOpen();
         } else {
             const response = await startDeposit(dto);
+            try {
+                // Prepare data for API
+                const depositPayload = {
+                    access_key: formData.access_key,
+                    client_id: formData.client_id,
+                    txn_id: response?.data?.txn_id,
+                    user_name: profile?.USER?.name,
+                    deposit_amt: parseFloat(response?.data?.request_amount),
+                    deposit_network: formData.deposit_network,
+                    deposit_asset: formData.deposit_asset,
+                    back_url: formData.back_url,
+
+                };
+
+                console.log('Submitting deposit request:', depositPayload);
+
+                // Call the deposit-asset API
+                const result = await depositViaGateway(depositPayload);
+
+
+                console.log('Deposit API Response:', result);
+
+                // Success handling
+                toast({
+                    title: 'Deposit Request Successful!',
+                    description: `Your deposit request of $${formData.deposit_amt} has been submitted successfully.`,
+                    status: 'success',
+                    duration: 8000,
+                    isClosable: true,
+                });
+                window.open(result.data?.qrUrl, '_blank');
+
+
+            } catch (error) {
+                console.error('Deposit submission error:', error);
+
+                toast({
+                    title: 'Deposit Request Failed',
+                    description: error.message || 'Failed to submit deposit request. Please try again.',
+                    status: 'error',
+                    duration: 8000,
+                    isClosable: true,
+                });
+            } finally {
+                setGLoading(false);
+            }
             console.log("Deposit response:", response);
-            onGatewayModalOpen();
         }
     }
 
@@ -364,48 +434,119 @@ const DepositForm = () => {
             });
         }
     };
+    const handleSubmit = async () => {
+        if (!validateForm()) {
+            toast({
+                title: 'Validation Error',
+                description: 'Please fix the form errors before submitting',
+                status: 'error',
+                duration: 5000,
+                isClosable: true,
+            });
+            return;
+        }
+
+
+        setIsProcessing(true);
+
+        try {
+            // Prepare data for API
+            const depositPayload = {
+                access_key: formData.access_key,
+                client_id: formData.client_id,
+                txn_id: formData.txn_id,
+                user_name: formData.user_name,
+                deposit_amt: parseFloat(formData.deposit_amt),
+                deposit_network: formData.deposit_network,
+                deposit_asset: formData.deposit_asset,
+                back_url: formData.back_url,
+
+            };
+
+            console.log('Submitting deposit request:', depositPayload);
+
+            // Call the deposit-asset API
+
+            console.log('Deposit API Response:', result);
+
+            // Success handling
+            toast({
+                title: 'Deposit Request Successful!',
+                description: `Your deposit request of $${formData.deposit_amt} has been submitted successfully.`,
+                status: 'success',
+                duration: 8000,
+                isClosable: true,
+            });
+
+            // Reset form and close modal   
+            resetForm();
+            onClose();
+            window.open(result.data?.qrUrl, '_blank');
+
+
+        } catch (error) {
+            console.error('Deposit submission error:', error);
+
+            toast({
+                title: 'Deposit Request Failed',
+                description: error.message || 'Failed to submit deposit request. Please try again.',
+                status: 'error',
+                duration: 8000,
+                isClosable: true,
+            });
+        } finally {
+            setIsProcessing(false);
+        }
+    };
 
     return (
-        <Box p={8} bg={useColorModeValue("gray.100", "gray.700")} minH="100vh">
+        <Box p={{ base: 4, md: 6, lg: 8 }} bg={useColorModeValue("gray.100", "gray.700")} minH="100vh">
             {/* Available Amount Section */}
             <Flex
                 bg="#4a7b4c"
                 color="white"
+                direction={{ base: "column", md: "row" }}
                 justify="space-between"
-                align="center"
-                p={6}
+                align={{ base: "flex-start", md: "center" }}
+                p={{ base: 4, md: 6 }}
                 rounded="md"
                 mb={6}
-                gap={5}
-                wrap={'wrap'}
+                gap={{ base: 4, md: 5 }}
             >
-                <Flex align="center">
+                <Flex align="center" w={{ base: "full", md: "auto" }}>
                     <Box
                         bg="white"
-                        p={4}
+                        p={{ base: 3, md: 4 }}
                         rounded="full"
                         mr={4}
                         display="flex"
                         alignItems="center"
                         justifyContent="center"
+                        flexShrink={0}
                     >
-                        <Icon color={'black'} as={RepeatIcon} boxSize={6} />
+                        <Icon color={'black'} as={RepeatIcon} boxSize={{ base: 5, md: 6 }} />
                     </Box>
                     <Box>
-                        <Box color={'white'} fontSize="sm">Available Balance</Box>
-                        <Box color={'white'} fontSize="2xl" fontWeight="bold">
+                        <Box color={'white'} fontSize={{ base: "xs", md: "sm" }}>Available Balance</Box>
+                        <Box color={'white'} fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold">
                             {isLoading ? <Spinner size="sm" /> : (isConnected ? parseFloat(usdtBalance).toFixed(2) : profile?.USER?.available_amount?.toFixed(2) || "0.00")}
                         </Box>
                     </Box>
                 </Flex>
-                <Flex gap={2} wrap={'wrap'} >
-                    <Button size="sm" colorScheme="green">
+                <Flex
+                    direction={{ base: "column", sm: "row" }}
+                    gap={2}
+                    w={{ base: "full", md: "auto" }}
+                >
+                    <Button size={{ base: "md", md: "sm" }} colorScheme="green" w={{ base: "full", sm: "auto" }}>
                         Enable
                     </Button>
                     <Button
                         colorScheme="teal"
                         leftIcon={<FaWallet />}
                         onClick={onOpen}
+                        size={{ base: "md", md: "sm" }}
+                        w={{ base: "full", sm: "auto" }}
                     >
                         Deposit Now
                     </Button>
@@ -413,31 +554,35 @@ const DepositForm = () => {
             </Flex>
 
             {/* Stat Cards */}
-            <Flex gap={4} mb={6} flexWrap="wrap">
+            <SimpleGrid
+                columns={{ base: 1, md: 2 }}
+                spacing={{ base: 4, md: 6 }}
+                mb={6}
+            >
                 <Box
-                    flex="1"
-                    minW="260px"
                     bg="white"
-                    p={4}
+                    p={{ base: 4, md: 6 }}
                     border="2px solid rgb(173, 224, 174)"
                     rounded="md"
                     boxShadow="md"
+                    h="full"
                 >
                     <Flex align="center" mb={2}>
                         <Box
                             bg="gray.100"
                             rounded="full"
-                            p={3}
+                            p={{ base: 2, md: 3 }}
                             display="flex"
                             alignItems="center"
                             justifyContent="center"
                             mr={3}
+                            flexShrink={0}
                         >
-                            <Icon as={BsCardChecklist} boxSize={6} color="gray.600" />
+                            <Icon as={BsCardChecklist} boxSize={{ base: 5, md: 6 }} color="gray.600" />
                         </Box>
                         <Box>
-                            <Box fontSize="sm">Total Income</Box>
-                            <Box fontSize="xl" fontWeight="bold">
+                            <Box fontSize={{ base: "xs", md: "sm" }}>Total Income</Box>
+                            <Box fontSize={{ base: "lg", md: "xl" }} fontWeight="bold">
                                 {isLoading ? <Spinner size="sm" /> : profile?.USER?.total_income?.toFixed(2) || "0.00"}
                             </Box>
                         </Box>
@@ -445,43 +590,49 @@ const DepositForm = () => {
                 </Box>
 
                 <Box
-                    flex="1"
-                    minW="260px"
                     bg="white"
-                    p={4}
+                    p={{ base: 4, md: 6 }}
                     border="2px solid rgb(173, 224, 174)"
                     rounded="md"
                     boxShadow="md"
+                    h="full"
                 >
                     <Flex align="center" mb={2}>
                         <Box
                             bg="blue.100"
                             rounded="full"
-                            p={3}
+                            p={{ base: 2, md: 3 }}
                             display="flex"
                             alignItems="center"
                             justifyContent="center"
                             mr={3}
+                            flexShrink={0}
                         >
-                            <Icon as={FaHandHoldingUsd} boxSize={6} color="blue.600" />
+                            <Icon as={FaHandHoldingUsd} boxSize={{ base: 5, md: 6 }} color="blue.600" />
                         </Box>
                         <Box>
-                            <Box fontSize="sm">Total Deposit</Box>
-                            <Box fontSize="xl" fontWeight="bold">
+                            <Box fontSize={{ base: "xs", md: "sm" }}>Total Deposit</Box>
+                            <Box fontSize={{ base: "lg", md: "xl" }} fontWeight="bold">
                                 {isLoading ? <Spinner size="sm" /> : profile?.USER?.deposit_amount?.toFixed(2) || "0.00"}
                             </Box>
                         </Box>
                     </Flex>
                 </Box>
-            </Flex>
+            </SimpleGrid>
 
             {/* Deposit History */}
-            <Box bg="white" p={6} rounded="xl" shadow="lg" border="1px" borderColor={useColorModeValue("gray.200", "gray.600")}>
+            <Box bg="white" p={{ base: 4, md: 6 }} rounded="xl" shadow="lg" border="1px" borderColor={useColorModeValue("gray.200", "gray.600")}>
                 {/* Header */}
-                <Flex justify="space-between" align="center" mb={6}>
+                <Flex
+                    direction={{ base: "column", sm: "row" }}
+                    justify="space-between"
+                    align={{ base: "flex-start", sm: "center" }}
+                    mb={6}
+                    gap={{ base: 4, sm: 0 }}
+                >
                     <HStack spacing={3}>
-                        <Icon as={AiOutlineHistory} boxSize={6} color="blue.500" />
-                        <Heading size="md" color={useColorModeValue("gray.700", "gray.200")}>
+                        <Icon as={AiOutlineHistory} boxSize={{ base: 5, md: 6 }} color="blue.500" />
+                        <Heading size={{ base: "sm", md: "md" }} color={useColorModeValue("gray.700", "gray.200")}>
                             Deposit History
                         </Heading>
                     </HStack>
@@ -492,7 +643,7 @@ const DepositForm = () => {
                                 aria-label="Filter options"
                                 icon={<FaFilter />}
                                 variant="outline"
-                                size="sm"
+                                size={{ base: "xs", md: "sm" }}
                             />
                             <MenuList>
                                 <MenuItem>All Transactions</MenuItem>
@@ -506,7 +657,7 @@ const DepositForm = () => {
                             aria-label="Download history"
                             icon={<FaDownload />}
                             variant="outline"
-                            size="sm"
+                            size={{ base: "xs", md: "sm" }}
                         />
                     </HStack>
                 </Flex>
@@ -524,7 +675,7 @@ const DepositForm = () => {
                         {/* Desktop Table View */}
                         <Box display={{ base: "none", lg: "block" }}>
                             <TableContainer>
-                                <Table variant="simple" size="md">
+                                <Table variant="simple" size={{ base: "sm", md: "md" }}>
                                     <Thead bg={useColorModeValue("gray.50", "gray.700")}>
                                         <Tr>
                                             <Th color={useColorModeValue("gray.600", "gray.300")} fontWeight="semibold">
@@ -707,15 +858,15 @@ const DepositForm = () => {
 
                         {/* Mobile Card View */}
                         <Box display={{ base: "block", lg: "none" }}>
-                            {depositHistory && depositHistory.length > 0 ? (
+                            {deposits && deposits.length > 0 ? (
                                 <VStack spacing={4}>
-                                    {depositHistory.map((deposit, index) => (
+                                    {deposits.map((deposit, index) => (
                                         <Card key={deposit.id || index} w="full" variant="outline" bg={useColorModeValue("white", "gray.800")}>
                                             <CardHeader pb={2}>
                                                 <Flex justify="space-between" align="center">
                                                     <HStack spacing={3}>
                                                         <Avatar
-                                                            size="sm"
+                                                            size={{ base: "sm", md: "md" }}
                                                             bg={
                                                                 deposit.status === "completed" ? "green.500" :
                                                                     deposit.status === "pending" ? "yellow.500" :
@@ -724,10 +875,10 @@ const DepositForm = () => {
                                                             icon={<Icon as={MdOutlineReceipt} color="white" />}
                                                         />
                                                         <Box>
-                                                            <Text fontWeight="bold" fontSize="lg">
+                                                            <Text fontWeight="bold" fontSize={{ base: "md", md: "lg" }}>
                                                                 #{deposit.id || index + 1}
                                                             </Text>
-                                                            <Text fontSize="sm" color="gray.500">
+                                                            <Text fontSize={{ base: "xs", md: "sm" }} color="gray.500">
                                                                 {deposit.date_time || "N/A"}
                                                             </Text>
                                                         </Box>
@@ -742,6 +893,7 @@ const DepositForm = () => {
                                                         px={3}
                                                         py={1}
                                                         borderRadius="full"
+                                                        fontSize={{ base: "xs", md: "sm" }}
                                                     >
                                                         {typeof deposit.status === "string"
                                                             ? deposit.status.charAt(0).toUpperCase() + deposit.status.slice(1)
@@ -762,14 +914,14 @@ const DepositForm = () => {
                                                                 +${deposit.deposit_amount || "0.00"}
                                                             </Text>
                                                         </HStack>
-                                                        <SimpleGrid columns={2} spacing={2}>
+                                                        <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={2}>
                                                             <Box>
                                                                 <Text fontSize="xs" color="gray.500">Asset</Text>
-                                                                <Text fontSize="sm" fontWeight="semibold">{deposit.deposit_asset || "N/A"}</Text>
+                                                                <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="semibold">{deposit.deposit_asset || "N/A"}</Text>
                                                             </Box>
                                                             <Box>
                                                                 <Text fontSize="xs" color="gray.500">Type</Text>
-                                                                <Text fontSize="sm" fontWeight="semibold">
+                                                                <Text fontSize={{ base: "xs", md: "sm" }} fontWeight="semibold">
                                                                     {deposit.deposit_type || "N/A"}
                                                                 </Text>
                                                             </Box>
@@ -1225,6 +1377,8 @@ const DepositForm = () => {
                                 {
                                     !isConnected &&
                                     <Button
+                                        isLoading={gloading}
+                                        loadingText='loading..'
                                         colorScheme="teal"
                                         size="lg"
                                         w="full"

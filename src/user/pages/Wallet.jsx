@@ -32,6 +32,7 @@ import {
     AlertTitle,
     AlertDescription,
     IconButton,
+    Flex,
 } from '@chakra-ui/react';
 import {
     FiTrendingUp,
@@ -111,7 +112,7 @@ const Wallet = () => {
             icon: AiFillWallet,
             color: 'red',
         },
-          {
+        {
             label: 'Available Amount',
             value: userData?.available_amount,
             change: '+11.2%',
@@ -119,7 +120,7 @@ const Wallet = () => {
             icon: AiOutlineBank,
             color: 'red',
         },
-          {
+        {
             label: 'Map Point',
             value: '0',
             change: '+11.2%',
@@ -207,31 +208,53 @@ const Wallet = () => {
     ];
 
     return (
-        <Box>
-            <HStack justify="space-between" mb={6}>
-                <Heading size="lg">Wallet</Heading>
-                <HStack spacing={3}>
+        <Box p={{ base: 4, md: 6 }}>
+            <Flex
+                direction={{ base: "column", md: "row" }}
+                justify="space-between"
+                align={{ base: "start", md: "center" }}
+                mb={6}
+                gap={4}
+            >
+                <Heading size={{ base: "md", md: "lg" }}>Wallet</Heading>
+                <Flex
+                    direction={{ base: "column", sm: "row" }}
+                    gap={3}
+                    w={{ base: "full", md: "auto" }}
+                >
                     <Button
                         leftIcon={<FiArrowUpRight />}
                         colorScheme="green"
-                        size="sm"
+                        size={{ base: "md", md: "sm" }}
                         onClick={() => navigate('/user/deposit')}
+                        w={{ base: "full", sm: "auto" }}
                     >
                         Deposit
                     </Button>
                     <Button
                         leftIcon={<FiArrowDownRight />}
                         colorScheme="blue"
-                        size="sm"
+                        size={{ base: "md", md: "sm" }}
                         onClick={() => navigate('/user/Withdraw')}
+                        w={{ base: "full", sm: "auto" }}
                     >
                         Withdraw
                     </Button>
-                </HStack>
-            </HStack>
+                </Flex>
+            </Flex>
 
             {/* Wallet Stats */}
-            <Grid templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }} gap={6} mb={8}>
+            <Grid
+                templateColumns={{
+                    base: '1fr',
+                    sm: 'repeat(2, 1fr)',
+                    md: 'repeat(2, 1fr)',
+                    lg: 'repeat(3, 1fr)',
+                    xl: 'repeat(4, 1fr)'
+                }}
+                gap={{ base: 4, md: 6 }}
+                mb={8}
+            >
                 {walletStats.map((stat, index) => (
                     <GridItem key={index}>
                         <Card
@@ -269,30 +292,36 @@ const Wallet = () => {
                                         break;
                                 }
                             }}
+                            h="full"
                         >
-                            <CardBody display={'flex'} gap={10}>
-                                <HStack justify="space-between" mb={4}>
-                                    <Box
-                                        p={3}
-                                        borderRadius="lg"
-                                        bg={`${stat.color}.100`}
-                                        color={`${stat.color}.600`}
+                            <CardBody
+                                display="flex"
+                                flexDirection={{ base: "column", sm: "row" }}
+                                gap={{ base: 4, sm: 6, md: 10 }}
+                                p={{ base: 4, md: 6 }}
+                            >
+                                <Box
+                                    p={{ base: 2, md: 3 }}
+                                    borderRadius="lg"
+                                    bg={`${stat.color}.100`}
+                                    color={`${stat.color}.600`}
+                                    alignSelf={{ base: "flex-start", sm: "center" }}
+                                >
+                                    <Icon as={stat.icon} boxSize={{ base: 5, md: 6 }} />
+                                </Box>
+                                <Stat flex="1">
+                                    <StatNumber
+                                        fontSize={{ base: "lg", md: "xl", lg: "2xl" }}
+                                        fontWeight="bold"
+                                        noOfLines={1}
                                     >
-                                        <Icon as={stat.icon} boxSize={6} />
-                                    </Box>
-                                    {/* <IconButton
-                                        size="sm"
-                                        variant="ghost"
-                                        icon={showBalance ? <FiEye /> : <FiEyeOff />}
-                                        onClick={() => setShowBalance(!showBalance)}
-                                        aria-label="Toggle balance visibility"
-                                    /> */}
-                                </HStack>
-                                <Stat>
-                                    <StatNumber fontSize="2xl" fontWeight="bold">
                                         {showBalance ? `$${stat?.value?.toLocaleString()}` : '****'}
                                     </StatNumber>
-                                    <StatLabel color={textColor} fontSize="sm">
+                                    <StatLabel
+                                        color={textColor}
+                                        fontSize={{ base: "xs", md: "sm" }}
+                                        noOfLines={2}
+                                    >
                                         {stat.label}
                                     </StatLabel>
                                     {/* <StatHelpText>
@@ -307,8 +336,8 @@ const Wallet = () => {
             </Grid>
 
             {/* <Grid templateColumns={{ base: '1fr', lg: '1fr' }} gap={6}> */}
-                {/* Transaction History */}
-                {/* <GridItem>
+            {/* Transaction History */}
+            {/* <GridItem>
                     <Card bg={cardBg} border="1px" borderColor={borderColor}>
                         <CardHeader>
                             <HStack justify="space-between">

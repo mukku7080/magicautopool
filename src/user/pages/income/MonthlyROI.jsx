@@ -316,7 +316,7 @@ const MonthlyROI = () => {
                                             monthlyROIHistory.map((item, index) => (
 
 
-                                                <Tr>
+                                                <Tr key={index}>
                                                     <Td>
                                                         <Text fontWeight="semibold" color={textColor}>
                                                             {formatCurrency(item?.stake_amount)}

@@ -35,7 +35,7 @@ const UserHeader = ({ onOpen, user }) => {
     const borderColor = useColorModeValue('gray.200', 'gray.700');
     const textColor = useColorModeValue('gray.700', 'gray.200');
     const { profile } = useUser();
-    const account_blc=profile?.USER?.available_amount;
+    const account_blc = profile?.USER?.available_amount;
 
 
     const handleLogout = async () => {
@@ -116,7 +116,7 @@ const UserHeader = ({ onOpen, user }) => {
                     color="blue.500"
                     isTruncated
                 >
-                    NessanForex
+                    MagicAutoPool
                 </Box>
             </HStack>
 
